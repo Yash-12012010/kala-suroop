@@ -1,244 +1,169 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Clock, Calendar } from 'lucide-react';
 
 const Timetable = () => {
-  const [selectedDay, setSelectedDay] = useState('');
-
   const timeSlots = [
-    '9:00 AM', '10:00 AM', '11:00 AM', '12:00 PM', 
-    '1:00 PM', '2:00 PM', '3:00 PM', '4:00 PM', '5:00 PM'
+    '09:00 AM', '10:00 AM', '11:00 AM', '12:00 PM', 
+    '02:00 PM', '03:00 PM', '04:00 PM', '05:00 PM'
   ];
 
-  const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
   const schedule = {
     'Monday': {
-      '9:00 AM': { subject: 'Mathematics', teacher: 'Dr. Sharma', class: 'Class 10', type: 'Live' },
-      '11:00 AM': { subject: 'Physics', teacher: 'Prof. Gupta', class: 'Class 11', type: 'Live' },
-      '2:00 PM': { subject: 'Chemistry', teacher: 'Ms. Patel', class: 'Class 9', type: 'Recorded' },
-      '4:00 PM': { subject: 'Biology', teacher: 'Dr. Singh', class: 'Class 10', type: 'Live' }
+      '09:00 AM': { subject: 'Mathematics', class: 'Class 10', teacher: 'Mr. Kumar' },
+      '11:00 AM': { subject: 'Physics', class: 'Class 11', teacher: 'Dr. Sharma' },
+      '03:00 PM': { subject: 'Chemistry', class: 'Class 9', teacher: 'Ms. Patel' },
     },
     'Tuesday': {
-      '10:00 AM': { subject: 'English', teacher: 'Ms. Verma', class: 'Class 11', type: 'Live' },
-      '12:00 PM': { subject: 'Mathematics', teacher: 'Dr. Sharma', class: 'Class 9', type: 'Live' },
-      '3:00 PM': { subject: 'Physics', teacher: 'Prof. Gupta', class: 'Class 10', type: 'Recorded' },
-      '5:00 PM': { subject: 'Chemistry', teacher: 'Ms. Patel', class: 'Class 11', type: 'Live' }
+      '10:00 AM': { subject: 'English', class: 'Class 10', teacher: 'Mrs. Singh' },
+      '02:00 PM': { subject: 'Biology', class: 'Class 11', teacher: 'Dr. Verma' },
+      '04:00 PM': { subject: 'Mathematics', class: 'Class 9', teacher: 'Mr. Kumar' },
     },
     'Wednesday': {
-      '9:00 AM': { subject: 'Biology', teacher: 'Dr. Singh', class: 'Class 11', type: 'Live' },
-      '11:00 AM': { subject: 'Mathematics', teacher: 'Dr. Sharma', class: 'Class 10', type: 'Live' },
-      '1:00 PM': { subject: 'English', teacher: 'Ms. Verma', class: 'Class 9', type: 'Live' },
-      '4:00 PM': { subject: 'Physics', teacher: 'Prof. Gupta', class: 'Class 11', type: 'Recorded' }
+      '09:00 AM': { subject: 'Chemistry', class: 'Class 11', teacher: 'Ms. Patel' },
+      '11:00 AM': { subject: 'Physics', class: 'Class 10', teacher: 'Dr. Sharma' },
+      '03:00 PM': { subject: 'English', class: 'Class 9', teacher: 'Mrs. Singh' },
     },
     'Thursday': {
-      '10:00 AM': { subject: 'Chemistry', teacher: 'Ms. Patel', class: 'Class 10', type: 'Live' },
-      '12:00 PM': { subject: 'Biology', teacher: 'Dr. Singh', class: 'Class 9', type: 'Live' },
-      '2:00 PM': { subject: 'Mathematics', teacher: 'Dr. Sharma', class: 'Class 11', type: 'Live' },
-      '5:00 PM': { subject: 'English', teacher: 'Ms. Verma', class: 'Class 10', type: 'Recorded' }
+      '10:00 AM': { subject: 'Mathematics', class: 'Class 11', teacher: 'Mr. Kumar' },
+      '12:00 PM': { subject: 'Biology', class: 'Class 10', teacher: 'Dr. Verma' },
+      '04:00 PM': { subject: 'Physics', class: 'Class 9', teacher: 'Dr. Sharma' },
     },
     'Friday': {
-      '9:00 AM': { subject: 'Physics', teacher: 'Prof. Gupta', class: 'Class 9', type: 'Live' },
-      '11:00 AM': { subject: 'Chemistry', teacher: 'Ms. Patel', class: 'Class 11', type: 'Live' },
-      '1:00 PM': { subject: 'Biology', teacher: 'Dr. Singh', class: 'Class 10', type: 'Live' },
-      '3:00 PM': { subject: 'Mathematics', teacher: 'Dr. Sharma', class: 'Class 10', type: 'Recorded' }
+      '09:00 AM': { subject: 'English', class: 'Class 11', teacher: 'Mrs. Singh' },
+      '11:00 AM': { subject: 'Chemistry', class: 'Class 10', teacher: 'Ms. Patel' },
+      '02:00 PM': { subject: 'Mathematics', class: 'Class 9', teacher: 'Mr. Kumar' },
     },
     'Saturday': {
-      '10:00 AM': { subject: 'English', teacher: 'Ms. Verma', class: 'Class 9', type: 'Live' },
-      '12:00 PM': { subject: 'Physics', teacher: 'Prof. Gupta', class: 'Class 10', type: 'Live' },
-      '2:00 PM': { subject: 'Chemistry', teacher: 'Ms. Patel', class: 'Class 11', type: 'Live' },
-      '4:00 PM': { subject: 'Biology', teacher: 'Dr. Singh', class: 'Class 11', type: 'Recorded' }
+      '10:00 AM': { subject: 'Doubt Session', class: 'All Classes', teacher: 'All Teachers' },
+      '02:00 PM': { subject: 'Test Series', class: 'Class 10', teacher: 'Academic Team' },
+    },
+    'Sunday': {
+      '11:00 AM': { subject: 'Revision Class', class: 'Class 11', teacher: 'All Teachers' },
     }
   };
 
-  const getClassColor = (className: string) => {
-    switch (className) {
-      case 'Class 9': return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200';
-      case 'Class 10': return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
-      case 'Class 11': return 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200';
-      default: return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200';
-    }
-  };
-
-  const getTypeColor = (type: string) => {
-    return type === 'Live' 
-      ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
-      : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200';
+  const getSubjectColor = (subject: string) => {
+    const colors = {
+      'Mathematics': 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
+      'Physics': 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200',
+      'Chemistry': 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
+      'Biology': 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
+      'English': 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200',
+      'Doubt Session': 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200',
+      'Test Series': 'bg-pink-100 text-pink-800 dark:bg-pink-900 dark:text-pink-200',
+      'Revision Class': 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200',
+    };
+    return colors[subject] || 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200';
   };
 
   return (
     <div className="pt-20 pb-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header */}
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
-            Weekly Timetable
+            Class Timetable
           </h1>
           <p className="text-lg text-gray-600 dark:text-gray-300">
-            Your complete schedule for live and recorded sessions
+            Weekly schedule for live classes and sessions
           </p>
         </div>
 
-        {/* Mobile View - Day Selector */}
-        <div className="lg:hidden mb-6">
-          <div className="grid grid-cols-3 gap-2">
-            {days.map((day) => (
-              <button
-                key={day}
-                onClick={() => setSelectedDay(selectedDay === day ? '' : day)}
-                className={`p-3 rounded-lg text-sm font-medium transition-colors ${
-                  selectedDay === day
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
-                }`}
-              >
-                {day.slice(0, 3)}
-              </button>
-            ))}
+        <div className="overflow-x-auto">
+          <div className="min-w-full">
+            <Card>
+              <CardHeader>
+                <CardTitle>Weekly Schedule</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-8 gap-2">
+                  {/* Header */}
+                  <div className="font-semibold text-center py-2">Time</div>
+                  {days.map(day => (
+                    <div key={day} className="font-semibold text-center py-2">
+                      {day}
+                    </div>
+                  ))}
+
+                  {/* Time slots and classes */}
+                  {timeSlots.map(time => (
+                    <React.Fragment key={time}>
+                      <div className="text-sm font-medium text-center py-4 border-r">
+                        {time}
+                      </div>
+                      {days.map(day => {
+                        const classInfo = schedule[day]?.[time];
+                        return (
+                          <div key={`${day}-${time}`} className="p-2 min-h-[80px] border">
+                            {classInfo ? (
+                              <div className={`p-2 rounded-lg h-full ${getSubjectColor(classInfo.subject)}`}>
+                                <div className="font-semibold text-xs mb-1">
+                                  {classInfo.subject}
+                                </div>
+                                <div className="text-xs opacity-90">
+                                  {classInfo.class}
+                                </div>
+                                <div className="text-xs opacity-75 mt-1">
+                                  {classInfo.teacher}
+                                </div>
+                              </div>
+                            ) : (
+                              <div className="h-full flex items-center justify-center text-muted-foreground text-xs">
+                                -
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </React.Fragment>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </div>
 
-        {/* Desktop View - Full Schedule Grid */}
-        <div className="hidden lg:block">
+        <div className="mt-8 grid md:grid-cols-2 gap-6">
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center space-x-2">
-                <Calendar className="h-5 w-5" />
-                <span>Weekly Schedule</span>
-              </CardTitle>
+              <CardTitle>Important Notes</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              <p className="text-sm text-muted-foreground">
+                • Live classes are conducted via video conferencing
+              </p>
+              <p className="text-sm text-muted-foreground">
+                • Recordings are available for 24 hours after the session
+              </p>
+              <p className="text-sm text-muted-foreground">
+                • Doubt sessions are interactive Q&A sessions
+              </p>
+              <p className="text-sm text-muted-foreground">
+                • Test series includes practice tests and mock exams
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Subject Legend</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="overflow-x-auto">
-                <table className="w-full border-collapse">
-                  <thead>
-                    <tr>
-                      <th className="p-3 text-left text-sm font-medium text-muted-foreground border-b">
-                        Time
-                      </th>
-                      {days.map((day) => (
-                        <th key={day} className="p-3 text-center text-sm font-medium text-muted-foreground border-b">
-                          {day}
-                        </th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {timeSlots.map((time) => (
-                      <tr key={time} className="border-b">
-                        <td className="p-3 text-sm font-medium text-gray-900 dark:text-white">
-                          {time}
-                        </td>
-                        {days.map((day) => {
-                          const session = schedule[day]?.[time];
-                          return (
-                            <td key={`${day}-${time}`} className="p-2">
-                              {session ? (
-                                <div className="group relative">
-                                  <div className="p-3 rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow cursor-pointer">
-                                    <div className="text-sm font-medium text-gray-900 dark:text-white mb-1">
-                                      {session.subject}
-                                    </div>
-                                    <div className="text-xs text-muted-foreground mb-2">
-                                      {session.teacher}
-                                    </div>
-                                    <div className="flex flex-wrap gap-1">
-                                      <Badge variant="secondary" className={getClassColor(session.class)}>
-                                        {session.class}
-                                      </Badge>
-                                      <Badge variant="secondary" className={getTypeColor(session.type)}>
-                                        {session.type}
-                                      </Badge>
-                                    </div>
-                                  </div>
-                                  
-                                  {/* Tooltip */}
-                                  <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity z-10 whitespace-nowrap">
-                                    Click to join {session.type.toLowerCase()} session
-                                  </div>
-                                </div>
-                              ) : (
-                                <div className="h-20"></div>
-                              )}
-                            </td>
-                          );
-                        })}
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+              <div className="grid grid-cols-2 gap-2">
+                {Object.keys({
+                  'Mathematics': '', 'Physics': '', 'Chemistry': '', 'Biology': '',
+                  'English': '', 'Doubt Session': '', 'Test Series': '', 'Revision Class': ''
+                }).map(subject => (
+                  <Badge key={subject} className={getSubjectColor(subject)}>
+                    {subject}
+                  </Badge>
+                ))}
               </div>
             </CardContent>
           </Card>
-        </div>
-
-        {/* Mobile View - Selected Day Schedule */}
-        <div className="lg:hidden">
-          {selectedDay ? (
-            <div className="space-y-4">
-              <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
-                {selectedDay} Schedule
-              </h2>
-              {timeSlots.map((time) => {
-                const session = schedule[selectedDay]?.[time];
-                return session ? (
-                  <Card key={time} className="hover:shadow-md transition-shadow">
-                    <CardContent className="p-4">
-                      <div className="flex items-start justify-between mb-3">
-                        <div className="flex items-center space-x-2">
-                          <Clock className="h-4 w-4 text-muted-foreground" />
-                          <span className="text-sm font-medium">{time}</span>
-                        </div>
-                        <Badge variant="secondary" className={getTypeColor(session.type)}>
-                          {session.type}
-                        </Badge>
-                      </div>
-                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-1">
-                        {session.subject}
-                      </h3>
-                      <p className="text-sm text-muted-foreground mb-3">
-                        by {session.teacher}
-                      </p>
-                      <Badge variant="secondary" className={getClassColor(session.class)}>
-                        {session.class}
-                      </Badge>
-                    </CardContent>
-                  </Card>
-                ) : null;
-              })}
-            </div>
-          ) : (
-            <div className="text-center py-12">
-              <div className="text-6xl mb-4">📅</div>
-              <h3 className="text-xl font-semibold mb-2">Select a day to view schedule</h3>
-              <p className="text-muted-foreground">Choose a day from above to see your classes</p>
-            </div>
-          )}
-        </div>
-
-        {/* Legend */}
-        <div className="mt-8 flex flex-wrap gap-4 justify-center">
-          <div className="flex items-center space-x-2">
-            <div className="w-4 h-4 bg-red-100 dark:bg-red-900 rounded"></div>
-            <span className="text-sm text-muted-foreground">Live Session</span>
-          </div>
-          <div className="flex items-center space-x-2">
-            <div className="w-4 h-4 bg-yellow-100 dark:bg-yellow-900 rounded"></div>
-            <span className="text-sm text-muted-foreground">Recorded Session</span>
-          </div>
-          <div className="flex items-center space-x-2">
-            <div className="w-4 h-4 bg-blue-100 dark:bg-blue-900 rounded"></div>
-            <span className="text-sm text-muted-foreground">Class 9</span>
-          </div>
-          <div className="flex items-center space-x-2">
-            <div className="w-4 h-4 bg-green-100 dark:bg-green-900 rounded"></div>
-            <span className="text-sm text-muted-foreground">Class 10</span>
-          </div>
-          <div className="flex items-center space-x-2">
-            <div className="w-4 h-4 bg-purple-100 dark:bg-purple-900 rounded"></div>
-            <span className="text-sm text-muted-foreground">Class 11</span>
-          </div>
         </div>
       </div>
     </div>

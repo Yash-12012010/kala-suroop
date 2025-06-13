@@ -5,113 +5,128 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { 
-  BookOpen, 
-  Video, 
-  FileText, 
-  Award, 
-  Clock, 
-  Calendar,
-  Play,
-  Download,
-  CheckCircle
-} from 'lucide-react';
+import { BookOpen, Play, FileText, Calendar, Trophy, Clock } from 'lucide-react';
 
 const Dashboard = () => {
   const { user } = useAuth();
 
   const enrolledCourses = [
     {
-      id: 'math-class-10',
-      title: 'Advanced Mathematics',
+      id: 1,
+      title: 'Mathematics Complete Course',
       class: 'Class 10',
       progress: 75,
-      totalLessons: 48,
-      completedLessons: 36,
-      nextLesson: 'Quadratic Equations - Part 3',
-      instructor: 'Dr. Sharma',
-      image: 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=400&h=200&fit=crop'
+      totalLessons: 40,
+      completedLessons: 30,
+      nextLesson: 'Quadratic Equations'
     },
     {
-      id: 'physics-class-11',
-      title: 'Physics Complete',
+      id: 2,
+      title: 'Physics Master Class',
       class: 'Class 11',
       progress: 45,
-      totalLessons: 52,
-      completedLessons: 23,
-      nextLesson: 'Laws of Motion - Newton\'s Second Law',
-      instructor: 'Prof. Gupta',
-      image: 'https://images.unsplash.com/photo-1636953056323-9c09fdd74fa6?w=400&h=200&fit=crop'
+      totalLessons: 35,
+      completedLessons: 16,
+      nextLesson: 'Laws of Motion'
     }
   ];
 
   const upcomingClasses = [
     {
+      id: 1,
       subject: 'Mathematics',
-      time: '10:00 AM',
+      time: '09:00 AM',
       date: 'Today',
-      teacher: 'Dr. Sharma',
-      type: 'Live'
+      teacher: 'Mr. Kumar'
     },
     {
+      id: 2,
       subject: 'Physics',
-      time: '2:00 PM',
-      date: 'Tomorrow',
-      teacher: 'Prof. Gupta',
-      type: 'Live'
-    },
-    {
-      subject: 'Chemistry',
       time: '11:00 AM',
-      date: 'Jun 15',
-      teacher: 'Ms. Patel',
-      type: 'Recorded'
+      date: 'Tomorrow',
+      teacher: 'Dr. Sharma'
     }
   ];
 
-  const achievements = [
-    { title: 'First Course Completed', icon: Award, color: 'text-yellow-500' },
-    { title: '7-Day Streak', icon: CheckCircle, color: 'text-green-500' },
-    { title: 'Quiz Master', icon: BookOpen, color: 'text-blue-500' }
-  ];
-
-  const stats = [
-    { title: 'Courses Enrolled', value: '2', icon: BookOpen, color: 'bg-blue-500' },
-    { title: 'Hours Learned', value: '156', icon: Clock, color: 'bg-green-500' },
-    { title: 'Certificates', value: '1', icon: Award, color: 'bg-yellow-500' },
-    { title: 'Assignments', value: '12', icon: FileText, color: 'bg-purple-500' }
+  const recentTests = [
+    {
+      id: 1,
+      title: 'Mathematics Chapter 5 Test',
+      score: 85,
+      maxScore: 100,
+      date: '2024-01-10'
+    },
+    {
+      id: 2,
+      title: 'Physics Mock Test 1',
+      score: 78,
+      maxScore: 100,
+      date: '2024-01-08'
+    }
   ];
 
   return (
     <div className="pt-20 pb-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Welcome Header */}
+        {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-            Welcome back, {user?.name}! 👋
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+            Welcome back, {user?.name || 'Student'}! 👋
           </h1>
-          <p className="text-lg text-muted-foreground">
-            Continue your learning journey and achieve your goals
+          <p className="text-gray-600 dark:text-gray-300 mt-2">
+            Continue your learning journey
           </p>
         </div>
 
-        {/* Stats Grid */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-          {stats.map((stat, index) => (
-            <Card key={index}>
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-muted-foreground">{stat.title}</p>
-                    <p className="text-2xl font-bold">{stat.value}</p>
-                  </div>
-                  <div className={`p-3 rounded-lg ${stat.color}`}>
-                    <stat.icon className="h-6 w-6 text-white" />
-                  </div>
+        {/* Stats Cards */}
+        <div className="grid md:grid-cols-4 gap-6 mb-8">
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-muted-foreground">Enrolled Courses</p>
+                  <p className="text-2xl font-bold">{enrolledCourses.length}</p>
                 </div>
-              </CardContent>
-            </Card>
-          ))}
+                <BookOpen className="h-8 w-8 text-blue-600" />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-muted-foreground">Hours Learned</p>
+                  <p className="text-2xl font-bold">124</p>
+                </div>
+                <Clock className="h-8 w-8 text-green-600" />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-muted-foreground">Tests Taken</p>
+                  <p className="text-2xl font-bold">{recentTests.length}</p>
+                </div>
+                <FileText className="h-8 w-8 text-purple-600" />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-muted-foreground">Average Score</p>
+                  <p className="text-2xl font-bold">82%</p>
+                </div>
+                <Trophy className="h-8 w-8 text-orange-600" />
+              </div>
+            </CardContent>
+          </Card>
         </div>
 
         <div className="grid lg:grid-cols-3 gap-8">
@@ -119,55 +134,37 @@ const Dashboard = () => {
           <div className="lg:col-span-2">
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <BookOpen className="h-5 w-5" />
-                  <span>My Courses</span>
-                </CardTitle>
+                <CardTitle>Your Courses</CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
                 {enrolledCourses.map((course) => (
-                  <div key={course.id} className="border rounded-lg p-4 hover:shadow-md transition-shadow">
-                    <div className="flex items-start space-x-4">
-                      <img 
-                        src={course.image} 
-                        alt={course.title}
-                        className="w-20 h-20 rounded-lg object-cover"
-                      />
-                      <div className="flex-1">
-                        <div className="flex items-start justify-between mb-2">
-                          <div>
-                            <h3 className="font-semibold text-lg">{course.title}</h3>
-                            <p className="text-sm text-muted-foreground">by {course.instructor}</p>
-                            <Badge variant="secondary" className="mt-1">
-                              {course.class}
-                            </Badge>
-                          </div>
-                        </div>
-                        
-                        <div className="mb-3">
-                          <div className="flex items-center justify-between text-sm text-muted-foreground mb-1">
-                            <span>Progress</span>
-                            <span>{course.completedLessons}/{course.totalLessons} lessons</span>
-                          </div>
-                          <Progress value={course.progress} className="h-2" />
-                        </div>
-
-                        <div className="flex items-center justify-between">
-                          <p className="text-sm text-muted-foreground">
-                            Next: {course.nextLesson}
-                          </p>
-                          <div className="flex space-x-2">
-                            <Button size="sm" variant="outline">
-                              <FileText className="h-4 w-4 mr-1" />
-                              Notes
-                            </Button>
-                            <Button size="sm">
-                              <Play className="h-4 w-4 mr-1" />
-                              Continue
-                            </Button>
-                          </div>
-                        </div>
+                  <div key={course.id} className="border rounded-lg p-4">
+                    <div className="flex items-start justify-between mb-3">
+                      <div>
+                        <h3 className="font-semibold">{course.title}</h3>
+                        <Badge variant="secondary">{course.class}</Badge>
                       </div>
+                      <span className="text-sm text-muted-foreground">
+                        {course.progress}% complete
+                      </span>
+                    </div>
+                    
+                    <Progress value={course.progress} className="mb-3" />
+                    
+                    <div className="flex items-center justify-between text-sm text-muted-foreground mb-3">
+                      <span>{course.completedLessons} of {course.totalLessons} lessons</span>
+                      <span>Next: {course.nextLesson}</span>
+                    </div>
+
+                    <div className="flex space-x-2">
+                      <Button size="sm" className="flex items-center">
+                        <Play className="h-4 w-4 mr-1" />
+                        Continue Learning
+                      </Button>
+                      <Button size="sm" variant="outline" className="flex items-center">
+                        <FileText className="h-4 w-4 mr-1" />
+                        Notes
+                      </Button>
                     </div>
                   </div>
                 ))}
@@ -175,79 +172,54 @@ const Dashboard = () => {
             </Card>
           </div>
 
-          {/* Side Panel */}
+          {/* Sidebar */}
           <div className="space-y-6">
             {/* Upcoming Classes */}
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <Calendar className="h-5 w-5" />
-                  <span>Upcoming Classes</span>
+                <CardTitle className="flex items-center">
+                  <Calendar className="h-5 w-5 mr-2" />
+                  Upcoming Classes
                 </CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  {upcomingClasses.map((class_, index) => (
-                    <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
-                      <div>
-                        <p className="font-medium">{class_.subject}</p>
-                        <p className="text-sm text-muted-foreground">{class_.teacher}</p>
-                        <div className="flex items-center space-x-2 mt-1">
-                          <Badge variant={class_.type === 'Live' ? 'destructive' : 'secondary'}>
-                            {class_.type}
-                          </Badge>
-                          <span className="text-xs text-muted-foreground">
-                            {class_.date} at {class_.time}
-                          </span>
-                        </div>
-                      </div>
-                      <Button size="sm" variant="ghost">
-                        <Video className="h-4 w-4" />
-                      </Button>
+              <CardContent className="space-y-3">
+                {upcomingClasses.map((class_) => (
+                  <div key={class_.id} className="flex items-center justify-between p-3 border rounded-lg">
+                    <div>
+                      <p className="font-medium">{class_.subject}</p>
+                      <p className="text-sm text-muted-foreground">{class_.teacher}</p>
                     </div>
-                  ))}
-                </div>
+                    <div className="text-right">
+                      <p className="text-sm font-medium">{class_.time}</p>
+                      <p className="text-xs text-muted-foreground">{class_.date}</p>
+                    </div>
+                  </div>
+                ))}
               </CardContent>
             </Card>
 
-            {/* Achievements */}
+            {/* Recent Test Results */}
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <Award className="h-5 w-5" />
-                  <span>Recent Achievements</span>
+                <CardTitle className="flex items-center">
+                  <Trophy className="h-5 w-5 mr-2" />
+                  Recent Tests
                 </CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  {achievements.map((achievement, index) => (
-                    <div key={index} className="flex items-center space-x-3 p-3 border rounded-lg">
-                      <achievement.icon className={`h-6 w-6 ${achievement.color}`} />
-                      <span className="font-medium">{achievement.title}</span>
+              <CardContent className="space-y-3">
+                {recentTests.map((test) => (
+                  <div key={test.id} className="p-3 border rounded-lg">
+                    <p className="font-medium text-sm">{test.title}</p>
+                    <div className="flex items-center justify-between mt-2">
+                      <span className="text-lg font-bold text-green-600">
+                        {test.score}/{test.maxScore}
+                      </span>
+                      <span className="text-xs text-muted-foreground">
+                        {new Date(test.date).toLocaleDateString()}
+                      </span>
                     </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Quick Actions */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Quick Actions</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-2">
-                <Button className="w-full justify-start" variant="ghost">
-                  <Download className="h-4 w-4 mr-2" />
-                  Download Notes
-                </Button>
-                <Button className="w-full justify-start" variant="ghost">
-                  <FileText className="h-4 w-4 mr-2" />
-                  Practice Tests
-                </Button>
-                <Button className="w-full justify-start" variant="ghost">
-                  <Video className="h-4 w-4 mr-2" />
-                  Recorded Sessions
-                </Button>
+                  </div>
+                ))}
               </CardContent>
             </Card>
           </div>

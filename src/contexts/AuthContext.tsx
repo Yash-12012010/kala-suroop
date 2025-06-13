@@ -1,66 +1,87 @@
 
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 
 interface User {
   id: string;
   name: string;
   email: string;
-  enrolledCourses: string[];
 }
 
 interface AuthContextType {
   user: User | null;
-  login: (email: string, password: string) => Promise<void>;
-  signup: (name: string, email: string, password: string) => Promise<void>;
-  logout: () => void;
   isAuthenticated: boolean;
+  login: (email: string, password: string) => Promise<void>;
+  signup: (email: string, password: string, name: string) => Promise<void>;
+  logout: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
-  if (!context) {
+  if (context === undefined) {
     throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
 };
 
-export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  useEffect(() => {
+    // Check for existing session on mount
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+      setIsAuthenticated(true);
+    }
+  }, []);
 
   const login = async (email: string, password: string) => {
     // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 1000));
-    setUser({
+    
+    // Mock user data
+    const userData = {
       id: '1',
-      name: 'Student Name',
-      email,
-      enrolledCourses: ['math-class-10', 'physics-class-11']
-    });
+      name: 'John Doe',
+      email: email
+    };
+    
+    setUser(userData);
+    setIsAuthenticated(true);
+    localStorage.setItem('user', JSON.stringify(userData));
   };
 
-  const signup = async (name: string, email: string, password: string) => {
+  const signup = async (email: string, password: string, name: string) => {
     // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 1000));
-    setUser({
+    
+    // Mock user data
+    const userData = {
       id: '1',
-      name,
-      email,
-      enrolledCourses: []
-    });
+      name: name,
+      email: email
+    };
+    
+    setUser(userData);
+    setIsAuthenticated(true);
+    localStorage.setItem('user', JSON.stringify(userData));
   };
 
   const logout = () => {
     setUser(null);
+    setIsAuthenticated(false);
+    localStorage.removeItem('user');
   };
 
   const value = {
     user,
+    isAuthenticated,
     login,
     signup,
-    logout,
-    isAuthenticated: !!user
+    logout
   };
 
   return (
