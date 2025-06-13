@@ -1,13 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import AgoraRTC, { 
-  IAgoraRTCRemoteUser, 
-  ICameraVideoTrack, 
-  IMicrophoneAudioTrack,
-  IRemoteVideoTrack,
-  IRemoteAudioTrack
-} from 'agora-rtc-sdk-ng';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { 
@@ -38,68 +31,19 @@ const LiveClass: React.FC<LiveClassProps> = ({
   const { user } = useAuth();
   const navigate = useNavigate();
   
-  const [client] = useState(() => AgoraRTC.createClient({ mode: 'rtc', codec: 'vp8' }));
-  const [localVideoTrack, setLocalVideoTrack] = useState<ICameraVideoTrack | null>(null);
-  const [localAudioTrack, setLocalAudioTrack] = useState<IMicrophoneAudioTrack | null>(null);
-  const [remoteUsers, setRemoteUsers] = useState<IAgoraRTCRemoteUser[]>([]);
   const [isJoined, setIsJoined] = useState(false);
   const [isVideoEnabled, setIsVideoEnabled] = useState(true);
   const [isAudioEnabled, setIsAudioEnabled] = useState(true);
   const [participantCount, setParticipantCount] = useState(0);
   const [isHandRaised, setIsHandRaised] = useState(false);
 
-  useEffect(() => {
-    const handleUserPublished = async (user: IAgoraRTCRemoteUser, mediaType: 'video' | 'audio') => {
-      await client.subscribe(user, mediaType);
-      if (mediaType === 'video') {
-        setRemoteUsers(prevUsers => [...prevUsers.filter(u => u.uid !== user.uid), user]);
-      }
-    };
-
-    const handleUserUnpublished = (user: IAgoraRTCRemoteUser) => {
-      setRemoteUsers(prevUsers => prevUsers.filter(u => u.uid !== user.uid));
-    };
-
-    const handleUserJoined = (user: IAgoraRTCRemoteUser) => {
-      setParticipantCount(prev => prev + 1);
-    };
-
-    const handleUserLeft = (user: IAgoraRTCRemoteUser) => {
-      setRemoteUsers(prevUsers => prevUsers.filter(u => u.uid !== user.uid));
-      setParticipantCount(prev => Math.max(0, prev - 1));
-    };
-
-    client.on('user-published', handleUserPublished);
-    client.on('user-unpublished', handleUserUnpublished);
-    client.on('user-joined', handleUserJoined);
-    client.on('user-left', handleUserLeft);
-
-    return () => {
-      client.off('user-published', handleUserPublished);
-      client.off('user-unpublished', handleUserUnpublished);
-      client.off('user-joined', handleUserJoined);
-      client.off('user-left', handleUserLeft);
-    };
-  }, [client]);
-
+  // Simulate joining a channel
   const joinChannel = async () => {
     try {
-      const uid = await client.join(appId, channelName, token, user?.id || 'guest');
+      console.log('Joining channel:', channelName);
+      console.log('User role:', isTeacher ? 'Teacher' : 'Student');
       
-      if (isTeacher) {
-        const videoTrack = await AgoraRTC.createCameraVideoTrack();
-        const audioTrack = await AgoraRTC.createMicrophoneAudioTrack();
-        
-        setLocalVideoTrack(videoTrack);
-        setLocalAudioTrack(audioTrack);
-        
-        await client.publish([videoTrack, audioTrack]);
-      } else {
-        // Students join with audio only by default
-        const audioTrack = await AgoraRTC.createMicrophoneAudioTrack();
-        setLocalAudioTrack(audioTrack);
-      }
-      
+      // Simulate joining process
       setIsJoined(true);
       setParticipantCount(1);
     } catch (error) {
@@ -109,20 +53,9 @@ const LiveClass: React.FC<LiveClassProps> = ({
 
   const leaveChannel = async () => {
     try {
-      if (localVideoTrack) {
-        localVideoTrack.stop();
-        localVideoTrack.close();
-      }
-      if (localAudioTrack) {
-        localAudioTrack.stop();
-        localAudioTrack.close();
-      }
-      
-      await client.leave();
+      console.log('Leaving channel');
       setIsJoined(false);
-      setLocalVideoTrack(null);
-      setLocalAudioTrack(null);
-      setRemoteUsers([]);
+      setParticipantCount(0);
       navigate('/dashboard');
     } catch (error) {
       console.error('Failed to leave channel:', error);
@@ -130,41 +63,19 @@ const LiveClass: React.FC<LiveClassProps> = ({
   };
 
   const toggleVideo = async () => {
-    if (!isTeacher && !localVideoTrack) {
-      // Allow students to turn on video if they want
-      const videoTrack = await AgoraRTC.createCameraVideoTrack();
-      setLocalVideoTrack(videoTrack);
-      await client.publish([videoTrack]);
-      setIsVideoEnabled(true);
-    } else if (localVideoTrack) {
-      await localVideoTrack.setEnabled(!isVideoEnabled);
-      setIsVideoEnabled(!isVideoEnabled);
-    }
+    setIsVideoEnabled(!isVideoEnabled);
+    console.log('Video toggled:', !isVideoEnabled);
   };
 
   const toggleAudio = async () => {
-    if (localAudioTrack) {
-      await localAudioTrack.setEnabled(!isAudioEnabled);
-      setIsAudioEnabled(!isAudioEnabled);
-    }
+    setIsAudioEnabled(!isAudioEnabled);
+    console.log('Audio toggled:', !isAudioEnabled);
   };
 
   const toggleHandRaise = () => {
     setIsHandRaised(!isHandRaised);
-    // In a real implementation, you'd send this to other participants
+    console.log('Hand raised:', !isHandRaised);
   };
-
-  useEffect(() => {
-    if (localVideoTrack) {
-      localVideoTrack.play('local-video');
-    }
-    
-    return () => {
-      if (localVideoTrack) {
-        localVideoTrack.stop();
-      }
-    };
-  }, [localVideoTrack]);
 
   if (!isJoined) {
     return (
@@ -253,53 +164,33 @@ const LiveClass: React.FC<LiveClassProps> = ({
       {/* Video Grid */}
       <div className="flex-1 bg-gray-100 dark:bg-gray-900">
         <div className="h-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
-          {/* Local Video */}
-          {localVideoTrack && (
-            <div className="relative bg-gray-800 rounded-lg overflow-hidden">
-              <div id="local-video" className="w-full h-full" />
-              <div className="absolute bottom-2 left-2 bg-black bg-opacity-50 text-white px-2 py-1 rounded text-sm">
-                You {isTeacher ? '(Teacher)' : '(Student)'}
+          {/* Local Video Placeholder */}
+          <div className="relative bg-gray-800 rounded-lg overflow-hidden">
+            <div className="w-full h-full flex items-center justify-center text-white">
+              <div className="text-center">
+                {isVideoEnabled ? (
+                  <Video className="h-12 w-12 mx-auto mb-2" />
+                ) : (
+                  <VideoOff className="h-12 w-12 mx-auto mb-2" />
+                )}
+                <p>{isVideoEnabled ? 'Camera On' : 'Camera Off'}</p>
               </div>
             </div>
-          )}
+            <div className="absolute bottom-2 left-2 bg-black bg-opacity-50 text-white px-2 py-1 rounded text-sm">
+              You {isTeacher ? '(Teacher)' : '(Student)'}
+            </div>
+          </div>
           
-          {/* Remote Videos */}
-          {remoteUsers.map((user) => (
-            <RemoteUser key={user.uid} user={user} />
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-};
-
-const RemoteUser: React.FC<{ user: IAgoraRTCRemoteUser }> = ({ user }) => {
-  useEffect(() => {
-    if (user.videoTrack) {
-      user.videoTrack.play(`remote-video-${user.uid}`);
-    }
-    
-    return () => {
-      if (user.videoTrack) {
-        user.videoTrack.stop();
-      }
-    };
-  }, [user]);
-
-  return (
-    <div className="relative bg-gray-800 rounded-lg overflow-hidden">
-      {user.videoTrack ? (
-        <div id={`remote-video-${user.uid}`} className="w-full h-full" />
-      ) : (
-        <div className="w-full h-full flex items-center justify-center text-white">
-          <div className="text-center">
-            <Users className="h-12 w-12 mx-auto mb-2" />
-            <p>No Video</p>
+          {/* Placeholder for other participants */}
+          <div className="relative bg-gray-800 rounded-lg overflow-hidden">
+            <div className="w-full h-full flex items-center justify-center text-white">
+              <div className="text-center">
+                <Users className="h-12 w-12 mx-auto mb-2" />
+                <p>Waiting for participants...</p>
+              </div>
+            </div>
           </div>
         </div>
-      )}
-      <div className="absolute bottom-2 left-2 bg-black bg-opacity-50 text-white px-2 py-1 rounded text-sm">
-        User {user.uid}
       </div>
     </div>
   );
