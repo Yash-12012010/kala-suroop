@@ -1,5 +1,6 @@
 
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -8,6 +9,7 @@ import { Star, Users, Clock } from 'lucide-react';
 
 const Courses = () => {
   const [activeTab, setActiveTab] = useState('class-9');
+  const navigate = useNavigate();
 
   const coursesByClass = {
     'class-9': [
@@ -97,6 +99,10 @@ const Courses = () => {
     ]
   };
 
+  const handleEnrollClick = (course: any) => {
+    navigate('/checkout', { state: { course } });
+  };
+
   return (
     <div className="pt-20 pb-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -163,7 +169,10 @@ const Courses = () => {
                           ₹{course.originalPrice}
                         </span>
                       </div>
-                      <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
+                      <Button 
+                        onClick={() => handleEnrollClick(course)}
+                        className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+                      >
                         Enroll Now
                       </Button>
                     </CardFooter>

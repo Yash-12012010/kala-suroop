@@ -1,12 +1,13 @@
-
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Star, Users, Clock, ArrowRight } from 'lucide-react';
 
 const Home = () => {
+  const navigate = useNavigate();
+
   const categories = [
     { name: 'Class 9', description: 'Foundation courses for 9th grade', courses: 12, color: 'bg-blue-500' },
     { name: 'Class 10', description: 'Board exam preparation', courses: 18, color: 'bg-green-500' },
@@ -51,6 +52,10 @@ const Home = () => {
       duration: '80 hours'
     }
   ];
+
+  const handleEnrollClick = (course: any) => {
+    navigate('/checkout', { state: { course } });
+  };
 
   return (
     <div className="pt-16">
@@ -167,7 +172,10 @@ const Home = () => {
                       ₹{course.originalPrice}
                     </span>
                   </div>
-                  <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
+                  <Button 
+                    onClick={() => handleEnrollClick(course)}
+                    className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+                  >
                     Enroll Now
                   </Button>
                 </CardFooter>

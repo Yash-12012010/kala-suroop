@@ -16,6 +16,8 @@ import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import ForgotPassword from "./pages/ForgotPassword";
 import Dashboard from "./pages/Dashboard";
+import Checkout from "./pages/Checkout";
+import LiveClassRoom from "./pages/LiveClassRoom";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -43,6 +45,8 @@ const App = () => {
                   <Route path="/signup" element={<Signup />} />
                   <Route path="/forgot-password" element={<ForgotPassword />} />
                   <Route path="/dashboard" element={<Dashboard />} />
+                  <Route path="/checkout" element={<Checkout />} />
+                  <Route path="/live-class" element={<LiveClassRoom />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </BrowserRouter>

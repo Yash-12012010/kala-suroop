@@ -1,11 +1,19 @@
 
 import React from 'react';
-import { useAuth } from '../contexts/AuthContext';
+import { Link } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
-import { BookOpen, Play, FileText, Calendar, Trophy, Clock } from 'lucide-react';
+import { 
+  BookOpen, 
+  Video, 
+  Calendar, 
+  Award, 
+  Clock,
+  TrendingUp,
+  Users
+} from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -14,117 +22,74 @@ const Dashboard = () => {
     {
       id: 1,
       title: 'Mathematics Complete Course',
-      class: 'Class 10',
       progress: 75,
-      totalLessons: 40,
-      completedLessons: 30,
-      nextLesson: 'Quadratic Equations'
+      nextClass: 'Today, 3:00 PM',
+      image: 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=300&h=200&fit=crop'
     },
     {
       id: 2,
       title: 'Physics Master Class',
-      class: 'Class 11',
       progress: 45,
-      totalLessons: 35,
-      completedLessons: 16,
-      nextLesson: 'Laws of Motion'
+      nextClass: 'Tomorrow, 10:00 AM',
+      image: 'https://images.unsplash.com/photo-1636953056323-9c09fdd74fa6?w=300&h=200&fit=crop'
     }
   ];
 
   const upcomingClasses = [
-    {
-      id: 1,
-      subject: 'Mathematics',
-      time: '09:00 AM',
-      date: 'Today',
-      teacher: 'Mr. Kumar'
-    },
-    {
-      id: 2,
-      subject: 'Physics',
-      time: '11:00 AM',
-      date: 'Tomorrow',
-      teacher: 'Dr. Sharma'
-    }
-  ];
-
-  const recentTests = [
-    {
-      id: 1,
-      title: 'Mathematics Chapter 5 Test',
-      score: 85,
-      maxScore: 100,
-      date: '2024-01-10'
-    },
-    {
-      id: 2,
-      title: 'Physics Mock Test 1',
-      score: 78,
-      maxScore: 100,
-      date: '2024-01-08'
-    }
+    { subject: 'Mathematics', time: '3:00 PM', channel: 'math-algebra-001' },
+    { subject: 'Physics', time: '4:30 PM', channel: 'physics-mechanics-001' },
+    { subject: 'Chemistry', time: 'Tomorrow 10:00 AM', channel: 'chemistry-basics-001' }
   ];
 
   return (
     <div className="pt-20 pb-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-            Welcome back, {user?.name || 'Student'}! 👋
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+            Welcome back, {user?.name || 'Student'}!
           </h1>
-          <p className="text-gray-600 dark:text-gray-300 mt-2">
+          <p className="text-lg text-gray-600 dark:text-gray-300">
             Continue your learning journey
           </p>
         </div>
 
-        {/* Stats Cards */}
+        {/* Quick Actions */}
         <div className="grid md:grid-cols-4 gap-6 mb-8">
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">Enrolled Courses</p>
-                  <p className="text-2xl font-bold">{enrolledCourses.length}</p>
-                </div>
-                <BookOpen className="h-8 w-8 text-blue-600" />
-              </div>
+          <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+            <CardContent className="p-6 text-center">
+              <Video className="h-8 w-8 mx-auto mb-3 text-blue-600" />
+              <h3 className="font-semibold mb-2">Live Classes</h3>
+              <Link to="/live-class">
+                <Button size="sm" className="w-full">Join Class</Button>
+              </Link>
             </CardContent>
           </Card>
 
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">Hours Learned</p>
-                  <p className="text-2xl font-bold">124</p>
-                </div>
-                <Clock className="h-8 w-8 text-green-600" />
-              </div>
+          <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+            <CardContent className="p-6 text-center">
+              <BookOpen className="h-8 w-8 mx-auto mb-3 text-green-600" />
+              <h3 className="font-semibold mb-2">My Courses</h3>
+              <Link to="/courses">
+                <Button size="sm" variant="outline" className="w-full">View All</Button>
+              </Link>
             </CardContent>
           </Card>
 
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">Tests Taken</p>
-                  <p className="text-2xl font-bold">{recentTests.length}</p>
-                </div>
-                <FileText className="h-8 w-8 text-purple-600" />
-              </div>
+          <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+            <CardContent className="p-6 text-center">
+              <Calendar className="h-8 w-8 mx-auto mb-3 text-purple-600" />
+              <h3 className="font-semibold mb-2">Schedule</h3>
+              <Link to="/timetable">
+                <Button size="sm" variant="outline" className="w-full">View Schedule</Button>
+              </Link>
             </CardContent>
           </Card>
 
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">Average Score</p>
-                  <p className="text-2xl font-bold">82%</p>
-                </div>
-                <Trophy className="h-8 w-8 text-orange-600" />
-              </div>
+          <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+            <CardContent className="p-6 text-center">
+              <Award className="h-8 w-8 mx-auto mb-3 text-orange-600" />
+              <h3 className="font-semibold mb-2">Achievements</h3>
+              <Button size="sm" variant="outline" className="w-full">View All</Button>
             </CardContent>
           </Card>
         </div>
@@ -134,38 +99,35 @@ const Dashboard = () => {
           <div className="lg:col-span-2">
             <Card>
               <CardHeader>
-                <CardTitle>Your Courses</CardTitle>
+                <CardTitle className="flex items-center">
+                  <BookOpen className="h-5 w-5 mr-2" />
+                  My Courses
+                </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-6">
+              <CardContent className="space-y-4">
                 {enrolledCourses.map((course) => (
-                  <div key={course.id} className="border rounded-lg p-4">
-                    <div className="flex items-start justify-between mb-3">
-                      <div>
-                        <h3 className="font-semibold">{course.title}</h3>
-                        <Badge variant="secondary">{course.class}</Badge>
+                  <div key={course.id} className="flex items-center space-x-4 p-4 border rounded-lg">
+                    <img 
+                      src={course.image} 
+                      alt={course.title}
+                      className="w-16 h-16 rounded-lg object-cover"
+                    />
+                    <div className="flex-1">
+                      <h3 className="font-semibold">{course.title}</h3>
+                      <div className="flex items-center space-x-2 mt-1">
+                        <div className="flex-1 bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                          <div 
+                            className="bg-green-600 h-2 rounded-full transition-all duration-300"
+                            style={{ width: `${course.progress}%` }}
+                          />
+                        </div>
+                        <span className="text-sm text-muted-foreground">{course.progress}%</span>
                       </div>
-                      <span className="text-sm text-muted-foreground">
-                        {course.progress}% complete
-                      </span>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        Next class: {course.nextClass}
+                      </p>
                     </div>
-                    
-                    <Progress value={course.progress} className="mb-3" />
-                    
-                    <div className="flex items-center justify-between text-sm text-muted-foreground mb-3">
-                      <span>{course.completedLessons} of {course.totalLessons} lessons</span>
-                      <span>Next: {course.nextLesson}</span>
-                    </div>
-
-                    <div className="flex space-x-2">
-                      <Button size="sm" className="flex items-center">
-                        <Play className="h-4 w-4 mr-1" />
-                        Continue Learning
-                      </Button>
-                      <Button size="sm" variant="outline" className="flex items-center">
-                        <FileText className="h-4 w-4 mr-1" />
-                        Notes
-                      </Button>
-                    </div>
+                    <Button size="sm">Continue</Button>
                   </div>
                 ))}
               </CardContent>
@@ -178,48 +140,49 @@ const Dashboard = () => {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center">
-                  <Calendar className="h-5 w-5 mr-2" />
+                  <Clock className="h-5 w-5 mr-2" />
                   Upcoming Classes
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                {upcomingClasses.map((class_) => (
-                  <div key={class_.id} className="flex items-center justify-between p-3 border rounded-lg">
+                {upcomingClasses.map((classItem, index) => (
+                  <div key={index} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
                     <div>
-                      <p className="font-medium">{class_.subject}</p>
-                      <p className="text-sm text-muted-foreground">{class_.teacher}</p>
+                      <p className="font-medium">{classItem.subject}</p>
+                      <p className="text-sm text-muted-foreground">{classItem.time}</p>
                     </div>
-                    <div className="text-right">
-                      <p className="text-sm font-medium">{class_.time}</p>
-                      <p className="text-xs text-muted-foreground">{class_.date}</p>
-                    </div>
+                    <Badge>Live</Badge>
                   </div>
                 ))}
+                <Link to="/live-class">
+                  <Button size="sm" className="w-full mt-3">
+                    Join Live Class
+                  </Button>
+                </Link>
               </CardContent>
             </Card>
 
-            {/* Recent Test Results */}
+            {/* Performance Stats */}
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center">
-                  <Trophy className="h-5 w-5 mr-2" />
-                  Recent Tests
+                  <TrendingUp className="h-5 w-5 mr-2" />
+                  This Week
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-3">
-                {recentTests.map((test) => (
-                  <div key={test.id} className="p-3 border rounded-lg">
-                    <p className="font-medium text-sm">{test.title}</p>
-                    <div className="flex items-center justify-between mt-2">
-                      <span className="text-lg font-bold text-green-600">
-                        {test.score}/{test.maxScore}
-                      </span>
-                      <span className="text-xs text-muted-foreground">
-                        {new Date(test.date).toLocaleDateString()}
-                      </span>
-                    </div>
-                  </div>
-                ))}
+              <CardContent className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm">Classes Attended</span>
+                  <span className="font-semibold">8/10</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm">Assignments Completed</span>
+                  <span className="font-semibold">5/6</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm">Study Hours</span>
+                  <span className="font-semibold">24h</span>
+                </div>
               </CardContent>
             </Card>
           </div>
