@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -13,11 +14,69 @@ import {
   Users
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 
 const Dashboard = () => {
   const { user, profile, loading } = useAuth();
 
-  if (loading) {
+  // Fetch purchased courses
+  const { data: purchasedCourses = [], isLoading: coursesLoading } = useQuery({
+    queryKey: ['purchased-courses', user?.id],
+    queryFn: async () => {
+      if (!user?.id) return [];
+      
+      const { data, error } = await supabase
+        .from('course_purchases')
+        .select('*')
+        .eq('user_id', user.id)
+        .eq('status', 'paid');
+      
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!user?.id
+  });
+
+  // Fetch live sessions for purchased courses
+  const { data: liveSessions = [] } = useQuery({
+    queryKey: ['live-sessions', purchasedCourses],
+    queryFn: async () => {
+      if (purchasedCourses.length === 0) return [];
+      
+      const courseIds = purchasedCourses.map(course => course.course_id);
+      const { data, error } = await supabase
+        .from('live_sessions')
+        .select('*')
+        .in('course_id', courseIds)
+        .gte('scheduled_start', new Date().toISOString())
+        .order('scheduled_start', { ascending: true });
+      
+      if (error) throw error;
+      return data;
+    },
+    enabled: purchasedCourses.length > 0
+  });
+
+  // Map course IDs to course names
+  const courseNames = {
+    '1': 'Mathematics Foundation',
+    '2': 'Science Basics',
+    '3': 'Mathematics Complete Course',
+    '4': 'Advanced Chemistry',
+    '5': 'Physics Master Class'
+  };
+
+  // Map course IDs to images
+  const courseImages = {
+    '1': 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=300&h=200&fit=crop',
+    '2': 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&h=200&fit=crop',
+    '3': 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=300&h=200&fit=crop',
+    '4': 'https://images.unsplash.com/photo-1554475901-4538ddfbccc2?w=300&h=200&fit=crop',
+    '5': 'https://images.unsplash.com/photo-1636953056323-9c09fdd74fa6?w=300&h=200&fit=crop'
+  };
+
+  if (loading || coursesLoading) {
     return (
       <div className="pt-20 pb-16 flex items-center justify-center min-h-screen">
         <div className="text-center">
@@ -28,28 +87,22 @@ const Dashboard = () => {
     );
   }
 
-  const enrolledCourses = [
-    {
-      id: 1,
-      title: 'Mathematics Complete Course',
-      progress: 75,
-      nextClass: 'Today, 3:00 PM',
-      image: 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=300&h=200&fit=crop'
-    },
-    {
-      id: 2,
-      title: 'Physics Master Class',
-      progress: 45,
-      nextClass: 'Tomorrow, 10:00 AM',
-      image: 'https://images.unsplash.com/photo-1636953056323-9c09fdd74fa6?w=300&h=200&fit=crop'
-    }
-  ];
-
-  const upcomingClasses = [
-    { subject: 'Mathematics', time: '3:00 PM', channel: 'math-algebra-001' },
-    { subject: 'Physics', time: '4:30 PM', channel: 'physics-mechanics-001' },
-    { subject: 'Chemistry', time: 'Tomorrow 10:00 AM', channel: 'chemistry-basics-001' }
-  ];
+  // Get upcoming classes for purchased courses
+  const upcomingClasses = liveSessions.slice(0, 3).map(session => {
+    const isLive = new Date(session.scheduled_start) <= new Date() && 
+                   new Date(session.scheduled_end) > new Date();
+    const startTime = new Date(session.scheduled_start);
+    const timeString = startTime < new Date(Date.now() + 24 * 60 * 60 * 1000) 
+      ? startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      : startTime.toLocaleDateString() + ' ' + startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    
+    return {
+      subject: session.title,
+      time: isLive ? 'Live Now' : timeString,
+      channel: session.agora_channel,
+      isLive
+    };
+  });
 
   return (
     <div className="pt-20 pb-16">
@@ -105,7 +158,7 @@ const Dashboard = () => {
         </div>
 
         <div className="grid lg:grid-cols-3 gap-8">
-          {/* Enrolled Courses */}
+          {/* Purchased Courses */}
           <div className="lg:col-span-2">
             <Card>
               <CardHeader>
@@ -115,31 +168,43 @@ const Dashboard = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                {enrolledCourses.map((course) => (
-                  <div key={course.id} className="flex items-center space-x-4 p-4 border rounded-lg">
-                    <img 
-                      src={course.image} 
-                      alt={course.title}
-                      className="w-16 h-16 rounded-lg object-cover"
-                    />
-                    <div className="flex-1">
-                      <h3 className="font-semibold">{course.title}</h3>
-                      <div className="flex items-center space-x-2 mt-1">
-                        <div className="flex-1 bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                          <div 
-                            className="bg-green-600 h-2 rounded-full transition-all duration-300"
-                            style={{ width: `${course.progress}%` }}
-                          />
-                        </div>
-                        <span className="text-sm text-muted-foreground">{course.progress}%</span>
-                      </div>
-                      <p className="text-sm text-muted-foreground mt-1">
-                        Next class: {course.nextClass}
-                      </p>
-                    </div>
-                    <Button size="sm">Continue</Button>
+                {purchasedCourses.length === 0 ? (
+                  <div className="text-center py-8">
+                    <BookOpen className="h-12 w-12 mx-auto mb-4 text-gray-400" />
+                    <p className="text-gray-500 mb-4">You haven't purchased any courses yet</p>
+                    <Link to="/courses">
+                      <Button>Browse Courses</Button>
+                    </Link>
                   </div>
-                ))}
+                ) : (
+                  purchasedCourses.map((purchase) => (
+                    <div key={purchase.id} className="flex items-center space-x-4 p-4 border rounded-lg">
+                      <img 
+                        src={courseImages[purchase.course_id as keyof typeof courseImages] || 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=300&h=200&fit=crop'} 
+                        alt={courseNames[purchase.course_id as keyof typeof courseNames] || 'Course'}
+                        className="w-16 h-16 rounded-lg object-cover"
+                      />
+                      <div className="flex-1">
+                        <h3 className="font-semibold">
+                          {courseNames[purchase.course_id as keyof typeof courseNames] || `Course ${purchase.course_id}`}
+                        </h3>
+                        <div className="flex items-center space-x-2 mt-1">
+                          <div className="flex-1 bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                            <div 
+                              className="bg-green-600 h-2 rounded-full transition-all duration-300"
+                              style={{ width: '0%' }}
+                            />
+                          </div>
+                          <span className="text-sm text-muted-foreground">0%</span>
+                        </div>
+                        <p className="text-sm text-muted-foreground mt-1">
+                          Purchased: {new Date(purchase.created_at).toLocaleDateString()}
+                        </p>
+                      </div>
+                      <Button size="sm">Continue</Button>
+                    </div>
+                  ))
+                )}
               </CardContent>
             </Card>
           </div>
@@ -155,20 +220,31 @@ const Dashboard = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                {upcomingClasses.map((classItem, index) => (
-                  <div key={index} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                    <div>
-                      <p className="font-medium">{classItem.subject}</p>
-                      <p className="text-sm text-muted-foreground">{classItem.time}</p>
-                    </div>
-                    <Badge>Live</Badge>
+                {upcomingClasses.length === 0 ? (
+                  <div className="text-center py-4">
+                    <Clock className="h-8 w-8 mx-auto mb-2 text-gray-400" />
+                    <p className="text-sm text-gray-500">No upcoming classes</p>
                   </div>
-                ))}
-                <Link to="/live-class">
-                  <Button size="sm" className="w-full mt-3">
-                    Join Live Class
-                  </Button>
-                </Link>
+                ) : (
+                  upcomingClasses.map((classItem, index) => (
+                    <div key={index} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                      <div>
+                        <p className="font-medium text-sm">{classItem.subject}</p>
+                        <p className="text-xs text-muted-foreground">{classItem.time}</p>
+                      </div>
+                      <Badge variant={classItem.isLive ? "default" : "secondary"}>
+                        {classItem.isLive ? "Live" : "Scheduled"}
+                      </Badge>
+                    </div>
+                  ))
+                )}
+                {upcomingClasses.length > 0 && (
+                  <Link to="/live-class">
+                    <Button size="sm" className="w-full mt-3">
+                      Join Live Class
+                    </Button>
+                  </Link>
+                )}
               </CardContent>
             </Card>
 
@@ -183,15 +259,15 @@ const Dashboard = () => {
               <CardContent className="space-y-4">
                 <div className="flex items-center justify-between">
                   <span className="text-sm">Classes Attended</span>
-                  <span className="font-semibold">8/10</span>
+                  <span className="font-semibold">0/0</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-sm">Assignments Completed</span>
-                  <span className="font-semibold">5/6</span>
+                  <span className="font-semibold">0/0</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-sm">Study Hours</span>
-                  <span className="font-semibold">24h</span>
+                  <span className="font-semibold">0h</span>
                 </div>
               </CardContent>
             </Card>
