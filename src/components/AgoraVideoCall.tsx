@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import AgoraRTC, { 
   IAgoraRTCClient, 
@@ -422,10 +423,10 @@ const AgoraVideoCall: React.FC<AgoraVideoCallProps> = ({
   return (
     <div className="h-screen flex flex-col bg-gray-900">
       {/* Header */}
-      <div className="bg-gray-800 text-white p-4 flex items-center justify-between">
-        <div className="flex items-center space-x-4">
-          <h1 className="text-lg font-semibold">Live Class: {channelName.split('-').pop()}</h1>
-          <div className="flex items-center space-x-2">
+      <div className="bg-gray-800 text-white p-3 sm:p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
+        <div className="flex items-center flex-wrap gap-x-4 gap-y-2">
+          <h1 className="text-base sm:text-lg font-semibold whitespace-nowrap">Live Class: {channelName.split('-').pop()}</h1>
+          <div className="flex items-center space-x-2 text-xs sm:text-sm">
             <Users className="h-4 w-4" />
             <span>{remoteUsers.length + 1} participants</span>
           </div>
@@ -435,7 +436,7 @@ const AgoraVideoCall: React.FC<AgoraVideoCallProps> = ({
           <span className="text-xs bg-green-600 px-2 py-1 rounded">{connectionStatus}</span>
         </div>
         
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center space-x-2 shrink-0">
           <Button
             variant="outline"
             size="sm"
@@ -466,13 +467,13 @@ const AgoraVideoCall: React.FC<AgoraVideoCallProps> = ({
       </div>
 
       {/* Video Grid */}
-      <div className="flex-1 p-4">
-        <div className={`h-full grid gap-4 ${remoteUsers.length === 0 ? 'grid-cols-1' : remoteUsers.length === 1 ? 'grid-cols-1 lg:grid-cols-2' : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3'}`}>
+      <div className="flex-1 p-2 sm:p-4 overflow-y-auto">
+        <div className={`h-full grid gap-2 sm:gap-4 ${remoteUsers.length === 0 ? 'grid-cols-1' : remoteUsers.length === 1 ? 'grid-cols-1 lg:grid-cols-2' : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3'}`}>
           {/* Local Video */}
           <div className="relative bg-gray-800 rounded-lg overflow-hidden border-2 border-blue-500">
             <div 
               ref={localVideoRef}
-              className="w-full h-full min-h-[300px] bg-black"
+              className="w-full h-full min-h-[200px] sm:min-h-[250px] lg:min-h-[300px] bg-black"
             />
             <div className="absolute bottom-2 left-2 bg-black bg-opacity-75 text-white px-3 py-1 rounded text-sm font-medium">
               You {isTeacher ? '(Teacher)' : '(Student)'}
@@ -501,7 +502,7 @@ const AgoraVideoCall: React.FC<AgoraVideoCallProps> = ({
             <div key={user.uid} className="relative bg-gray-800 rounded-lg overflow-hidden border-2 border-gray-600">
               <div 
                 ref={(el) => { remoteVideoRefs.current[user.uid] = el; }}
-                className="w-full h-full min-h-[300px] bg-black"
+                className="w-full h-full min-h-[200px] sm:min-h-[250px] lg:min-h-[300px] bg-black"
               />
               <div className="absolute bottom-2 left-2 bg-black bg-opacity-75 text-white px-3 py-1 rounded text-sm font-medium">
                 User {user.uid} {isTeacher ? '(Student)' : user.uid.includes('teacher') ? '(Teacher)' : ''}
@@ -516,8 +517,8 @@ const AgoraVideoCall: React.FC<AgoraVideoCallProps> = ({
           
           {/* Show waiting message if no remote users */}
           {remoteUsers.length === 0 && (
-            <div className="bg-gray-800 rounded-lg border-2 border-dashed border-gray-600 flex items-center justify-center min-h-[300px]">
-              <div className="text-center text-gray-400">
+            <div className="bg-gray-800 rounded-lg border-2 border-dashed border-gray-600 flex items-center justify-center min-h-[200px] sm:min-h-[250px] lg:min-h-[300px]">
+              <div className="text-center text-gray-400 p-4">
                 <Users className="h-12 w-12 mx-auto mb-2" />
                 <p className="text-lg font-medium">Waiting for others to join...</p>
                 <p className="text-sm">Share this channel: {channelName.split('-').pop()}</p>
@@ -529,7 +530,7 @@ const AgoraVideoCall: React.FC<AgoraVideoCallProps> = ({
       
       {/* Debug info at bottom */}
       <div className="bg-gray-800 text-white p-2 text-xs">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between flex-wrap gap-2">
           <span>Channel: {channelName}</span>
           <span>Video: {isVideoEnabled ? 'On' : 'Off'} | Audio: {isAudioEnabled ? 'On' : 'Off'}</span>
           <span>Status: {connectionStatus}</span>
