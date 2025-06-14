@@ -41,6 +41,7 @@ const LiveClassRoom = () => {
     console.log('LiveClassRoom mounted, checking URL parameters...');
     console.log('Search params:', Object.fromEntries(searchParams.entries()));
     console.log('Session ID:', sessionId);
+    console.log('Current location:', location.pathname);
     
     const channel = searchParams.get('channel');
     const teacher = searchParams.get('teacher') === 'true';
@@ -60,10 +61,11 @@ const LiveClassRoom = () => {
       loadSessionById(sessionId);
       setAutoJoinAttempted(true);
     }
-  }, [searchParams, sessionId, autoJoinAttempted]);
+  }, [searchParams, sessionId, autoJoinAttempted, location.pathname]);
 
   const loadSessionById = async (id: string) => {
     try {
+      console.log('Fetching session with ID:', id);
       const { data, error } = await supabase
         .from('live_sessions')
         .select('*')
@@ -75,11 +77,14 @@ const LiveClassRoom = () => {
         return;
       }
 
+      console.log('Session data loaded:', data);
       if (data && data.agora_channel) {
-        console.log('Found session:', data);
+        console.log('Setting up live class with channel:', data.agora_channel);
         setChannelName(data.agora_channel);
         setIsTeacher(false); // Default to student unless specified
         setShowLiveClass(true);
+      } else {
+        console.log('No agora channel found for session');
       }
     } catch (error) {
       console.error('Error loading session by ID:', error);
@@ -136,9 +141,17 @@ const LiveClassRoom = () => {
     return now >= start && now <= end;
   };
 
-  console.log('Current state:', { showLiveClass, channelName, isTeacher, autoJoinAttempted });
+  console.log('Current state:', { 
+    showLiveClass, 
+    channelName, 
+    isTeacher, 
+    autoJoinAttempted,
+    hasChannel: !!channelName,
+    shouldShowLiveClass: showLiveClass && channelName
+  });
 
-  if (showLiveClass && channelName) {
+  // Render LiveClass component if conditions are met
+  if (showLiveClass && channelName && channelName.trim() !== '') {
     console.log('Rendering LiveClass component with channel:', channelName);
     return (
       <LiveClass 
@@ -180,12 +193,14 @@ const LiveClassRoom = () => {
           </CardHeader>
           <CardContent>
             <div className="space-y-2 text-sm">
+              <p><strong>Current path:</strong> {location.pathname}</p>
               <p><strong>Session ID from URL:</strong> {sessionId || 'None'}</p>
               <p><strong>Channel from query:</strong> {searchParams.get('channel') || 'None'}</p>
               <p><strong>Teacher mode:</strong> {searchParams.get('teacher') || 'false'}</p>
               <p><strong>Current channel:</strong> {channelName || 'None'}</p>
               <p><strong>Show Live Class:</strong> {showLiveClass ? 'Yes' : 'No'}</p>
               <p><strong>Auto-join attempted:</strong> {autoJoinAttempted ? 'Yes' : 'No'}</p>
+              <p><strong>Should render LiveClass:</strong> {(showLiveClass && channelName && channelName.trim() !== '') ? 'Yes' : 'No'}</p>
               <p><strong>Live sessions found:</strong> {liveSessions.length}</p>
             </div>
           </CardContent>
