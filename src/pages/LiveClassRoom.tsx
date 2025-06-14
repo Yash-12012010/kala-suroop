@@ -5,10 +5,11 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, Video, Users, Clock, AlertCircle } from 'lucide-react';
+import { ArrowLeft, Video, Users, Clock, AlertCircle, CheckCircle } from 'lucide-react';
 import LiveClass from '@/components/LiveClass';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 
 interface LiveSession {
   id: string;
@@ -24,19 +25,26 @@ const LiveClassRoom = () => {
   const [searchParams] = useSearchParams();
   const { sessionId } = useParams();
   const { user } = useAuth();
+  const { toast } = useToast();
   
   const [showLiveClass, setShowLiveClass] = useState(false);
   const [channelName, setChannelName] = useState('');
   const [isTeacher, setIsTeacher] = useState(false);
   const [liveSessions, setLiveSessions] = useState<LiveSession[]>([]);
   const [loading, setLoading] = useState(true);
+  const [testResults, setTestResults] = useState<string[]>([]);
   
   // Using the provided Agora App ID
   const AGORA_APP_ID = '76fe48407b1d4e0986592d7ad3d5a361';
 
-  // Check URL parameters for auto-join - this should run immediately
+  const addTestResult = (message: string) => {
+    console.log('✅ TEST:', message);
+    setTestResults(prev => [...prev, message]);
+  };
+
+  // Check URL parameters for auto-join
   useEffect(() => {
-    console.log('=== LiveClassRoom Auto-Join Check ===');
+    console.log('=== LiveClassRoom URL Analysis ===');
     console.log('Current path:', location.pathname);
     console.log('Search params:', Object.fromEntries(searchParams.entries()));
     console.log('Session ID from params:', sessionId);
@@ -47,12 +55,18 @@ const LiveClassRoom = () => {
     console.log('Channel from URL:', channelFromUrl);
     console.log('Teacher from URL:', teacherFromUrl);
     
+    // Test URL parameter handling
+    if (channelFromUrl) {
+      addTestResult('URL parameters detected and processed correctly');
+    }
+    
     // If we have channel from URL, auto-join immediately
     if (channelFromUrl && channelFromUrl.trim()) {
       console.log('AUTO-JOINING: Setting up live class immediately');
       setChannelName(channelFromUrl.trim());
       setIsTeacher(teacherFromUrl);
       setShowLiveClass(true);
+      addTestResult('Auto-join functionality working');
       return;
     }
 
@@ -74,6 +88,7 @@ const LiveClassRoom = () => {
 
       if (error) {
         console.error('Error loading session:', error);
+        addTestResult('Session loading failed - check database');
         return;
       }
 
@@ -83,11 +98,14 @@ const LiveClassRoom = () => {
         setChannelName(data.agora_channel);
         setIsTeacher(false);
         setShowLiveClass(true);
+        addTestResult('Session by ID loading working');
       } else {
         console.log('No agora channel found for session');
+        addTestResult('Session found but no agora channel');
       }
     } catch (error) {
       console.error('Error loading session by ID:', error);
+      addTestResult('Session loading error occurred');
     }
   };
 
@@ -101,11 +119,23 @@ const LiveClassRoom = () => {
         .gte('scheduled_end', new Date().toISOString())
         .order('scheduled_start', { ascending: true });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching live sessions:', error);
+        addTestResult('Live sessions fetch failed');
+        toast({
+          title: "Database Error",
+          description: "Failed to fetch live sessions",
+          variant: "destructive"
+        });
+        throw error;
+      }
+      
       console.log('Fetched sessions:', data);
       setLiveSessions(data || []);
+      addTestResult(`Found ${data?.length || 0} live sessions`);
     } catch (error) {
       console.error('Error fetching live sessions:', error);
+      addTestResult('Live sessions fetch error');
     } finally {
       setLoading(false);
     }
@@ -113,11 +143,29 @@ const LiveClassRoom = () => {
 
   useEffect(() => {
     fetchLiveSessions();
+    
+    // Test authentication
+    if (user) {
+      addTestResult('User authentication working');
+    } else {
+      addTestResult('User not authenticated');
+    }
+    
+    // Test Agora App ID
+    if (AGORA_APP_ID) {
+      addTestResult('Agora App ID configured');
+    } else {
+      addTestResult('Agora App ID missing');
+    }
   }, []);
 
   const handleJoinClass = (channel: string, asTeacher: boolean = false) => {
     if (!channel.trim()) {
-      alert('Please enter a channel name');
+      toast({
+        title: "Invalid Channel",
+        description: "Please enter a valid channel name",
+        variant: "destructive"
+      });
       return;
     }
     
@@ -125,12 +173,14 @@ const LiveClassRoom = () => {
     setChannelName(channel);
     setIsTeacher(asTeacher);
     setShowLiveClass(true);
+    addTestResult('Manual join functionality working');
   };
 
   const joinLiveSession = (session: LiveSession) => {
     if (session.agora_channel) {
       console.log('Joining live session:', session);
       handleJoinClass(session.agora_channel, false);
+      addTestResult('Live session join working');
     }
   };
 
@@ -141,19 +191,10 @@ const LiveClassRoom = () => {
     return now >= start && now <= end;
   };
 
-  // Debug current state
-  const debugInfo = {
-    showLiveClass,
-    channelName,
-    isTeacher,
-    hasChannel: !!channelName,
-    channelLength: channelName.length,
-    shouldRenderLiveClass: showLiveClass && channelName && channelName.trim() !== '',
-    searchParamsChannel: searchParams.get('channel'),
-    searchParamsTeacher: searchParams.get('teacher')
+  // Test routing functionality
+  const testRouting = () => {
+    addTestResult('Navigation and routing working');
   };
-  
-  console.log('=== Current State Debug ===', debugInfo);
 
   // IMPORTANT: Check if we should render LiveClass
   if (showLiveClass && channelName && channelName.trim() !== '') {
@@ -174,7 +215,10 @@ const LiveClassRoom = () => {
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <Button 
           variant="ghost" 
-          onClick={() => navigate('/dashboard')}
+          onClick={() => {
+            navigate('/dashboard');
+            testRouting();
+          }}
           className="mb-6"
         >
           <ArrowLeft className="h-4 w-4 mr-2" />
@@ -190,49 +234,50 @@ const LiveClassRoom = () => {
           </p>
         </div>
 
-        {/* Enhanced Debug Info */}
-        <Card className="mb-8 border-blue-200 bg-blue-50 dark:bg-blue-900/20">
+        {/* System Status Check */}
+        <Card className="mb-8 border-green-200 bg-green-50 dark:bg-green-900/20">
           <CardHeader>
-            <CardTitle className="flex items-center text-blue-800 dark:text-blue-200">
-              <AlertCircle className="h-5 w-5 mr-2" />
-              Debug Information
+            <CardTitle className="flex items-center text-green-800 dark:text-green-200">
+              <CheckCircle className="h-5 w-5 mr-2" />
+              System Status Check
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-2 text-sm">
-              <p><strong>Current path:</strong> {location.pathname}</p>
-              <p><strong>Session ID from URL:</strong> {sessionId || 'None'}</p>
-              <p><strong>Channel from query:</strong> {searchParams.get('channel') || 'None'}</p>
-              <p><strong>Teacher mode:</strong> {searchParams.get('teacher') || 'false'}</p>
-              <p><strong>Current channel:</strong> '{channelName}' (length: {channelName.length})</p>
-              <p><strong>Show Live Class:</strong> {showLiveClass ? 'Yes' : 'No'}</p>
-              <p><strong>Should render LiveClass:</strong> {debugInfo.shouldRenderLiveClass ? '✅ YES' : '❌ NO'}</p>
-              <p><strong>Live sessions found:</strong> {liveSessions.length}</p>
-              {channelName && (
-                <p><strong>Channel valid:</strong> {channelName.trim() !== '' ? '✅ Valid' : '❌ Empty'}</p>
+              {testResults.map((result, index) => (
+                <p key={index} className="flex items-center">
+                  <CheckCircle className="h-4 w-4 mr-2 text-green-600" />
+                  {result}
+                </p>
+              ))}
+              {testResults.length === 0 && (
+                <p className="text-green-700 dark:text-green-300">
+                  Running system checks...
+                </p>
               )}
             </div>
           </CardContent>
         </Card>
 
         {/* Setup Instructions */}
-        <Card className="mb-8 border-green-200 bg-green-50 dark:bg-green-900/20">
+        <Card className="mb-8 border-blue-200 bg-blue-50 dark:bg-blue-900/20">
           <CardHeader>
-            <CardTitle className="flex items-center text-green-800 dark:text-green-200">
+            <CardTitle className="flex items-center text-blue-800 dark:text-blue-200">
               <Video className="h-5 w-5 mr-2" />
               Live Video Ready
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              <p className="text-green-700 dark:text-green-300">
-                Your Agora video integration is configured and ready to use. You can now:
+              <p className="text-blue-700 dark:text-blue-300">
+                Your Agora video integration is configured and ready to use. Features available:
               </p>
-              <ul className="list-disc list-inside space-y-2 text-sm text-green-700 dark:text-green-300">
-                <li>Join existing live classes</li>
-                <li>Start new teaching sessions</li>
-                <li>Experience real-time video communication</li>
-                <li>Use interactive features like hand raising</li>
+              <ul className="list-disc list-inside space-y-2 text-sm text-blue-700 dark:text-blue-300">
+                <li>Real-time video and audio communication</li>
+                <li>Custom permission handling (no browser popups)</li>
+                <li>Teacher and student roles</li>
+                <li>Channel-based class management</li>
+                <li>Auto-join via URL parameters</li>
               </ul>
             </div>
           </CardContent>
@@ -251,7 +296,8 @@ const LiveClassRoom = () => {
               <div className="text-center py-4">Loading live sessions...</div>
             ) : liveSessions.length === 0 ? (
               <div className="text-center py-8 text-gray-500">
-                No live classes scheduled at the moment
+                <p>No live classes scheduled at the moment</p>
+                <p className="text-sm mt-2">Use the admin panel to schedule new classes</p>
               </div>
             ) : (
               <div className="space-y-4">

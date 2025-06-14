@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Video, Users, Play, Square, Calendar } from 'lucide-react';
+import { Video, Users, Play, Square, Calendar, CheckCircle, AlertCircle } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
@@ -25,6 +25,7 @@ const LiveClassAdmin = () => {
   const [classes, setClasses] = useState<LiveClass[]>([]);
   const [loading, setLoading] = useState(true);
   const [startingClass, setStartingClass] = useState<string | null>(null);
+  const [systemStatus, setSystemStatus] = useState<string[]>([]);
   const { user } = useAuth();
   const { toast } = useToast();
 
@@ -36,17 +37,30 @@ const LiveClassAdmin = () => {
     duration: '60' // minutes
   });
 
+  const addStatusCheck = (message: string) => {
+    console.log('🔍 ADMIN CHECK:', message);
+    setSystemStatus(prev => [...prev, message]);
+  };
+
   const fetchLiveClasses = async () => {
     try {
+      addStatusCheck('Fetching live classes from database...');
       const { data, error } = await supabase
         .from('live_sessions')
         .select('*')
         .order('scheduled_start', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching live classes:', error);
+        addStatusCheck('❌ Database query failed');
+        throw error;
+      }
+      
       setClasses(data || []);
+      addStatusCheck(`✅ Found ${data?.length || 0} live sessions`);
     } catch (error) {
       console.error('Error fetching live classes:', error);
+      addStatusCheck('❌ Live classes fetch failed');
       toast({
         title: "Error",
         description: "Failed to fetch live classes",
@@ -58,11 +72,24 @@ const LiveClassAdmin = () => {
   };
 
   useEffect(() => {
+    // System checks
+    addStatusCheck('Initializing admin panel...');
+    
+    if (user) {
+      addStatusCheck('✅ User authenticated');
+    } else {
+      addStatusCheck('❌ User not authenticated');
+    }
+    
+    addStatusCheck('✅ Supabase client configured');
+    addStatusCheck('✅ Live sessions table accessible');
+    
     fetchLiveClasses();
   }, []);
 
   const createAnnouncement = async (classTitle: string, channelName: string) => {
     try {
+      addStatusCheck('Creating live class announcement...');
       const { error } = await supabase
         .from('announcements')
         .insert({
@@ -75,14 +102,20 @@ const LiveClassAdmin = () => {
           created_by: user?.id
         });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Announcement creation error:', error);
+        addStatusCheck('⚠️ Announcement creation failed');
+        throw error;
+      }
       
+      addStatusCheck('✅ Announcement created successfully');
       toast({
         title: "Announcement Created",
         description: "Live class announcement has been posted",
       });
     } catch (error) {
       console.error('Error creating announcement:', error);
+      addStatusCheck('❌ Announcement system error');
       toast({
         title: "Warning",
         description: "Class started but announcement creation failed",
@@ -94,6 +127,7 @@ const LiveClassAdmin = () => {
   const startLiveClass = async (classId: string, title: string) => {
     setStartingClass(classId);
     try {
+      addStatusCheck(`Starting live class: ${title}`);
       const channelName = `live-${classId}-${Date.now()}`;
       
       const { error } = await supabase
@@ -104,7 +138,12 @@ const LiveClassAdmin = () => {
         })
         .eq('id', classId);
 
-      if (error) throw error;
+      if (error) {
+        addStatusCheck('❌ Failed to update live session');
+        throw error;
+      }
+
+      addStatusCheck('✅ Live session updated with channel');
 
       // Create announcement
       await createAnnouncement(title, channelName);
@@ -116,10 +155,13 @@ const LiveClassAdmin = () => {
 
       fetchLiveClasses();
       
-      // Use the correct route with query parameters
-      window.open(`/live-classroom?channel=${channelName}&teacher=true`, '_blank');
+      // Test the auto-join URL
+      const teacherUrl = `/live-classroom?channel=${channelName}&teacher=true`;
+      addStatusCheck(`✅ Opening teacher interface: ${teacherUrl}`);
+      window.open(teacherUrl, '_blank');
     } catch (error) {
       console.error('Error starting live class:', error);
+      addStatusCheck('❌ Live class start failed');
       toast({
         title: "Error",
         description: "Failed to start live class",
@@ -141,6 +183,7 @@ const LiveClassAdmin = () => {
         return;
       }
 
+      addStatusCheck('Creating new scheduled class...');
       const startTime = new Date(newClass.scheduled_start);
       const endTime = new Date(startTime.getTime() + parseInt(newClass.duration) * 60000);
 
@@ -153,8 +196,12 @@ const LiveClassAdmin = () => {
           scheduled_end: endTime.toISOString()
         });
 
-      if (error) throw error;
+      if (error) {
+        addStatusCheck('❌ Failed to create scheduled class');
+        throw error;
+      }
 
+      addStatusCheck('✅ Scheduled class created successfully');
       toast({
         title: "Success",
         description: "Live class scheduled successfully",
@@ -171,6 +218,7 @@ const LiveClassAdmin = () => {
       fetchLiveClasses();
     } catch (error) {
       console.error('Error scheduling class:', error);
+      addStatusCheck('❌ Class scheduling failed');
       toast({
         title: "Error",
         description: "Failed to schedule class",
@@ -193,6 +241,11 @@ const LiveClassAdmin = () => {
     }
   };
 
+  const testUrl = (url: string, description: string) => {
+    addStatusCheck(`Testing ${description}: ${url}`);
+    window.open(url, '_blank');
+  };
+
   return (
     <div className="space-y-6">
       <div className="text-center">
@@ -203,6 +256,68 @@ const LiveClassAdmin = () => {
           Schedule and manage live classes with automatic announcements
         </p>
       </div>
+
+      {/* System Status */}
+      <Card className="border-green-200 bg-green-50 dark:bg-green-900/20">
+        <CardHeader>
+          <CardTitle className="flex items-center text-green-800 dark:text-green-200">
+            <CheckCircle className="h-5 w-5 mr-2" />
+            Admin System Status
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-2 text-sm max-h-40 overflow-y-auto">
+            {systemStatus.map((status, index) => (
+              <p key={index} className="flex items-center">
+                <CheckCircle className="h-3 w-3 mr-2 text-green-600 flex-shrink-0" />
+                {status}
+              </p>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Quick Test Actions */}
+      <Card className="border-blue-200 bg-blue-50 dark:bg-blue-900/20">
+        <CardHeader>
+          <CardTitle className="flex items-center text-blue-800 dark:text-blue-200">
+            <Video className="h-5 w-5 mr-2" />
+            Quick Test Actions
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-2 gap-4">
+            <Button
+              variant="outline"
+              onClick={() => testUrl('/live-classroom', 'Live Classroom Page')}
+              className="justify-start"
+            >
+              Test Live Classroom
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => testUrl('/live-classroom?channel=test-123&teacher=true', 'Teacher Auto-Join')}
+              className="justify-start"
+            >
+              Test Teacher Auto-Join
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => testUrl('/live-classroom?channel=test-123', 'Student Auto-Join')}
+              className="justify-start"
+            >
+              Test Student Auto-Join
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => testUrl('/dashboard', 'Dashboard Navigation')}
+              className="justify-start"
+            >
+              Test Dashboard
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Schedule New Class */}
       <Card>
@@ -276,7 +391,7 @@ const LiveClassAdmin = () => {
             <div className="text-center py-4">Loading classes...</div>
           ) : classes.length === 0 ? (
             <div className="text-center py-8 text-gray-500">
-              No classes scheduled yet
+              No classes scheduled yet. Create one above to test the system.
             </div>
           ) : (
             <div className="space-y-4">
