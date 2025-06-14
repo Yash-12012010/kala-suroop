@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -32,7 +31,7 @@ const SystemTestPanel = () => {
   const { user } = useAuth();
   const { toast } = useToast();
 
-  const addTestResult = (category: string, test: string, status: 'pass' | 'fail' | 'warning', message: string) => {
+  const addTestResult = (category: string, test: string, status: 'pass' | 'fail' | 'warning' | 'running', message: string) => {
     const result: TestResult = {
       category,
       test,
@@ -64,7 +63,7 @@ const SystemTestPanel = () => {
     }
 
     // Test tables existence
-    const tables = ['live_sessions', 'announcements', 'banners'];
+    const tables: Array<'live_sessions' | 'announcements' | 'banners'> = ['live_sessions', 'announcements', 'banners'];
     for (const table of tables) {
       try {
         const { error } = await supabase.from(table).select('*').limit(1);
