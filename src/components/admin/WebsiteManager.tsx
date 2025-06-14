@@ -24,17 +24,21 @@ const WebsiteManager = () => {
       </div>
 
       <Tabs defaultValue="live-editor" className="w-full">
-        <TabsList className="grid w-full grid-cols-9">
-          <TabsTrigger value="live-editor">Live Editor</TabsTrigger>
-          <TabsTrigger value="quick-create">Quick Create</TabsTrigger>
-          <TabsTrigger value="content">Content</TabsTrigger>
-          <TabsTrigger value="banners">Banners</TabsTrigger>
-          <TabsTrigger value="navigation">Navigation</TabsTrigger>
-          <TabsTrigger value="settings">Settings</TabsTrigger>
-          <TabsTrigger value="templates">Templates</TabsTrigger>
-          <TabsTrigger value="announcements">Announcements</TabsTrigger>
-          <TabsTrigger value="live-classes">Live Classes</TabsTrigger>
-        </TabsList>
+        <div className="space-y-2">
+          <TabsList className="grid w-full grid-cols-5">
+            <TabsTrigger value="live-editor">Live Editor</TabsTrigger>
+            <TabsTrigger value="quick-create">Quick Create</TabsTrigger>
+            <TabsTrigger value="content">Content</TabsTrigger>
+            <TabsTrigger value="banners">Banners</TabsTrigger>
+            <TabsTrigger value="navigation">Navigation</TabsTrigger>
+          </TabsList>
+          <TabsList className="grid w-full grid-cols-4">
+            <TabsTrigger value="settings">Settings</TabsTrigger>
+            <TabsTrigger value="templates">Templates</TabsTrigger>
+            <TabsTrigger value="announcements">Announcements</TabsTrigger>
+            <TabsTrigger value="live-classes">Live Classes</TabsTrigger>
+          </TabsList>
+        </div>
 
         <TabsContent value="live-editor" className="mt-6">
           <LiveContentManager />
