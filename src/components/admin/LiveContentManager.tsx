@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -24,10 +24,19 @@ const LiveContentManager = () => {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editContent, setEditContent] = useState<any>({});
   const { toast } = useToast();
+  const channelRef = useRef<any>(null);
 
   useEffect(() => {
     fetchContents();
     setupRealtimeSubscription();
+
+    // Cleanup function
+    return () => {
+      if (channelRef.current) {
+        supabase.removeChannel(channelRef.current);
+        channelRef.current = null;
+      }
+    };
   }, []);
 
   const fetchContents = async () => {
@@ -45,6 +54,12 @@ const LiveContentManager = () => {
   };
 
   const setupRealtimeSubscription = () => {
+    // Clean up existing channel if it exists
+    if (channelRef.current) {
+      supabase.removeChannel(channelRef.current);
+    }
+
+    // Create new channel
     const channel = supabase
       .channel('page_content_changes')
       .on(
@@ -60,9 +75,7 @@ const LiveContentManager = () => {
       )
       .subscribe();
 
-    return () => {
-      supabase.removeChannel(channel);
-    };
+    channelRef.current = channel;
   };
 
   const updateContent = async (id: string, newContent: any) => {
