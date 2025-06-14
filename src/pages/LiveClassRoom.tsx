@@ -24,7 +24,7 @@ const LiveClassRoom = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { sessionId } = useParams();
-  const { user } = useAuth();
+  const { user, isAdmin } = useAuth();
   const { toast } = useToast();
   
   const [showLiveClass, setShowLiveClass] = useState(false);
@@ -51,7 +51,8 @@ const LiveClassRoom = () => {
     console.log('Session ID from params:', sessionId);
     
     const channelFromUrl = searchParams.get('channel');
-    const teacherFromUrl = searchParams.get('teacher') === 'true';
+    // Always join as teacher if admin
+    const teacherFromUrl = isAdmin || searchParams.get('teacher') === 'true';
     
     console.log('Channel from URL:', channelFromUrl);
     console.log('Teacher from URL:', teacherFromUrl);
@@ -64,12 +65,13 @@ const LiveClassRoom = () => {
     // If we have channel from URL, auto-join immediately
     if (channelFromUrl && channelFromUrl.trim()) {
       console.log('AUTO-JOINING: Setting up live class immediately');
+      // Always join as teacher if admin
       const role = teacherFromUrl ? 'teacher' : 'student';
-      const userIdPart = user?.id.split('-')[0] || Math.random().toString(36).slice(2, 8);
+      const userIdPart = user?.id?.split('-')[0] || Math.random().toString(36).slice(2, 8);
       const customUid = `${role}-${userIdPart}`;
       setUid(customUid);
       setChannelName(channelFromUrl.trim());
-      setIsTeacher(teacherFromUrl);
+      setIsTeacher(role === 'teacher');
       setShowLiveClass(true);
       addTestResult('Auto-join functionality working');
       return;
@@ -80,7 +82,7 @@ const LiveClassRoom = () => {
       console.log('Loading session by ID:', sessionId);
       loadSessionById(sessionId);
     }
-  }, [searchParams, sessionId, location.pathname, user]);
+  }, [searchParams, sessionId, location.pathname, user, isAdmin]); // react to isAdmin as well
 
   const loadSessionById = async (id: string) => {
     try {
@@ -100,12 +102,14 @@ const LiveClassRoom = () => {
       console.log('Session data loaded:', data);
       if (data && data.agora_channel) {
         console.log('Setting up live class with channel:', data.agora_channel);
-        const role = 'student'; // Users joining from session list are students
-        const userIdPart = user?.id.split('-')[0] || Math.random().toString(36).slice(2, 8);
+        // Always assign teacher if admin
+        // users from session list are student unless admin
+        const role = isAdmin ? 'teacher' : 'student';
+        const userIdPart = user?.id?.split('-')[0] || Math.random().toString(36).slice(2, 8);
         const customUid = `${role}-${userIdPart}`;
         setUid(customUid);
         setChannelName(data.agora_channel);
-        setIsTeacher(false);
+        setIsTeacher(role === 'teacher');
         setShowLiveClass(true);
         addTestResult('Session by ID loading working');
       } else {
@@ -169,23 +173,15 @@ const LiveClassRoom = () => {
   }, []);
 
   const handleJoinClass = (channel: string, asTeacher: boolean = false) => {
-    if (!channel.trim()) {
-      toast({
-        title: "Invalid Channel",
-        description: "Please enter a valid channel name",
-        variant: "destructive"
-      });
-      return;
-    }
-    
-    console.log('Joining class:', channel, 'as teacher:', asTeacher);
-    const role = asTeacher ? 'teacher' : 'student';
-    const userIdPart = user?.id.split('-')[0] || Math.random().toString(36).slice(2, 8);
+    // Teachers if admin or asTeacher provided
+    const isTeacherRole = isAdmin || asTeacher;
+    const role = isTeacherRole ? 'teacher' : 'student';
+    const userIdPart = user?.id?.split('-')[0] || Math.random().toString(36).slice(2, 8);
     const customUid = `${role}-${userIdPart}`;
 
     setUid(customUid);
     setChannelName(channel);
-    setIsTeacher(asTeacher);
+    setIsTeacher(role === 'teacher');
     setShowLiveClass(true);
     addTestResult('Manual join functionality working');
   };
@@ -217,7 +213,7 @@ const LiveClassRoom = () => {
       <LiveClass 
         channelName={channelName}
         appId={AGORA_APP_ID}
-        isTeacher={isTeacher}
+        isTeacher={isTeacher} // always true if admin
         uid={uid}
       />
     );
