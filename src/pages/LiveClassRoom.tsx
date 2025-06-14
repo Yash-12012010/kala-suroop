@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate, useSearchParams, useParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -31,37 +30,38 @@ const LiveClassRoom = () => {
   const [isTeacher, setIsTeacher] = useState(false);
   const [liveSessions, setLiveSessions] = useState<LiveSession[]>([]);
   const [loading, setLoading] = useState(true);
-  const [autoJoinAttempted, setAutoJoinAttempted] = useState(false);
   
   // Using the provided Agora App ID
   const AGORA_APP_ID = '76fe48407b1d4e0986592d7ad3d5a361';
 
-  // Check URL parameters for auto-join
+  // Check URL parameters for auto-join - this should run immediately
   useEffect(() => {
-    console.log('LiveClassRoom mounted, checking URL parameters...');
+    console.log('=== LiveClassRoom Auto-Join Check ===');
+    console.log('Current path:', location.pathname);
     console.log('Search params:', Object.fromEntries(searchParams.entries()));
-    console.log('Session ID:', sessionId);
-    console.log('Current location:', location.pathname);
+    console.log('Session ID from params:', sessionId);
     
-    const channel = searchParams.get('channel');
-    const teacher = searchParams.get('teacher') === 'true';
+    const channelFromUrl = searchParams.get('channel');
+    const teacherFromUrl = searchParams.get('teacher') === 'true';
     
-    if (channel && !autoJoinAttempted) {
-      console.log('Auto-joining channel from URL:', channel, 'as teacher:', teacher);
-      setChannelName(channel);
-      setIsTeacher(teacher);
+    console.log('Channel from URL:', channelFromUrl);
+    console.log('Teacher from URL:', teacherFromUrl);
+    
+    // If we have channel from URL, auto-join immediately
+    if (channelFromUrl && channelFromUrl.trim()) {
+      console.log('AUTO-JOINING: Setting up live class immediately');
+      setChannelName(channelFromUrl.trim());
+      setIsTeacher(teacherFromUrl);
       setShowLiveClass(true);
-      setAutoJoinAttempted(true);
       return;
     }
 
-    // Check if we have a sessionId from the route
-    if (sessionId && !autoJoinAttempted) {
-      console.log('Loading session from ID:', sessionId);
+    // Otherwise, check if we have a sessionId to load
+    if (sessionId) {
+      console.log('Loading session by ID:', sessionId);
       loadSessionById(sessionId);
-      setAutoJoinAttempted(true);
     }
-  }, [searchParams, sessionId, autoJoinAttempted, location.pathname]);
+  }, [searchParams, sessionId, location.pathname]);
 
   const loadSessionById = async (id: string) => {
     try {
@@ -81,7 +81,7 @@ const LiveClassRoom = () => {
       if (data && data.agora_channel) {
         console.log('Setting up live class with channel:', data.agora_channel);
         setChannelName(data.agora_channel);
-        setIsTeacher(false); // Default to student unless specified
+        setIsTeacher(false);
         setShowLiveClass(true);
       } else {
         console.log('No agora channel found for session');
@@ -141,18 +141,23 @@ const LiveClassRoom = () => {
     return now >= start && now <= end;
   };
 
-  console.log('Current state:', { 
-    showLiveClass, 
-    channelName, 
-    isTeacher, 
-    autoJoinAttempted,
+  // Debug current state
+  const debugInfo = {
+    showLiveClass,
+    channelName,
+    isTeacher,
     hasChannel: !!channelName,
-    shouldShowLiveClass: showLiveClass && channelName
-  });
+    channelLength: channelName.length,
+    shouldRenderLiveClass: showLiveClass && channelName && channelName.trim() !== '',
+    searchParamsChannel: searchParams.get('channel'),
+    searchParamsTeacher: searchParams.get('teacher')
+  };
+  
+  console.log('=== Current State Debug ===', debugInfo);
 
-  // Render LiveClass component if conditions are met
+  // IMPORTANT: Check if we should render LiveClass
   if (showLiveClass && channelName && channelName.trim() !== '') {
-    console.log('Rendering LiveClass component with channel:', channelName);
+    console.log('✅ RENDERING LiveClass component with channel:', channelName);
     return (
       <LiveClass 
         channelName={channelName}
@@ -161,6 +166,8 @@ const LiveClassRoom = () => {
       />
     );
   }
+
+  console.log('❌ NOT rendering LiveClass - showing main interface instead');
 
   return (
     <div className="pt-20 pb-16">
@@ -183,7 +190,7 @@ const LiveClassRoom = () => {
           </p>
         </div>
 
-        {/* Debug Info */}
+        {/* Enhanced Debug Info */}
         <Card className="mb-8 border-blue-200 bg-blue-50 dark:bg-blue-900/20">
           <CardHeader>
             <CardTitle className="flex items-center text-blue-800 dark:text-blue-200">
@@ -197,11 +204,13 @@ const LiveClassRoom = () => {
               <p><strong>Session ID from URL:</strong> {sessionId || 'None'}</p>
               <p><strong>Channel from query:</strong> {searchParams.get('channel') || 'None'}</p>
               <p><strong>Teacher mode:</strong> {searchParams.get('teacher') || 'false'}</p>
-              <p><strong>Current channel:</strong> {channelName || 'None'}</p>
+              <p><strong>Current channel:</strong> '{channelName}' (length: {channelName.length})</p>
               <p><strong>Show Live Class:</strong> {showLiveClass ? 'Yes' : 'No'}</p>
-              <p><strong>Auto-join attempted:</strong> {autoJoinAttempted ? 'Yes' : 'No'}</p>
-              <p><strong>Should render LiveClass:</strong> {(showLiveClass && channelName && channelName.trim() !== '') ? 'Yes' : 'No'}</p>
+              <p><strong>Should render LiveClass:</strong> {debugInfo.shouldRenderLiveClass ? '✅ YES' : '❌ NO'}</p>
               <p><strong>Live sessions found:</strong> {liveSessions.length}</p>
+              {channelName && (
+                <p><strong>Channel valid:</strong> {channelName.trim() !== '' ? '✅ Valid' : '❌ Empty'}</p>
+              )}
             </div>
           </CardContent>
         </Card>
