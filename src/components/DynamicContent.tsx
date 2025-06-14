@@ -1,71 +1,61 @@
 
 import React from 'react';
 import { usePageContent } from '@/hooks/usePageContent';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 interface DynamicContentProps {
   pageSlug: string;
   sectionKey: string;
-  renderAs?: 'hero' | 'card' | 'text' | 'custom';
-  fallback?: React.ReactNode;
+  renderAs?: 'text' | 'hero' | 'card' | 'list' | 'custom';
   className?: string;
+  fallback?: React.ReactNode;
 }
 
-const DynamicContent: React.FC<DynamicContentProps> = ({ 
-  pageSlug, 
-  sectionKey, 
-  renderAs = 'custom', 
-  fallback = null,
-  className = ""
+const DynamicContent: React.FC<DynamicContentProps> = ({
+  pageSlug,
+  sectionKey,
+  renderAs = 'custom',
+  className = '',
+  fallback = null
 }) => {
   const { getContentBySection, loading } = usePageContent(pageSlug, sectionKey);
   
-  const content = getContentBySection(sectionKey);
-
   if (loading) {
-    return <div className="animate-pulse bg-gray-200 h-20 rounded"></div>;
+    return <div className={className}>Loading...</div>;
   }
 
+  const content = getContentBySection(sectionKey);
+  
   if (!content) {
-    return <>{fallback}</>;
+    return fallback ? <div className={className}>{fallback}</div> : null;
   }
 
   const renderContent = () => {
     switch (renderAs) {
+      case 'text':
+        return typeof content === 'string' ? (
+          <div dangerouslySetInnerHTML={{ __html: content }} />
+        ) : (
+          <div>
+            {content.title && <h2 className="text-3xl font-bold mb-4">{content.title}</h2>}
+            {content.subtitle && <p className="text-lg text-gray-600 dark:text-gray-300">{content.subtitle}</p>}
+            {content.description && <p>{content.description}</p>}
+          </div>
+        );
+
       case 'hero':
         return (
-          <section 
-            className={`py-16 px-4 text-center ${className}`}
-            style={{ backgroundColor: content.background_color }}
-          >
-            <div className="max-w-4xl mx-auto">
-              {content.title && (
-                <h1 className="text-4xl md:text-6xl font-bold mb-6">
-                  {content.title}
-                </h1>
-              )}
-              {content.subtitle && (
-                <h2 className="text-xl md:text-2xl mb-4 text-gray-600">
-                  {content.subtitle}
-                </h2>
-              )}
-              {content.description && (
-                <p className="text-lg mb-8 max-w-2xl mx-auto">
-                  {content.description}
-                </p>
-              )}
-              {content.image_url && (
-                <img 
-                  src={content.image_url} 
-                  alt={content.title || 'Hero image'}
-                  className="w-full max-w-2xl mx-auto mb-8 rounded-lg shadow-lg"
-                />
-              )}
-              {content.button_text && content.button_link && (
-                <Button size="lg" asChild>
-                  <a href={content.button_link}>{content.button_text}</a>
-                </Button>
+          <section className="bg-gradient-to-br from-orange-50 via-pink-50 to-purple-50 dark:from-orange-950/20 dark:via-pink-950/20 dark:to-purple-950/20 py-20">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+              <h1 className="text-4xl md:text-6xl font-bold bg-gradient-to-r from-orange-600 via-pink-600 to-purple-600 bg-clip-text text-transparent mb-6">
+                {content.title || 'Welcome'}
+              </h1>
+              <p className="text-xl text-gray-600 dark:text-gray-300 mb-8 max-w-3xl mx-auto">
+                {content.subtitle || content.description || 'Welcome to our platform'}
+              </p>
+              {content.buttonText && (
+                <button className="bg-gradient-to-r from-orange-600 to-pink-600 hover:from-orange-700 hover:to-pink-700 text-white px-8 py-3 rounded-lg font-semibold">
+                  {content.buttonText}
+                </button>
               )}
             </div>
           </section>
@@ -73,58 +63,69 @@ const DynamicContent: React.FC<DynamicContentProps> = ({
 
       case 'card':
         return (
-          <Card className={`${content.is_featured ? 'border-2 border-primary' : ''} ${className}`}>
-            {content.image_url && (
-              <img 
-                src={content.image_url} 
-                alt={content.title || 'Card image'}
-                className="w-full h-48 object-cover rounded-t-lg"
-              />
-            )}
-            <CardHeader>
-              {content.title && <CardTitle>{content.title}</CardTitle>}
-            </CardHeader>
-            <CardContent>
-              {content.description && <p>{content.description}</p>}
-              {content.link_url && (
-                <Button className="mt-4" asChild>
-                  <a href={content.link_url}>Learn More</a>
-                </Button>
-              )}
-            </CardContent>
-          </Card>
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+            {content.title && <h3 className="text-xl font-semibold mb-2">{content.title}</h3>}
+            {content.description && <p className="text-gray-600 dark:text-gray-300">{content.description}</p>}
+            {content.image && <img src={content.image} alt={content.title} className="w-full h-48 object-cover rounded mt-4" />}
+          </div>
         );
 
-      case 'text':
+      case 'list':
         return (
-          <div className={className}>
-            {content.title && <h3 className="text-xl font-semibold mb-2">{content.title}</h3>}
-            {content.content && <p>{content.content}</p>}
+          <div>
+            {content.title && <h3 className="text-xl font-semibold mb-4">{content.title}</h3>}
+            {content.items && (
+              <ul className="space-y-2">
+                {content.items.map((item: any, index: number) => (
+                  <li key={index} className="flex items-center">
+                    <span className="w-2 h-2 bg-primary rounded-full mr-3"></span>
+                    {typeof item === 'string' ? item : item.text || item.title}
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
         );
 
       default:
-        // Custom rendering - render all content fields
-        return (
-          <div className={className}>
-            {Object.entries(content).map(([key, value]) => {
-              if (typeof value === 'string' && value.startsWith('http') && (value.includes('.jpg') || value.includes('.png') || value.includes('.webp'))) {
-                return <img key={key} src={value} alt={key} className="max-w-full h-auto rounded" />;
-              }
-              if (typeof value === 'boolean') {
-                return value ? <div key={key} className="text-green-600">✓ {key}</div> : null;
-              }
-              if (typeof value === 'string') {
-                return <div key={key} className="mb-2">{value}</div>;
-              }
-              return null;
-            })}
-          </div>
+        if (content.stats && Array.isArray(content.stats)) {
+          return (
+            <section className="py-16 bg-gradient-to-r from-orange-100 via-pink-100 to-purple-100 dark:from-orange-950/20 dark:via-pink-950/20 dark:to-purple-950/20">
+              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+                  {content.stats.map((stat: any, index: number) => (
+                    <div key={index} className="p-6 bg-white/70 backdrop-blur-sm rounded-2xl shadow-lg">
+                      <div className={`text-3xl font-bold bg-gradient-to-r ${getGradientColor(stat.color)} bg-clip-text text-transparent mb-2`}>
+                        {stat.value}
+                      </div>
+                      <div className="text-muted-foreground">{stat.label}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </section>
+          );
+        }
+        
+        return typeof content === 'string' ? (
+          <div dangerouslySetInnerHTML={{ __html: content }} />
+        ) : (
+          <div>{JSON.stringify(content)}</div>
         );
     }
   };
 
-  return renderContent();
+  const getGradientColor = (color: string) => {
+    switch (color) {
+      case 'orange': return 'from-orange-600 to-pink-600';
+      case 'pink': return 'from-pink-600 to-purple-600';
+      case 'purple': return 'from-purple-600 to-indigo-600';
+      case 'blue': return 'from-indigo-600 to-blue-600';
+      default: return 'from-gray-600 to-gray-800';
+    }
+  };
+
+  return <div className={className}>{renderContent()}</div>;
 };
 
 export default DynamicContent;
