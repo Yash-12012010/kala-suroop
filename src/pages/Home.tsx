@@ -10,9 +10,9 @@ const Home = () => {
   const navigate = useNavigate();
 
   const categories = [
-    { name: 'Beginner', description: 'Foundation art courses for beginners', courses: 12, color: 'bg-pink-500' },
-    { name: 'Intermediate', description: 'Advanced techniques and skills', courses: 18, color: 'bg-purple-500' },
-    { name: 'Advanced', description: 'Master-level artistic expression', courses: 15, color: 'bg-indigo-500' }
+    { name: 'Beginner', description: 'Foundation art courses for beginners', courses: 12, color: 'bg-pink-500', level: 'beginner' },
+    { name: 'Intermediate', description: 'Advanced techniques and skills', courses: 18, color: 'bg-purple-500', level: 'intermediate' },
+    { name: 'Advanced', description: 'Master-level artistic expression', courses: 15, color: 'bg-indigo-500', level: 'advanced' }
   ];
 
   const featuredCourses = [
@@ -58,6 +58,10 @@ const Home = () => {
     navigate('/checkout', { state: { course } });
   };
 
+  const handleCategoryClick = (level: string) => {
+    navigate('/courses', { state: { selectedLevel: level } });
+  };
+
   return (
     <div className="pt-16">
       {/* Hero Section */}
@@ -94,7 +98,11 @@ const Home = () => {
 
           <div className="grid md:grid-cols-3 gap-8">
             {categories.map((category, index) => (
-              <Card key={index} className="group hover:shadow-xl transition-all duration-300 cursor-pointer border-0 bg-white/70 backdrop-blur-sm hover:bg-white/90">
+              <Card 
+                key={index} 
+                className="group hover:shadow-xl transition-all duration-300 cursor-pointer border-0 bg-white/70 backdrop-blur-sm hover:bg-white/90"
+                onClick={() => handleCategoryClick(category.level)}
+              >
                 <CardHeader>
                   <div className={`w-16 h-16 ${category.color} rounded-full flex items-center justify-center mb-4 mx-auto shadow-lg`}>
                     <span className="text-white font-bold text-lg">🎨</span>

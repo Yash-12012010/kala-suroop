@@ -1,6 +1,6 @@
 
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -8,8 +8,16 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Star, Users, Clock } from 'lucide-react';
 
 const Courses = () => {
-  const [activeTab, setActiveTab] = useState('beginner');
   const navigate = useNavigate();
+  const location = useLocation();
+  const [activeTab, setActiveTab] = useState('beginner');
+
+  // Check if we received a selected level from navigation
+  useEffect(() => {
+    if (location.state?.selectedLevel) {
+      setActiveTab(location.state.selectedLevel);
+    }
+  }, [location.state]);
 
   const coursesByLevel = {
     'beginner': [
