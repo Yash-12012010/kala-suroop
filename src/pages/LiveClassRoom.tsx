@@ -19,8 +19,8 @@ const LiveClassRoom = () => {
   const [channelName, setChannelName] = useState('');
   const [isTeacher, setIsTeacher] = useState(false);
   
-  // For demo purposes - in production, this should come from environment variables
-  const AGORA_APP_ID = process.env.REACT_APP_AGORA_APP_ID || 'demo-app-id';
+  // Using the provided Agora App ID
+  const AGORA_APP_ID = '76fe48407b1d4e0986592d7ad3d5a361';
 
   const handleJoinClass = (channel: string, asTeacher: boolean = false) => {
     if (!channel.trim()) {
@@ -65,24 +65,24 @@ const LiveClassRoom = () => {
         </div>
 
         {/* Setup Instructions */}
-        <Card className="mb-8 border-orange-200 bg-orange-50 dark:bg-orange-900/20">
+        <Card className="mb-8 border-green-200 bg-green-50 dark:bg-green-900/20">
           <CardHeader>
-            <CardTitle className="flex items-center text-orange-800 dark:text-orange-200">
-              <AlertCircle className="h-5 w-5 mr-2" />
-              Demo Mode Active
+            <CardTitle className="flex items-center text-green-800 dark:text-green-200">
+              <Video className="h-5 w-5 mr-2" />
+              Live Video Ready
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              <p className="text-orange-700 dark:text-orange-300">
-                This is a demo version of the live class feature. To enable full functionality:
+              <p className="text-green-700 dark:text-green-300">
+                Your Agora video integration is configured and ready to use. You can now:
               </p>
-              <ol className="list-decimal list-inside space-y-2 text-sm text-orange-700 dark:text-orange-300">
-                <li>Sign up for a free account at <a href="https://www.agora.io/" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">Agora.io</a></li>
-                <li>Create a new project in your Agora dashboard</li>
-                <li>Get your App ID from the project settings</li>
-                <li>Set the REACT_APP_AGORA_APP_ID environment variable</li>
-              </ol>
+              <ul className="list-disc list-inside space-y-2 text-sm text-green-700 dark:text-green-300">
+                <li>Join existing live classes</li>
+                <li>Start new teaching sessions</li>
+                <li>Experience real-time video communication</li>
+                <li>Use interactive features like hand raising</li>
+              </ul>
             </div>
           </CardContent>
         </Card>
