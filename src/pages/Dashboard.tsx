@@ -128,101 +128,101 @@ const Dashboard = () => {
   return (
     <div className="pt-20 pb-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+        <div className="mb-6 lg:mb-8">
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white mb-2">
             Welcome back, {profile?.full_name || user?.email || 'Student'}!
           </h1>
-          <p className="text-lg text-gray-600 dark:text-gray-300">
+          <p className="text-base lg:text-lg text-gray-600 dark:text-gray-300">
             Continue your learning journey
           </p>
         </div>
 
         {/* Quick Actions */}
-        <div className="grid md:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 lg:gap-6 mb-6 lg:mb-8">
           <Card className="hover:shadow-lg transition-shadow cursor-pointer">
-            <CardContent className="p-6 text-center">
-              <Video className="h-8 w-8 mx-auto mb-3 text-blue-600" />
-              <h3 className="font-semibold mb-2">Live Classes</h3>
+            <CardContent className="p-4 lg:p-6 text-center">
+              <Video className="h-6 w-6 lg:h-8 lg:w-8 mx-auto mb-2 lg:mb-3 text-blue-600" />
+              <h3 className="font-semibold text-sm lg:text-base mb-2">Live Classes</h3>
               <Link to="/live-class">
-                <Button size="sm" className="w-full">Join Class</Button>
+                <Button size="sm" className="w-full text-xs lg:text-sm">Join Class</Button>
               </Link>
             </CardContent>
           </Card>
 
           <Card className="hover:shadow-lg transition-shadow cursor-pointer">
-            <CardContent className="p-6 text-center">
-              <BookOpen className="h-8 w-8 mx-auto mb-3 text-green-600" />
-              <h3 className="font-semibold mb-2">My Courses</h3>
+            <CardContent className="p-4 lg:p-6 text-center">
+              <BookOpen className="h-6 w-6 lg:h-8 lg:w-8 mx-auto mb-2 lg:mb-3 text-green-600" />
+              <h3 className="font-semibold text-sm lg:text-base mb-2">My Courses</h3>
               <Link to="/courses">
-                <Button size="sm" variant="outline" className="w-full">View All</Button>
+                <Button size="sm" variant="outline" className="w-full text-xs lg:text-sm">View All</Button>
               </Link>
             </CardContent>
           </Card>
 
           <Card className="hover:shadow-lg transition-shadow cursor-pointer">
-            <CardContent className="p-6 text-center">
-              <Calendar className="h-8 w-8 mx-auto mb-3 text-purple-600" />
-              <h3 className="font-semibold mb-2">Schedule</h3>
+            <CardContent className="p-4 lg:p-6 text-center">
+              <Calendar className="h-6 w-6 lg:h-8 lg:w-8 mx-auto mb-2 lg:mb-3 text-purple-600" />
+              <h3 className="font-semibold text-sm lg:text-base mb-2">Schedule</h3>
               <Link to="/timetable">
-                <Button size="sm" variant="outline" className="w-full">View Schedule</Button>
+                <Button size="sm" variant="outline" className="w-full text-xs lg:text-sm">View Schedule</Button>
               </Link>
             </CardContent>
           </Card>
 
           <Card className="hover:shadow-lg transition-shadow cursor-pointer">
-            <CardContent className="p-6 text-center">
-              <Award className="h-8 w-8 mx-auto mb-3 text-orange-600" />
-              <h3 className="font-semibold mb-2">Achievements</h3>
-              <Button size="sm" variant="outline" className="w-full">View All</Button>
+            <CardContent className="p-4 lg:p-6 text-center">
+              <Award className="h-6 w-6 lg:h-8 lg:w-8 mx-auto mb-2 lg:mb-3 text-orange-600" />
+              <h3 className="font-semibold text-sm lg:text-base mb-2">Achievements</h3>
+              <Button size="sm" variant="outline" className="w-full text-xs lg:text-sm">View All</Button>
             </CardContent>
           </Card>
         </div>
 
-        <div className="grid lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
           {/* Purchased Courses */}
           <div className="lg:col-span-2">
             <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center">
-                  <BookOpen className="h-5 w-5 mr-2" />
+              <CardHeader className="pb-4 lg:pb-6">
+                <CardTitle className="flex items-center text-lg lg:text-xl">
+                  <BookOpen className="h-4 w-4 lg:h-5 lg:w-5 mr-2" />
                   My Courses
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-3 lg:space-y-4">
                 {purchasedCourses.length === 0 ? (
-                  <div className="text-center py-8">
-                    <BookOpen className="h-12 w-12 mx-auto mb-4 text-gray-400" />
-                    <p className="text-gray-500 mb-4">You haven't purchased any courses yet</p>
+                  <div className="text-center py-6 lg:py-8">
+                    <BookOpen className="h-10 w-10 lg:h-12 lg:w-12 mx-auto mb-3 lg:mb-4 text-gray-400" />
+                    <p className="text-gray-500 mb-3 lg:mb-4 text-sm lg:text-base">You haven't purchased any courses yet</p>
                     <Link to="/courses">
-                      <Button>Browse Courses</Button>
+                      <Button className="text-sm lg:text-base">Browse Courses</Button>
                     </Link>
                   </div>
                 ) : (
                   purchasedCourses.map((purchase) => (
-                    <div key={purchase.id} className="flex items-center space-x-4 p-4 border rounded-lg">
+                    <div key={purchase.id} className="flex flex-col sm:flex-row sm:items-center space-y-3 sm:space-y-0 sm:space-x-4 p-3 lg:p-4 border rounded-lg">
                       <img 
                         src={courseImages[purchase.course_id as keyof typeof courseImages] || 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=300&h=200&fit=crop'} 
                         alt={courseNames[purchase.course_id as keyof typeof courseNames] || 'Course'}
-                        className="w-16 h-16 rounded-lg object-cover"
+                        className="w-full sm:w-14 lg:w-16 h-32 sm:h-14 lg:h-16 rounded-lg object-cover"
                       />
-                      <div className="flex-1">
-                        <h3 className="font-semibold">
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-semibold text-sm lg:text-base truncate">
                           {courseNames[purchase.course_id as keyof typeof courseNames] || `Course ${purchase.course_id}`}
                         </h3>
-                        <div className="flex items-center space-x-2 mt-1">
-                          <div className="flex-1 bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                        <div className="flex items-center space-x-2 mt-1 lg:mt-2">
+                          <div className="flex-1 bg-gray-200 dark:bg-gray-700 rounded-full h-1.5 lg:h-2">
                             <div 
-                              className="bg-green-600 h-2 rounded-full transition-all duration-300"
+                              className="bg-green-600 h-1.5 lg:h-2 rounded-full transition-all duration-300"
                               style={{ width: '0%' }}
                             />
                           </div>
-                          <span className="text-sm text-muted-foreground">0%</span>
+                          <span className="text-xs lg:text-sm text-muted-foreground">0%</span>
                         </div>
-                        <p className="text-sm text-muted-foreground mt-1">
+                        <p className="text-xs lg:text-sm text-muted-foreground mt-1">
                           Purchased: {new Date(purchase.created_at).toLocaleDateString()}
                         </p>
                       </div>
-                      <Button size="sm">Continue</Button>
+                      <Button size="sm" className="w-full sm:w-auto text-xs lg:text-sm">Continue</Button>
                     </div>
                   ))
                 )}
@@ -231,29 +231,29 @@ const Dashboard = () => {
           </div>
 
           {/* Sidebar */}
-          <div className="space-y-6">
+          <div className="space-y-4 lg:space-y-6">
             {/* Upcoming Classes */}
             <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center">
-                  <Clock className="h-5 w-5 mr-2" />
+              <CardHeader className="pb-4">
+                <CardTitle className="flex items-center text-lg">
+                  <Clock className="h-4 w-4 lg:h-5 lg:w-5 mr-2" />
                   Upcoming Classes
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-3">
+              <CardContent className="space-y-2 lg:space-y-3">
                 {upcomingClasses.length === 0 ? (
-                  <div className="text-center py-4">
-                    <Clock className="h-8 w-8 mx-auto mb-2 text-gray-400" />
-                    <p className="text-sm text-gray-500">No upcoming classes</p>
+                  <div className="text-center py-3 lg:py-4">
+                    <Clock className="h-6 w-6 lg:h-8 lg:w-8 mx-auto mb-2 text-gray-400" />
+                    <p className="text-xs lg:text-sm text-gray-500">No upcoming classes</p>
                   </div>
                 ) : (
                   upcomingClasses.map((classItem, index) => (
-                    <div key={index} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                      <div>
-                        <p className="font-medium text-sm">{classItem.subject}</p>
+                    <div key={index} className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0 p-2 lg:p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                      <div className="min-w-0 flex-1">
+                        <p className="font-medium text-xs lg:text-sm truncate">{classItem.subject}</p>
                         <p className="text-xs text-muted-foreground">{classItem.time}</p>
                       </div>
-                      <Badge variant={classItem.isLive ? "default" : "secondary"}>
+                      <Badge variant={classItem.isLive ? "default" : "secondary"} className="text-xs w-fit">
                         {classItem.isLive ? "Live" : "Scheduled"}
                       </Badge>
                     </div>
@@ -261,7 +261,7 @@ const Dashboard = () => {
                 )}
                 {upcomingClasses.length > 0 && (
                   <Link to="/live-class">
-                    <Button size="sm" className="w-full mt-3">
+                    <Button size="sm" className="w-full mt-2 lg:mt-3 text-xs lg:text-sm">
                       Join Live Class
                     </Button>
                   </Link>
@@ -271,24 +271,24 @@ const Dashboard = () => {
 
             {/* Performance Stats */}
             <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center">
-                  <TrendingUp className="h-5 w-5 mr-2" />
+              <CardHeader className="pb-4">
+                <CardTitle className="flex items-center text-lg">
+                  <TrendingUp className="h-4 w-4 lg:h-5 lg:w-5 mr-2" />
                   This Week
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-3 lg:space-y-4">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm">Classes Attended</span>
-                  <span className="font-semibold">0/0</span>
+                  <span className="text-xs lg:text-sm">Classes Attended</span>
+                  <span className="font-semibold text-sm lg:text-base">0/0</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-sm">Assignments Completed</span>
-                  <span className="font-semibold">0/0</span>
+                  <span className="text-xs lg:text-sm">Assignments Completed</span>
+                  <span className="font-semibold text-sm lg:text-base">0/0</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-sm">Study Hours</span>
-                  <span className="font-semibold">0h</span>
+                  <span className="text-xs lg:text-sm">Study Hours</span>
+                  <span className="font-semibold text-sm lg:text-base">0h</span>
                 </div>
               </CardContent>
             </Card>

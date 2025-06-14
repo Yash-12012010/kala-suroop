@@ -52,31 +52,31 @@ const Announcements = () => {
   return (
     <div className="pt-20 pb-16">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
+        <div className="text-center mb-8 lg:mb-12">
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white mb-2 lg:mb-4">
             Announcements
           </h1>
-          <p className="text-lg text-gray-600 dark:text-gray-300">
+          <p className="text-base lg:text-lg text-gray-600 dark:text-gray-300">
             Stay updated with the latest news and announcements
           </p>
         </div>
 
-        <div className="space-y-6">
+        <div className="space-y-4 lg:space-y-6">
           {announcements.map((announcement) => (
             <Card key={announcement.id} className="hover:shadow-lg transition-shadow duration-300">
-              <CardHeader>
-                <div className="flex items-start justify-between">
-                  <CardTitle className="text-xl text-gray-900 dark:text-white pr-4">
+              <CardHeader className="pb-3 lg:pb-4">
+                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between space-y-2 sm:space-y-0">
+                  <CardTitle className="text-lg sm:text-xl text-gray-900 dark:text-white sm:pr-4">
                     {announcement.title}
                   </CardTitle>
-                  <Badge className={`${getPriorityColor(announcement.priority)} text-white`}>
+                  <Badge className={`${getPriorityColor(announcement.priority)} text-white w-fit text-xs`}>
                     {announcement.priority.toUpperCase()}
                   </Badge>
                 </div>
                 
-                <div className="flex items-center space-x-4 text-sm text-muted-foreground">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-4 space-y-1 sm:space-y-0 text-xs lg:text-sm text-muted-foreground">
                   <div className="flex items-center">
-                    <Calendar className="h-4 w-4 mr-1" />
+                    <Calendar className="h-3 w-3 lg:h-4 lg:w-4 mr-1" />
                     {new Date(announcement.date).toLocaleDateString('en-IN', {
                       year: 'numeric',
                       month: 'long',
@@ -84,14 +84,14 @@ const Announcements = () => {
                     })}
                   </div>
                   <div className="flex items-center">
-                    <User className="h-4 w-4 mr-1" />
+                    <User className="h-3 w-3 lg:h-4 lg:w-4 mr-1" />
                     {announcement.admin}
                   </div>
                 </div>
               </CardHeader>
               
-              <CardContent>
-                <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
+              <CardContent className="pt-0">
+                <p className="text-sm lg:text-base text-gray-600 dark:text-gray-300 leading-relaxed">
                   {announcement.content}
                 </p>
               </CardContent>
