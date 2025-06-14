@@ -31,29 +31,36 @@ const LiveClassRoom = () => {
   const [isTeacher, setIsTeacher] = useState(false);
   const [liveSessions, setLiveSessions] = useState<LiveSession[]>([]);
   const [loading, setLoading] = useState(true);
+  const [autoJoinAttempted, setAutoJoinAttempted] = useState(false);
   
   // Using the provided Agora App ID
   const AGORA_APP_ID = '76fe48407b1d4e0986592d7ad3d5a361';
 
   // Check URL parameters for auto-join
   useEffect(() => {
+    console.log('LiveClassRoom mounted, checking URL parameters...');
+    console.log('Search params:', Object.fromEntries(searchParams.entries()));
+    console.log('Session ID:', sessionId);
+    
     const channel = searchParams.get('channel');
     const teacher = searchParams.get('teacher') === 'true';
     
-    if (channel) {
+    if (channel && !autoJoinAttempted) {
       console.log('Auto-joining channel from URL:', channel, 'as teacher:', teacher);
       setChannelName(channel);
       setIsTeacher(teacher);
       setShowLiveClass(true);
+      setAutoJoinAttempted(true);
       return;
     }
 
     // Check if we have a sessionId from the route
-    if (sessionId) {
+    if (sessionId && !autoJoinAttempted) {
       console.log('Loading session from ID:', sessionId);
       loadSessionById(sessionId);
+      setAutoJoinAttempted(true);
     }
-  }, [searchParams, sessionId]);
+  }, [searchParams, sessionId, autoJoinAttempted]);
 
   const loadSessionById = async (id: string) => {
     try {
@@ -129,7 +136,10 @@ const LiveClassRoom = () => {
     return now >= start && now <= end;
   };
 
-  if (showLiveClass) {
+  console.log('Current state:', { showLiveClass, channelName, isTeacher, autoJoinAttempted });
+
+  if (showLiveClass && channelName) {
+    console.log('Rendering LiveClass component with channel:', channelName);
     return (
       <LiveClass 
         channelName={channelName}
@@ -174,6 +184,8 @@ const LiveClassRoom = () => {
               <p><strong>Channel from query:</strong> {searchParams.get('channel') || 'None'}</p>
               <p><strong>Teacher mode:</strong> {searchParams.get('teacher') || 'false'}</p>
               <p><strong>Current channel:</strong> {channelName || 'None'}</p>
+              <p><strong>Show Live Class:</strong> {showLiveClass ? 'Yes' : 'No'}</p>
+              <p><strong>Auto-join attempted:</strong> {autoJoinAttempted ? 'Yes' : 'No'}</p>
               <p><strong>Live sessions found:</strong> {liveSessions.length}</p>
             </div>
           </CardContent>
