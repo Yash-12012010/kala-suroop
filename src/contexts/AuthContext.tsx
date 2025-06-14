@@ -65,7 +65,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         .from('user_roles')
         .select('role')
         .eq('user_id', userId)
-        .single();
+        .maybeSingle(); // Use maybeSingle instead of single to handle no results
       
       if (error) {
         console.error('Error fetching user role:', error);
@@ -73,6 +73,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return;
       }
       
+      // If no role found, default to 'user'
       setUserRole(data?.role || 'user');
     } catch (error) {
       console.error('Error fetching user role:', error);
