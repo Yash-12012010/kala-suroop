@@ -13,7 +13,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 
 const Navbar = () => {
-  const { user, isAdmin, logout } = useAuth();
+  const { user, profile, isAdmin, logout } = useAuth();
   const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
@@ -32,6 +32,9 @@ const Navbar = () => {
       { name: 'Updates', path: '/announcements' },
     ] : []),
   ];
+
+  // Extract first name from full_name or fall back to email
+  const displayName = profile?.full_name?.split(' ')[0] || user?.email || 'User';
 
   return (
     <nav className="bg-white/95 backdrop-blur-sm dark:bg-gray-900/95 shadow-lg border-b border-orange-100 dark:border-orange-800/20 fixed w-screen top-0 left-0 z-50">
@@ -77,7 +80,7 @@ const Navbar = () => {
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="flex items-center space-x-2 hover:bg-orange-50 dark:hover:bg-orange-900/20 text-xs sm:text-sm">
                     <User className="h-3 w-3 sm:h-4 sm:w-4" />
-                    <span className="hidden lg:inline max-w-20 xl:max-w-24 truncate text-xs sm:text-sm">{user.email}</span>
+                    <span className="hidden lg:inline max-w-20 xl:max-w-24 truncate text-xs sm:text-sm">{displayName}</span>
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-48 sm:w-56 bg-white dark:bg-gray-800 border border-orange-200 dark:border-orange-700">
