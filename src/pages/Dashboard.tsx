@@ -1,11 +1,10 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { 
-  BookOpen, 
+  Palette, 
   Video, 
   Calendar, 
   Award, 
@@ -79,22 +78,22 @@ const Dashboard = () => {
     enabled: purchasedCourses.length > 0
   });
 
-  // Map course IDs to course names
+  // Map course IDs to art course names
   const courseNames = {
-    '1': 'Mathematics Foundation',
-    '2': 'Science Basics',
-    '3': 'Mathematics Complete Course',
-    '4': 'Advanced Chemistry',
-    '5': 'Physics Master Class'
+    '1': 'Drawing Fundamentals',
+    '2': 'Color Theory Basics',
+    '3': 'Digital Painting Mastery',
+    '4': 'Portrait Painting Techniques',
+    '5': 'Abstract Expressionism'
   };
 
-  // Map course IDs to images
+  // Map course IDs to art-themed images
   const courseImages = {
-    '1': 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=300&h=200&fit=crop',
-    '2': 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&h=200&fit=crop',
-    '3': 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=300&h=200&fit=crop',
-    '4': 'https://images.unsplash.com/photo-1554475901-4538ddfbccc2?w=300&h=200&fit=crop',
-    '5': 'https://images.unsplash.com/photo-1636953056323-9c09fdd74fa6?w=300&h=200&fit=crop'
+    '1': 'https://images.unsplash.com/photo-1465146344425-f00d5f5c8f07?w=300&h=200&fit=crop',
+    '2': 'https://images.unsplash.com/photo-1470813740244-df37b8c1edcb?w=300&h=200&fit=crop',
+    '3': 'https://images.unsplash.com/photo-1500673922987-e212871fec22?w=300&h=200&fit=crop',
+    '4': 'https://images.unsplash.com/photo-1486718448742-163732cd1544?w=300&h=200&fit=crop',
+    '5': 'https://images.unsplash.com/photo-1493397212122-2b85dda8106b?w=300&h=200&fit=crop'
   };
 
   if (loading || coursesLoading) {
@@ -126,54 +125,54 @@ const Dashboard = () => {
   });
 
   return (
-    <div className="pt-20 pb-16">
+    <div className="pt-20 pb-16 bg-gradient-to-br from-orange-50 via-pink-50 to-purple-50 dark:from-orange-950/10 dark:via-pink-950/10 dark:to-purple-950/10 min-h-screen">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-6 lg:mb-8">
-          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white mb-2">
-            Welcome back, {profile?.full_name || user?.email || 'Student'}!
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-orange-600 via-pink-600 to-purple-600 bg-clip-text text-transparent mb-2 lg:mb-4">
+            Welcome back to Kala Suroop, {profile?.full_name || user?.email || 'Artist'}!
           </h1>
           <p className="text-base lg:text-lg text-gray-600 dark:text-gray-300">
-            Continue your learning journey
+            Continue your artistic journey and create beautiful masterpieces
           </p>
         </div>
 
         {/* Quick Actions */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 lg:gap-6 mb-6 lg:mb-8">
-          <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+          <Card className="hover:shadow-lg transition-shadow cursor-pointer bg-white/80 backdrop-blur-sm border-0">
             <CardContent className="p-4 lg:p-6 text-center">
-              <Video className="h-6 w-6 lg:h-8 lg:w-8 mx-auto mb-2 lg:mb-3 text-blue-600" />
+              <Video className="h-6 w-6 lg:h-8 lg:w-8 mx-auto mb-2 lg:mb-3 text-pink-600" />
               <h3 className="font-semibold text-sm lg:text-base mb-2">Live Classes</h3>
               <Link to="/live-class">
-                <Button size="sm" className="w-full text-xs lg:text-sm">Join Class</Button>
+                <Button size="sm" className="w-full text-xs lg:text-sm bg-gradient-to-r from-pink-600 to-purple-600">Join Class</Button>
               </Link>
             </CardContent>
           </Card>
 
-          <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+          <Card className="hover:shadow-lg transition-shadow cursor-pointer bg-white/80 backdrop-blur-sm border-0">
             <CardContent className="p-4 lg:p-6 text-center">
-              <BookOpen className="h-6 w-6 lg:h-8 lg:w-8 mx-auto mb-2 lg:mb-3 text-green-600" />
+              <Palette className="h-6 w-6 lg:h-8 lg:w-8 mx-auto mb-2 lg:mb-3 text-orange-600" />
               <h3 className="font-semibold text-sm lg:text-base mb-2">My Courses</h3>
               <Link to="/courses">
-                <Button size="sm" variant="outline" className="w-full text-xs lg:text-sm">View All</Button>
+                <Button size="sm" variant="outline" className="w-full text-xs lg:text-sm border-orange-600 text-orange-600 hover:bg-orange-50">View All</Button>
               </Link>
             </CardContent>
           </Card>
 
-          <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+          <Card className="hover:shadow-lg transition-shadow cursor-pointer bg-white/80 backdrop-blur-sm border-0">
             <CardContent className="p-4 lg:p-6 text-center">
               <Calendar className="h-6 w-6 lg:h-8 lg:w-8 mx-auto mb-2 lg:mb-3 text-purple-600" />
               <h3 className="font-semibold text-sm lg:text-base mb-2">Schedule</h3>
               <Link to="/timetable">
-                <Button size="sm" variant="outline" className="w-full text-xs lg:text-sm">View Schedule</Button>
+                <Button size="sm" variant="outline" className="w-full text-xs lg:text-sm border-purple-600 text-purple-600 hover:bg-purple-50">View Schedule</Button>
               </Link>
             </CardContent>
           </Card>
 
-          <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+          <Card className="hover:shadow-lg transition-shadow cursor-pointer bg-white/80 backdrop-blur-sm border-0">
             <CardContent className="p-4 lg:p-6 text-center">
-              <Award className="h-6 w-6 lg:h-8 lg:w-8 mx-auto mb-2 lg:mb-3 text-orange-600" />
+              <Award className="h-6 w-6 lg:h-8 lg:w-8 mx-auto mb-2 lg:mb-3 text-indigo-600" />
               <h3 className="font-semibold text-sm lg:text-base mb-2">Achievements</h3>
-              <Button size="sm" variant="outline" className="w-full text-xs lg:text-sm">View All</Button>
+              <Button size="sm" variant="outline" className="w-full text-xs lg:text-sm border-indigo-600 text-indigo-600 hover:bg-indigo-50">View All</Button>
             </CardContent>
           </Card>
         </div>
@@ -181,20 +180,20 @@ const Dashboard = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
           {/* Purchased Courses */}
           <div className="lg:col-span-2">
-            <Card>
+            <Card className="bg-white/80 backdrop-blur-sm border-0">
               <CardHeader className="pb-4 lg:pb-6">
                 <CardTitle className="flex items-center text-lg lg:text-xl">
-                  <BookOpen className="h-4 w-4 lg:h-5 lg:w-5 mr-2" />
-                  My Courses
+                  <Palette className="h-4 w-4 lg:h-5 lg:w-5 mr-2 text-pink-600" />
+                  My Art Courses
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3 lg:space-y-4">
                 {purchasedCourses.length === 0 ? (
                   <div className="text-center py-6 lg:py-8">
-                    <BookOpen className="h-10 w-10 lg:h-12 lg:w-12 mx-auto mb-3 lg:mb-4 text-gray-400" />
-                    <p className="text-gray-500 mb-3 lg:mb-4 text-sm lg:text-base">You haven't purchased any courses yet</p>
+                    <Palette className="h-10 w-10 lg:h-12 lg:w-12 mx-auto mb-3 lg:mb-4 text-gray-400" />
+                    <p className="text-gray-500 mb-3 lg:mb-4 text-sm lg:text-base">You haven't enrolled in any art courses yet</p>
                     <Link to="/courses">
-                      <Button className="text-sm lg:text-base">Browse Courses</Button>
+                      <Button className="text-sm lg:text-base bg-gradient-to-r from-pink-600 to-purple-600">Browse Art Courses</Button>
                     </Link>
                   </div>
                 ) : (
@@ -233,18 +232,18 @@ const Dashboard = () => {
           {/* Sidebar */}
           <div className="space-y-4 lg:space-y-6">
             {/* Upcoming Classes */}
-            <Card>
+            <Card className="bg-white/80 backdrop-blur-sm border-0">
               <CardHeader className="pb-4">
                 <CardTitle className="flex items-center text-lg">
-                  <Clock className="h-4 w-4 lg:h-5 lg:w-5 mr-2" />
-                  Upcoming Classes
+                  <Clock className="h-4 w-4 lg:h-5 lg:w-5 mr-2 text-orange-600" />
+                  Upcoming Art Classes
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-2 lg:space-y-3">
                 {upcomingClasses.length === 0 ? (
                   <div className="text-center py-3 lg:py-4">
                     <Clock className="h-6 w-6 lg:h-8 lg:w-8 mx-auto mb-2 text-gray-400" />
-                    <p className="text-xs lg:text-sm text-gray-500">No upcoming classes</p>
+                    <p className="text-xs lg:text-sm text-gray-500">No upcoming art classes</p>
                   </div>
                 ) : (
                   upcomingClasses.map((classItem, index) => (
@@ -261,8 +260,8 @@ const Dashboard = () => {
                 )}
                 {upcomingClasses.length > 0 && (
                   <Link to="/live-class">
-                    <Button size="sm" className="w-full mt-2 lg:mt-3 text-xs lg:text-sm">
-                      Join Live Class
+                    <Button size="sm" className="w-full mt-2 lg:mt-3 text-xs lg:text-sm bg-gradient-to-r from-pink-600 to-purple-600">
+                      Join Art Class
                     </Button>
                   </Link>
                 )}
@@ -270,24 +269,24 @@ const Dashboard = () => {
             </Card>
 
             {/* Performance Stats */}
-            <Card>
+            <Card className="bg-white/80 backdrop-blur-sm border-0">
               <CardHeader className="pb-4">
                 <CardTitle className="flex items-center text-lg">
-                  <TrendingUp className="h-4 w-4 lg:h-5 lg:w-5 mr-2" />
+                  <TrendingUp className="h-4 w-4 lg:h-5 lg:w-5 mr-2 text-purple-600" />
                   This Week
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3 lg:space-y-4">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs lg:text-sm">Classes Attended</span>
+                  <span className="text-xs lg:text-sm">Art Classes Attended</span>
                   <span className="font-semibold text-sm lg:text-base">0/0</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-xs lg:text-sm">Assignments Completed</span>
+                  <span className="text-xs lg:text-sm">Projects Completed</span>
                   <span className="font-semibold text-sm lg:text-base">0/0</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-xs lg:text-sm">Study Hours</span>
+                  <span className="text-xs lg:text-sm">Creative Hours</span>
                   <span className="font-semibold text-sm lg:text-base">0h</span>
                 </div>
               </CardContent>

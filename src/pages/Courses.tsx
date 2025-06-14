@@ -8,15 +8,15 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Star, Users, Clock } from 'lucide-react';
 
 const Courses = () => {
-  const [activeTab, setActiveTab] = useState('class-9');
+  const [activeTab, setActiveTab] = useState('beginner');
   const navigate = useNavigate();
 
-  const coursesByClass = {
-    'class-9': [
+  const coursesByLevel = {
+    'beginner': [
       {
         id: 1,
-        title: 'Mathematics Foundation',
-        image: 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=400&h=250&fit=crop',
+        title: 'Drawing Fundamentals',
+        image: 'https://images.unsplash.com/photo-1465146344425-f00d5f5c8f07?w=400&h=250&fit=crop',
         originalPrice: 2499,
         discountedPrice: 1699,
         discount: 32,
@@ -26,8 +26,8 @@ const Courses = () => {
       },
       {
         id: 2,
-        title: 'Science Basics',
-        image: 'https://images.unsplash.com/photo-1532094349884-543bc11b234d?w=400&h=250&fit=crop',
+        title: 'Color Theory Basics',
+        image: 'https://images.unsplash.com/photo-1470813740244-df37b8c1edcb?w=400&h=250&fit=crop',
         originalPrice: 2299,
         discountedPrice: 1599,
         discount: 30,
@@ -36,11 +36,11 @@ const Courses = () => {
         duration: '75 hours'
       }
     ],
-    'class-10': [
+    'intermediate': [
       {
         id: 3,
-        title: 'Mathematics Complete Course',
-        image: 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=400&h=250&fit=crop',
+        title: 'Digital Painting Mastery',
+        image: 'https://images.unsplash.com/photo-1500673922987-e212871fec22?w=400&h=250&fit=crop',
         originalPrice: 2999,
         discountedPrice: 1999,
         discount: 33,
@@ -50,8 +50,8 @@ const Courses = () => {
       },
       {
         id: 4,
-        title: 'Science Master Class',
-        image: 'https://images.unsplash.com/photo-1532094349884-543bc11b234d?w=400&h=250&fit=crop',
+        title: 'Portrait Painting Techniques',
+        image: 'https://images.unsplash.com/photo-1486718448742-163732cd1544?w=400&h=250&fit=crop',
         originalPrice: 3199,
         discountedPrice: 2199,
         discount: 31,
@@ -60,11 +60,11 @@ const Courses = () => {
         duration: '110 hours'
       }
     ],
-    'class-11': [
+    'advanced': [
       {
         id: 5,
-        title: 'Physics Master Class',
-        image: 'https://images.unsplash.com/photo-1636953056323-9c09fdd74fa6?w=400&h=250&fit=crop',
+        title: 'Abstract Expressionism',
+        image: 'https://images.unsplash.com/photo-1493397212122-2b85dda8106b?w=400&h=250&fit=crop',
         originalPrice: 3499,
         discountedPrice: 2299,
         discount: 34,
@@ -74,8 +74,8 @@ const Courses = () => {
       },
       {
         id: 6,
-        title: 'Chemistry Advanced',
-        image: 'https://images.unsplash.com/photo-1532094349884-543bc11b234d?w=400&h=250&fit=crop',
+        title: 'Professional Art Portfolio',
+        image: 'https://images.unsplash.com/photo-1466442929976-97f336a657be?w=400&h=250&fit=crop',
         originalPrice: 3299,
         discountedPrice: 2199,
         discount: 33,
@@ -84,11 +84,11 @@ const Courses = () => {
         duration: '95 hours'
       }
     ],
-    'skill-development': [
+    'specialized': [
       {
         id: 7,
-        title: 'Communication Skills',
-        image: 'https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=400&h=250&fit=crop',
+        title: 'Art Therapy & Healing',
+        image: 'https://images.unsplash.com/photo-1465146344425-f00d5f5c8f07?w=400&h=250&fit=crop',
         originalPrice: 1999,
         discountedPrice: 1299,
         discount: 35,
@@ -104,49 +104,50 @@ const Courses = () => {
   };
 
   return (
-    <div className="pt-20 pb-16">
+    <div className="pt-20 pb-16 bg-gradient-to-br from-orange-50 via-pink-50 to-purple-50 dark:from-orange-950/10 dark:via-pink-950/10 dark:to-purple-950/10 min-h-screen">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
-            All Courses
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-orange-600 via-pink-600 to-purple-600 bg-clip-text text-transparent mb-4">
+            All Art Courses
           </h1>
           <p className="text-lg text-gray-600 dark:text-gray-300">
-            Choose from our comprehensive collection of courses
+            Discover your artistic passion with our comprehensive collection of art courses
           </p>
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-4 mb-8">
-            <TabsTrigger value="class-9">Class 9</TabsTrigger>
-            <TabsTrigger value="class-10">Class 10</TabsTrigger>
-            <TabsTrigger value="class-11">Class 11</TabsTrigger>
-            <TabsTrigger value="skill-development">Skills</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-4 mb-8 bg-white/70 backdrop-blur-sm">
+            <TabsTrigger value="beginner" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-pink-500 data-[state=active]:text-white">Beginner</TabsTrigger>
+            <TabsTrigger value="intermediate" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-pink-500 data-[state=active]:to-purple-500 data-[state=active]:text-white">Intermediate</TabsTrigger>
+            <TabsTrigger value="advanced" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-indigo-500 data-[state=active]:text-white">Advanced</TabsTrigger>
+            <TabsTrigger value="specialized" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-indigo-500 data-[state=active]:to-blue-500 data-[state=active]:text-white">Specialized</TabsTrigger>
           </TabsList>
 
-          {Object.entries(coursesByClass).map(([tabKey, courses]) => (
+          {Object.entries(coursesByLevel).map(([tabKey, courses]) => (
             <TabsContent key={tabKey} value={tabKey}>
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {courses.map((course) => (
-                  <Card key={course.id} className="group hover:shadow-xl transition-all duration-300 overflow-hidden">
+                  <Card key={course.id} className="group hover:shadow-2xl transition-all duration-300 overflow-hidden border-0 bg-white/80 backdrop-blur-sm">
                     <div className="relative">
                       <img 
                         src={course.image} 
                         alt={course.title}
-                        className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
+                        className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-500"
                       />
-                      <Badge className="absolute top-3 left-3 bg-red-500 hover:bg-red-600">
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                      <Badge className="absolute top-3 left-3 bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600 border-0">
                         {course.discount}% OFF
                       </Badge>
                     </div>
                     
                     <CardHeader>
-                      <CardTitle className="text-lg group-hover:text-blue-600 transition-colors">
+                      <CardTitle className="text-lg group-hover:text-pink-600 transition-colors">
                         {course.title}
                       </CardTitle>
                       
                       <div className="flex items-center space-x-4 text-sm text-muted-foreground">
                         <div className="flex items-center">
-                          <Star className="h-4 w-4 text-yellow-400 mr-1" />
+                          <Star className="h-4 w-4 text-yellow-400 mr-1 fill-current" />
                           {course.rating}
                         </div>
                         <div className="flex items-center">
@@ -162,7 +163,7 @@ const Courses = () => {
 
                     <CardFooter className="flex items-center justify-between">
                       <div className="flex items-center space-x-2">
-                        <span className="text-2xl font-bold text-green-600">
+                        <span className="text-2xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
                           ₹{course.discountedPrice}
                         </span>
                         <span className="text-sm text-muted-foreground line-through">
@@ -171,7 +172,7 @@ const Courses = () => {
                       </div>
                       <Button 
                         onClick={() => handleEnrollClick(course)}
-                        className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+                        className="bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700 shadow-lg hover:shadow-xl transition-all duration-300"
                       >
                         Enroll Now
                       </Button>
