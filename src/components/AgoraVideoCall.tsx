@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import AgoraRTC, { 
   IAgoraRTCClient, 
@@ -15,7 +14,8 @@ import {
   VideoOff, 
   Phone, 
   Users,
-  AlertCircle
+  AlertCircle,
+  Wand
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -26,6 +26,7 @@ interface AgoraVideoCallProps {
   token?: string;
   isTeacher?: boolean;
   onLeave: () => void;
+  uid?: string | null;
 }
 
 interface RemoteUser {
@@ -39,7 +40,8 @@ const AgoraVideoCall: React.FC<AgoraVideoCallProps> = ({
   channelName,
   token = null,
   isTeacher = false,
-  onLeave
+  onLeave,
+  uid: localUid = null
 }) => {
   const [client, setClient] = useState<IAgoraRTCClient | null>(null);
   const [localVideoTrack, setLocalVideoTrack] = useState<ICameraVideoTrack | null>(null);
@@ -214,7 +216,7 @@ const AgoraVideoCall: React.FC<AgoraVideoCallProps> = ({
   useEffect(() => {
     if (isJoined && localVideoTrack && localVideoRef.current) {
       console.log('🎥 Playing local video track as we are joined and have the track.');
-      playVideoTrack(localVideoTrack, localVideoRef.current);
+      playVideoTrack(localVideoTrack, localVideoRef.current, 'local');
     }
   }, [localVideoTrack, isJoined]);
 
@@ -259,8 +261,8 @@ const AgoraVideoCall: React.FC<AgoraVideoCallProps> = ({
       setConnectionStatus('Joining channel...');
 
       // Join the channel
-      console.log('🔗 Joining channel:', channelName);
-      const uid = await client.join(appId, channelName, token, null);
+      console.log('🔗 Joining channel:', channelName, 'with UID:', localUid);
+      const uid = await client.join(appId, channelName, token, localUid);
       console.log('✅ Joined channel with UID:', uid);
       setConnectionStatus(`Connected (UID: ${uid})`);
 
@@ -420,6 +422,20 @@ const AgoraVideoCall: React.FC<AgoraVideoCallProps> = ({
     );
   }
 
+  const remoteTeacher = remoteUsers.find(u => u.uid.startsWith('teacher-'));
+  const isLocalUserMain = isTeacher || !remoteTeacher;
+
+  const mainParticipant = isLocalUserMain
+    ? { isLocal: true, uid: localUid || 'local', videoTrack: localVideoTrack, isVideoEnabled, isAudioEnabled, isTeacher }
+    : { isLocal: false, ...remoteTeacher, isTeacher: true };
+
+  const thumbnailParticipants = isLocalUserMain
+    ? remoteUsers.map(u => ({ isLocal: false, ...u, isTeacher: u.uid.startsWith('teacher-') }))
+    : [
+        { isLocal: true, uid: localUid || 'local', videoTrack: localVideoTrack, isVideoEnabled, isAudioEnabled, isTeacher },
+        ...remoteUsers.filter(u => u.uid !== remoteTeacher?.uid).map(u => ({ isLocal: false, ...u, isTeacher: u.uid.startsWith('teacher-') }))
+    ];
+
   return (
     <div className="h-screen flex flex-col bg-gray-900">
       {/* Header */}
@@ -466,72 +482,76 @@ const AgoraVideoCall: React.FC<AgoraVideoCallProps> = ({
         </div>
       </div>
 
-      {/* Video Grid */}
-      <div className="flex-1 p-2 sm:p-4 overflow-y-auto">
-        <div className={`h-full grid gap-2 sm:gap-4 ${remoteUsers.length === 0 ? 'grid-cols-1' : remoteUsers.length === 1 ? 'grid-cols-1 lg:grid-cols-2' : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3'}`}>
-          {/* Local Video */}
-          <div className="relative bg-gray-800 rounded-lg overflow-hidden border-2 border-blue-500">
-            <div 
-              ref={localVideoRef}
-              className="w-full h-full min-h-[200px] sm:min-h-[250px] lg:min-h-[300px] bg-black"
-            />
-            <div className="absolute bottom-2 left-2 bg-black bg-opacity-75 text-white px-3 py-1 rounded text-sm font-medium">
-              You {isTeacher ? '(Teacher)' : '(Student)'}
+      {/* Video Area */}
+      <div className="flex-1 p-2 sm:p-4 flex flex-col gap-2 sm:gap-4 overflow-hidden">
+        {/* Main Pinned Video */}
+        <div className="flex-1 relative bg-gray-800 rounded-lg overflow-hidden border-2 border-blue-500 min-h-0">
+          <div 
+            ref={mainParticipant.isLocal ? localVideoRef : (el) => { if(mainParticipant.uid) remoteVideoRefs.current[mainParticipant.uid] = el; }}
+            className="w-full h-full bg-black"
+          />
+          <div className="absolute bottom-2 left-2 bg-black bg-opacity-75 text-white px-3 py-1 rounded text-sm font-medium flex items-center gap-2">
+            {mainParticipant.isLocal ? 'You' : `User ${mainParticipant.uid.split('-').pop()}`}
+            <div className="flex items-center gap-1 text-yellow-400">
+              {mainParticipant.isTeacher ? '(Teacher)' : '(Student)'}
+              {!mainParticipant.isTeacher && <Wand className="h-4 w-4" />}
             </div>
-            <div className="absolute top-2 right-2 flex space-x-1">
-              {!isVideoEnabled && (
-                <div className="bg-red-600 p-1 rounded">
-                  <VideoOff className="h-3 w-3 text-white" />
-                </div>
-              )}
-              {!isAudioEnabled && (
-                <div className="bg-red-600 p-1 rounded">
-                  <MicOff className="h-3 w-3 text-white" />
-                </div>
-              )}
-            </div>
-            {!isVideoEnabled && (
-              <div className="absolute inset-0 bg-gray-800 flex items-center justify-center">
-                <VideoOff className="h-12 w-12 text-gray-400" />
-              </div>
+          </div>
+          <div className="absolute top-2 right-2 flex space-x-1">
+            {!mainParticipant.isVideoEnabled && (
+              <div className="bg-red-600 p-1 rounded"><VideoOff className="h-3 w-3 text-white" /></div>
+            )}
+            {!mainParticipant.isAudioEnabled && (
+              <div className="bg-red-600 p-1 rounded"><MicOff className="h-3 w-3 text-white" /></div>
             )}
           </div>
-          
-          {/* Remote Videos */}
-          {remoteUsers.map((user) => (
-            <div key={user.uid} className="relative bg-gray-800 rounded-lg overflow-hidden border-2 border-gray-600">
-              <div 
-                ref={(el) => { remoteVideoRefs.current[user.uid] = el; }}
-                className="w-full h-full min-h-[200px] sm:min-h-[250px] lg:min-h-[300px] bg-black"
-              />
-              <div className="absolute bottom-2 left-2 bg-black bg-opacity-75 text-white px-3 py-1 rounded text-sm font-medium">
-                User {user.uid} {isTeacher ? '(Student)' : user.uid.includes('teacher') ? '(Teacher)' : ''}
-              </div>
-              {!user.videoTrack && (
-                <div className="absolute inset-0 bg-gray-800 flex items-center justify-center">
-                  <VideoOff className="h-12 w-12 text-gray-400" />
-                </div>
-              )}
-            </div>
-          ))}
-          
-          {/* Show waiting message if no remote users */}
-          {remoteUsers.length === 0 && (
-            <div className="bg-gray-800 rounded-lg border-2 border-dashed border-gray-600 flex items-center justify-center min-h-[200px] sm:min-h-[250px] lg:min-h-[300px]">
-              <div className="text-center text-gray-400 p-4">
-                <Users className="h-12 w-12 mx-auto mb-2" />
-                <p className="text-lg font-medium">Waiting for others to join...</p>
-                <p className="text-sm">Share this channel: {channelName.split('-').pop()}</p>
-              </div>
+          {(!mainParticipant.videoTrack || !mainParticipant.isVideoEnabled) && (
+            <div className="absolute inset-0 bg-gray-800 flex items-center justify-center">
+              <VideoOff className="h-12 w-12 text-gray-400" />
             </div>
           )}
         </div>
+        
+        {/* Thumbnails */}
+        {thumbnailParticipants.length > 0 && (
+          <div className="h-24 sm:h-32 md:h-40">
+            <div className="h-full flex gap-2 sm:gap-4 overflow-x-auto pb-2">
+              {thumbnailParticipants.map((user) => (
+                <div key={user.uid} className="h-full aspect-video flex-shrink-0 relative bg-gray-800 rounded-lg overflow-hidden border-2 border-gray-600">
+                  <div 
+                    ref={user.isLocal ? localVideoRef : (el) => { if(user.uid) remoteVideoRefs.current[user.uid] = el; }}
+                    className="w-full h-full bg-black"
+                  />
+                  <div className="absolute bottom-1 left-1 bg-black bg-opacity-60 text-white px-2 py-0.5 rounded text-xs flex items-center gap-1">
+                    {user.isLocal ? 'You' : `User ${user.uid.split('-').pop()}`}
+                     <div className="flex items-center gap-1 text-yellow-300">
+                      {user.isTeacher ? '(T)' : '(S)'}
+                      {!user.isTeacher && <Wand className="h-3 w-3" />}
+                    </div>
+                  </div>
+                  {(!user.videoTrack || (user.isLocal && !user.isVideoEnabled)) && (
+                    <div className="absolute inset-0 bg-gray-800 flex items-center justify-center">
+                      <VideoOff className="h-8 w-8 text-gray-400" />
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {remoteUsers.length === 0 && !isTeacher && (
+          <div className="h-24 sm:h-32 md:h-40 flex items-center justify-center text-gray-400">
+            Waiting for the teacher to join...
+          </div>
+        )}
       </div>
       
       {/* Debug info at bottom */}
       <div className="bg-gray-800 text-white p-2 text-xs">
         <div className="flex items-center justify-between flex-wrap gap-2">
           <span>Channel: {channelName}</span>
+          <span>UID: {localUid}</span>
           <span>Video: {isVideoEnabled ? 'On' : 'Off'} | Audio: {isAudioEnabled ? 'On' : 'Off'}</span>
           <span>Status: {connectionStatus}</span>
         </div>

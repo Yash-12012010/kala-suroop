@@ -30,6 +30,7 @@ const LiveClassRoom = () => {
   const [showLiveClass, setShowLiveClass] = useState(false);
   const [channelName, setChannelName] = useState('');
   const [isTeacher, setIsTeacher] = useState(false);
+  const [uid, setUid] = useState<string | null>(null);
   const [liveSessions, setLiveSessions] = useState<LiveSession[]>([]);
   const [loading, setLoading] = useState(true);
   const [testResults, setTestResults] = useState<string[]>([]);
@@ -63,6 +64,10 @@ const LiveClassRoom = () => {
     // If we have channel from URL, auto-join immediately
     if (channelFromUrl && channelFromUrl.trim()) {
       console.log('AUTO-JOINING: Setting up live class immediately');
+      const role = teacherFromUrl ? 'teacher' : 'student';
+      const userIdPart = user?.id.split('-')[0] || Math.random().toString(36).slice(2, 8);
+      const customUid = `${role}-${userIdPart}`;
+      setUid(customUid);
       setChannelName(channelFromUrl.trim());
       setIsTeacher(teacherFromUrl);
       setShowLiveClass(true);
@@ -75,7 +80,7 @@ const LiveClassRoom = () => {
       console.log('Loading session by ID:', sessionId);
       loadSessionById(sessionId);
     }
-  }, [searchParams, sessionId, location.pathname]);
+  }, [searchParams, sessionId, location.pathname, user]);
 
   const loadSessionById = async (id: string) => {
     try {
@@ -95,6 +100,10 @@ const LiveClassRoom = () => {
       console.log('Session data loaded:', data);
       if (data && data.agora_channel) {
         console.log('Setting up live class with channel:', data.agora_channel);
+        const role = 'student'; // Users joining from session list are students
+        const userIdPart = user?.id.split('-')[0] || Math.random().toString(36).slice(2, 8);
+        const customUid = `${role}-${userIdPart}`;
+        setUid(customUid);
         setChannelName(data.agora_channel);
         setIsTeacher(false);
         setShowLiveClass(true);
@@ -170,6 +179,11 @@ const LiveClassRoom = () => {
     }
     
     console.log('Joining class:', channel, 'as teacher:', asTeacher);
+    const role = asTeacher ? 'teacher' : 'student';
+    const userIdPart = user?.id.split('-')[0] || Math.random().toString(36).slice(2, 8);
+    const customUid = `${role}-${userIdPart}`;
+
+    setUid(customUid);
     setChannelName(channel);
     setIsTeacher(asTeacher);
     setShowLiveClass(true);
@@ -197,13 +211,14 @@ const LiveClassRoom = () => {
   };
 
   // IMPORTANT: Check if we should render LiveClass
-  if (showLiveClass && channelName && channelName.trim() !== '') {
-    console.log('✅ RENDERING LiveClass component with channel:', channelName);
+  if (showLiveClass && channelName && channelName.trim() !== '' && uid) {
+    console.log('✅ RENDERING LiveClass component with channel:', channelName, 'and UID:', uid);
     return (
       <LiveClass 
         channelName={channelName}
         appId={AGORA_APP_ID}
         isTeacher={isTeacher}
+        uid={uid}
       />
     );
   }

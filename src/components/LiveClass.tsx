@@ -8,13 +8,15 @@ interface LiveClassProps {
   appId: string;
   token?: string;
   isTeacher?: boolean;
+  uid: string | null;
 }
 
 const LiveClass: React.FC<LiveClassProps> = ({ 
   channelName, 
   appId, 
   token = null,
-  isTeacher = false 
+  isTeacher = false,
+  uid = null
 }) => {
   const navigate = useNavigate();
 
@@ -29,6 +31,7 @@ const LiveClass: React.FC<LiveClassProps> = ({
       token={token}
       isTeacher={isTeacher}
       onLeave={handleLeave}
+      uid={uid}
     />
   );
 };
