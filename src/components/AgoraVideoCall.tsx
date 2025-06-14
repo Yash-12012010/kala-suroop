@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import AgoraRTC, { 
   IAgoraRTCClient, 
@@ -210,13 +209,13 @@ const AgoraVideoCall: React.FC<AgoraVideoCallProps> = ({
     checkPermissions();
   }, []);
 
-  // Play local video when track is available
+  // Play local video when track is available and channel is joined
   useEffect(() => {
-    if (localVideoTrack && localVideoRef.current) {
-      console.log('🎥 Playing local video track');
+    if (isJoined && localVideoTrack && localVideoRef.current) {
+      console.log('🎥 Playing local video track as we are joined and have the track.');
       playVideoTrack(localVideoTrack, localVideoRef.current);
     }
-  }, [localVideoTrack]);
+  }, [localVideoTrack, isJoined]);
 
   // Play remote videos when users change
   useEffect(() => {
