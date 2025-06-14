@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -25,6 +24,7 @@ const LiveClassAdmin = () => {
   const [classes, setClasses] = useState<LiveClass[]>([]);
   const [loading, setLoading] = useState(true);
   const [startingClass, setStartingClass] = useState<string | null>(null);
+  const [endingClass, setEndingClass] = useState<string | null>(null);
   const [systemStatus, setSystemStatus] = useState<string[]>([]);
   const { user } = useAuth();
   const { toast } = useToast();
@@ -169,6 +169,45 @@ const LiveClassAdmin = () => {
       });
     } finally {
       setStartingClass(null);
+    }
+  };
+
+  const endLiveClass = async (classId: string, title: string) => {
+    setEndingClass(classId);
+    try {
+      addStatusCheck(`Ending live class: ${title}`);
+      
+      const { error } = await supabase
+        .from('live_sessions')
+        .update({
+          agora_channel: null,
+          scheduled_end: new Date().toISOString()
+        })
+        .eq('id', classId);
+
+      if (error) {
+        addStatusCheck('❌ Failed to end live session');
+        throw error;
+      }
+
+      addStatusCheck('✅ Live session ended successfully');
+
+      toast({
+        title: "Live Class Ended",
+        description: `${title} has been ended.`,
+      });
+
+      fetchLiveClasses();
+    } catch (error) {
+      console.error('Error ending live class:', error);
+      addStatusCheck('❌ Live class end failed');
+      toast({
+        title: "Error",
+        description: "Failed to end live class",
+        variant: "destructive"
+      });
+    } finally {
+      setEndingClass(null);
     }
   };
 
@@ -425,14 +464,25 @@ const LiveClassAdmin = () => {
                         </Button>
                       )}
                       {status.status === 'live' && liveClass.agora_channel && (
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => window.open(`/live-classroom?channel=${liveClass.agora_channel}&teacher=true`, '_blank')}
-                        >
-                          <Users className="h-4 w-4 mr-1" />
-                          Join as Teacher
-                        </Button>
+                        <>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => window.open(`/live-classroom?channel=${liveClass.agora_channel}&teacher=true`, '_blank')}
+                          >
+                            <Users className="h-4 w-4 mr-1" />
+                            Join as Teacher
+                          </Button>
+                          <Button
+                            size="sm"
+                            onClick={() => endLiveClass(liveClass.id, liveClass.title)}
+                            disabled={endingClass === liveClass.id}
+                            className="bg-red-600 hover:bg-red-700"
+                          >
+                            <Square className="h-4 w-4 mr-1" />
+                            {endingClass === liveClass.id ? 'Ending...' : 'End Class'}
+                          </Button>
+                        </>
                       )}
                     </div>
                   </div>
