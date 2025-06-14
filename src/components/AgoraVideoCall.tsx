@@ -51,6 +51,7 @@ const AgoraVideoCall: React.FC<AgoraVideoCallProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [permissionsGranted, setPermissionsGranted] = useState(false);
   const [isCheckingPermissions, setIsCheckingPermissions] = useState(true);
+  const [connectionStatus, setConnectionStatus] = useState<string>('Initializing...');
 
   const localVideoRef = useRef<HTMLDivElement>(null);
 
@@ -58,20 +59,27 @@ const AgoraVideoCall: React.FC<AgoraVideoCallProps> = ({
   const checkPermissions = async () => {
     try {
       setIsCheckingPermissions(true);
+      setConnectionStatus('Checking permissions...');
       
       // Check if permissions are already granted
       const cameraPermission = await navigator.permissions.query({ name: 'camera' as PermissionName });
       const micPermission = await navigator.permissions.query({ name: 'microphone' as PermissionName });
       
+      console.log('Camera permission:', cameraPermission.state);
+      console.log('Microphone permission:', micPermission.state);
+      
       if (cameraPermission.state === 'granted' && micPermission.state === 'granted') {
         setPermissionsGranted(true);
+        setConnectionStatus('Permissions granted');
         setIsCheckingPermissions(false);
         return;
       }
       
+      setConnectionStatus('Permissions needed');
       setIsCheckingPermissions(false);
     } catch (error) {
       console.error('Error checking permissions:', error);
+      setConnectionStatus('Permission check failed');
       setIsCheckingPermissions(false);
     }
   };
@@ -79,6 +87,7 @@ const AgoraVideoCall: React.FC<AgoraVideoCallProps> = ({
   const requestPermissions = async () => {
     try {
       setError(null);
+      setConnectionStatus('Requesting permissions...');
       
       // Request access to camera and microphone
       const stream = await navigator.mediaDevices.getUserMedia({ 
@@ -86,13 +95,20 @@ const AgoraVideoCall: React.FC<AgoraVideoCallProps> = ({
         audio: true 
       });
       
+      console.log('✅ Media stream obtained:', stream);
+      
       // Stop the stream as we'll create proper tracks later
-      stream.getTracks().forEach(track => track.stop());
+      stream.getTracks().forEach(track => {
+        console.log('Stopping track:', track.kind, track.label);
+        track.stop();
+      });
       
       setPermissionsGranted(true);
+      setConnectionStatus('Permissions granted');
     } catch (error) {
-      console.error('Permission denied:', error);
+      console.error('❌ Permission denied:', error);
       setError('Camera and microphone access is required for video calls. Please allow access and try again.');
+      setConnectionStatus('Permission denied');
     }
   };
 
@@ -100,12 +116,14 @@ const AgoraVideoCall: React.FC<AgoraVideoCallProps> = ({
   useEffect(() => {
     if (!permissionsGranted) return;
 
+    console.log('🔧 Initializing Agora client...');
     const agoraClient = AgoraRTC.createClient({ mode: 'rtc', codec: 'vp8' });
     setClient(agoraClient);
+    setConnectionStatus('Client initialized');
 
     // Set up event listeners
     agoraClient.on('user-published', async (user, mediaType) => {
-      console.log('User published:', user.uid, mediaType);
+      console.log('👤 User published:', user.uid, mediaType);
       await agoraClient.subscribe(user, mediaType);
       
       setRemoteUsers(prevUsers => {
@@ -133,8 +151,8 @@ const AgoraVideoCall: React.FC<AgoraVideoCallProps> = ({
       if (mediaType === 'video' && user.videoTrack) {
         setTimeout(() => {
           const remoteVideoContainer = document.getElementById(`remote-video-${user.uid}`);
-          if (remoteVideoContainer) {
-            console.log('Playing remote video for user:', user.uid);
+          if (remoteVideoContainer && user.videoTrack) {
+            console.log('🎥 Playing remote video for user:', user.uid);
             user.videoTrack.play(remoteVideoContainer);
           }
         }, 100);
@@ -142,7 +160,7 @@ const AgoraVideoCall: React.FC<AgoraVideoCallProps> = ({
     });
 
     agoraClient.on('user-unpublished', (user, mediaType) => {
-      console.log('User unpublished:', user.uid, mediaType);
+      console.log('👤 User unpublished:', user.uid, mediaType);
       setRemoteUsers(prevUsers => 
         prevUsers.map(u => 
           u.uid === user.uid.toString()
@@ -157,7 +175,7 @@ const AgoraVideoCall: React.FC<AgoraVideoCallProps> = ({
     });
 
     agoraClient.on('user-left', (user) => {
-      console.log('User left:', user.uid);
+      console.log('👤 User left:', user.uid);
       setRemoteUsers(prevUsers => prevUsers.filter(u => u.uid !== user.uid.toString()));
     });
 
@@ -174,41 +192,59 @@ const AgoraVideoCall: React.FC<AgoraVideoCallProps> = ({
   // Play local video when track is available
   useEffect(() => {
     if (localVideoTrack && localVideoRef.current) {
-      console.log('Playing local video track');
-      localVideoTrack.play(localVideoRef.current);
+      console.log('🎥 Playing local video track');
+      try {
+        localVideoTrack.play(localVideoRef.current);
+        console.log('✅ Local video is now playing');
+      } catch (error) {
+        console.error('❌ Error playing local video:', error);
+      }
     }
   }, [localVideoTrack]);
 
   const joinChannel = async () => {
-    if (!client || !permissionsGranted) return;
+    if (!client || !permissionsGranted) {
+      console.error('❌ Cannot join: client or permissions not ready');
+      return;
+    }
 
     try {
       setError(null);
-      console.log('Creating local tracks...');
+      setConnectionStatus('Creating video tracks...');
+      console.log('🔧 Creating local tracks...');
       
-      // Create local tracks
-      const videoTrack = await AgoraRTC.createCameraVideoTrack();
+      // Create local tracks with explicit constraints
+      const videoTrack = await AgoraRTC.createCameraVideoTrack({
+        encoderConfig: "480p_1"
+      });
       const audioTrack = await AgoraRTC.createMicrophoneAudioTrack();
       
-      console.log('Local tracks created:', { videoTrack, audioTrack });
+      console.log('✅ Local tracks created:', { 
+        video: videoTrack ? 'success' : 'failed',
+        audio: audioTrack ? 'success' : 'failed'
+      });
       
       setLocalVideoTrack(videoTrack);
       setLocalAudioTrack(audioTrack);
+      setConnectionStatus('Joining channel...');
 
       // Join the channel
-      console.log('Joining channel:', channelName);
+      console.log('🔗 Joining channel:', channelName);
       const uid = await client.join(appId, channelName, token, null);
-      console.log('Joined channel with UID:', uid);
+      console.log('✅ Joined channel with UID:', uid);
+      setConnectionStatus(`Connected (UID: ${uid})`);
 
       // Publish local tracks
-      console.log('Publishing local tracks...');
+      console.log('📡 Publishing local tracks...');
       await client.publish([videoTrack, audioTrack]);
-      console.log('Local tracks published successfully');
+      console.log('✅ Local tracks published successfully');
       
       setIsJoined(true);
+      setConnectionStatus('Live and connected');
     } catch (error) {
-      console.error('Failed to join channel:', error);
+      console.error('❌ Failed to join channel:', error);
       setError('Failed to join the live class. Please try again.');
+      setConnectionStatus('Connection failed');
     }
   };
 
@@ -216,58 +252,66 @@ const AgoraVideoCall: React.FC<AgoraVideoCallProps> = ({
     if (!client) return;
 
     try {
-      console.log('Leaving channel...');
+      console.log('🚪 Leaving channel...');
+      setConnectionStatus('Disconnecting...');
       
       // Stop and close local tracks
       if (localVideoTrack) {
         localVideoTrack.stop();
         localVideoTrack.close();
+        console.log('🎥 Local video track stopped');
       }
       if (localAudioTrack) {
         localAudioTrack.stop();
         localAudioTrack.close();
+        console.log('🎤 Local audio track stopped');
       }
 
       // Leave the channel
       await client.leave();
-      console.log('Left channel successfully');
+      console.log('✅ Left channel successfully');
       
       setIsJoined(false);
       setLocalVideoTrack(null);
       setLocalAudioTrack(null);
       setRemoteUsers([]);
+      setConnectionStatus('Disconnected');
       
       onLeave();
     } catch (error) {
-      console.error('Failed to leave channel:', error);
+      console.error('❌ Failed to leave channel:', error);
+      setConnectionStatus('Disconnect failed');
     }
   };
 
   const toggleVideo = async () => {
     if (localVideoTrack) {
-      console.log('Toggling video from', isVideoEnabled, 'to', !isVideoEnabled);
+      console.log('🎥 Toggling video from', isVideoEnabled, 'to', !isVideoEnabled);
       await localVideoTrack.setEnabled(!isVideoEnabled);
       setIsVideoEnabled(!isVideoEnabled);
+      console.log('✅ Video toggled successfully');
     }
   };
 
   const toggleAudio = async () => {
     if (localAudioTrack) {
-      console.log('Toggling audio from', isAudioEnabled, 'to', !isAudioEnabled);
+      console.log('🎤 Toggling audio from', isAudioEnabled, 'to', !isAudioEnabled);
       await localAudioTrack.setEnabled(!isAudioEnabled);
       setIsAudioEnabled(!isAudioEnabled);
+      console.log('✅ Audio toggled successfully');
     }
   };
 
   // Render remote videos when users change
   useEffect(() => {
-    console.log('Remote users updated:', remoteUsers);
+    console.log('👥 Remote users updated:', remoteUsers.length, 'users');
     remoteUsers.forEach(user => {
+      console.log(`User ${user.uid}: video=${!!user.videoTrack}, audio=${!!user.audioTrack}`);
       if (user.videoTrack) {
         setTimeout(() => {
           const container = document.getElementById(`remote-video-${user.uid}`);
-          if (container) {
-            console.log('Playing remote video for user:', user.uid);
+          if (container && user.videoTrack) {
+            console.log('🎥 Playing remote video for user:', user.uid);
             user.videoTrack.play(container);
           }
         }, 100);
@@ -282,6 +326,7 @@ const AgoraVideoCall: React.FC<AgoraVideoCallProps> = ({
           <CardContent className="p-6 text-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
             <p>Checking camera and microphone permissions...</p>
+            <p className="text-sm text-muted-foreground mt-2">{connectionStatus}</p>
           </CardContent>
         </Card>
       </div>
@@ -299,6 +344,7 @@ const AgoraVideoCall: React.FC<AgoraVideoCallProps> = ({
               <p className="text-muted-foreground">
                 To join the live class, please allow access to your camera and microphone.
               </p>
+              <p className="text-sm text-muted-foreground mt-2">{connectionStatus}</p>
             </div>
             
             {error && (
@@ -336,6 +382,7 @@ const AgoraVideoCall: React.FC<AgoraVideoCallProps> = ({
               <p className="text-sm text-muted-foreground mt-2">
                 Role: {isTeacher ? 'Teacher' : 'Student'}
               </p>
+              <p className="text-sm text-muted-foreground mt-1">{connectionStatus}</p>
             </div>
             
             {error && (
@@ -364,7 +411,7 @@ const AgoraVideoCall: React.FC<AgoraVideoCallProps> = ({
       {/* Header */}
       <div className="bg-gray-800 text-white p-4 flex items-center justify-between">
         <div className="flex items-center space-x-4">
-          <h1 className="text-lg font-semibold">Live Class: {channelName}</h1>
+          <h1 className="text-lg font-semibold">Live Class: {channelName.split('-').pop()}</h1>
           <div className="flex items-center space-x-2">
             <Users className="h-4 w-4" />
             <span>{remoteUsers.length + 1} participants</span>
@@ -372,6 +419,7 @@ const AgoraVideoCall: React.FC<AgoraVideoCallProps> = ({
           {isTeacher && (
             <span className="bg-blue-600 px-2 py-1 rounded text-xs">Teacher</span>
           )}
+          <span className="text-xs bg-green-600 px-2 py-1 rounded">{connectionStatus}</span>
         </div>
         
         <div className="flex items-center space-x-2">
@@ -408,13 +456,26 @@ const AgoraVideoCall: React.FC<AgoraVideoCallProps> = ({
       <div className="flex-1 p-4">
         <div className={`h-full grid gap-4 ${remoteUsers.length === 0 ? 'grid-cols-1' : remoteUsers.length === 1 ? 'grid-cols-1 lg:grid-cols-2' : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3'}`}>
           {/* Local Video */}
-          <div className="relative bg-gray-800 rounded-lg overflow-hidden">
+          <div className="relative bg-gray-800 rounded-lg overflow-hidden border-2 border-blue-500">
             <div 
               ref={localVideoRef}
               className="w-full h-full min-h-[200px]"
+              style={{ background: 'black' }}
             />
-            <div className="absolute bottom-2 left-2 bg-black bg-opacity-50 text-white px-2 py-1 rounded text-sm">
+            <div className="absolute bottom-2 left-2 bg-black bg-opacity-75 text-white px-3 py-1 rounded text-sm font-medium">
               You {isTeacher ? '(Teacher)' : '(Student)'}
+            </div>
+            <div className="absolute top-2 right-2 flex space-x-1">
+              {!isVideoEnabled && (
+                <div className="bg-red-600 p-1 rounded">
+                  <VideoOff className="h-3 w-3 text-white" />
+                </div>
+              )}
+              {!isAudioEnabled && (
+                <div className="bg-red-600 p-1 rounded">
+                  <MicOff className="h-3 w-3 text-white" />
+                </div>
+              )}
             </div>
             {!isVideoEnabled && (
               <div className="absolute inset-0 bg-gray-800 flex items-center justify-center">
@@ -425,13 +486,14 @@ const AgoraVideoCall: React.FC<AgoraVideoCallProps> = ({
           
           {/* Remote Videos */}
           {remoteUsers.map((user) => (
-            <div key={user.uid} className="relative bg-gray-800 rounded-lg overflow-hidden">
+            <div key={user.uid} className="relative bg-gray-800 rounded-lg overflow-hidden border-2 border-gray-600">
               <div 
                 id={`remote-video-${user.uid}`}
                 className="w-full h-full min-h-[200px]"
+                style={{ background: 'black' }}
               />
-              <div className="absolute bottom-2 left-2 bg-black bg-opacity-50 text-white px-2 py-1 rounded text-sm">
-                User {user.uid}
+              <div className="absolute bottom-2 left-2 bg-black bg-opacity-75 text-white px-3 py-1 rounded text-sm font-medium">
+                User {user.uid} {isTeacher ? '(Student)' : user.uid.includes('teacher') ? '(Teacher)' : ''}
               </div>
               {!user.videoTrack && (
                 <div className="absolute inset-0 bg-gray-800 flex items-center justify-center">
@@ -440,6 +502,26 @@ const AgoraVideoCall: React.FC<AgoraVideoCallProps> = ({
               )}
             </div>
           ))}
+          
+          {/* Show waiting message if no remote users */}
+          {remoteUsers.length === 0 && (
+            <div className="bg-gray-800 rounded-lg border-2 border-dashed border-gray-600 flex items-center justify-center min-h-[200px]">
+              <div className="text-center text-gray-400">
+                <Users className="h-12 w-12 mx-auto mb-2" />
+                <p className="text-lg font-medium">Waiting for others to join...</p>
+                <p className="text-sm">Share this channel: {channelName.split('-').pop()}</p>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+      
+      {/* Debug info at bottom */}
+      <div className="bg-gray-800 text-white p-2 text-xs">
+        <div className="flex items-center justify-between">
+          <span>Channel: {channelName}</span>
+          <span>Video: {isVideoEnabled ? 'On' : 'Off'} | Audio: {isAudioEnabled ? 'On' : 'Off'}</span>
+          <span>Status: {connectionStatus}</span>
         </div>
       </div>
     </div>
