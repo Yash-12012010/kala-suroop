@@ -1,6 +1,6 @@
 
-import React, { useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -9,18 +9,64 @@ import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, Video, Users, Clock, AlertCircle } from 'lucide-react';
 import LiveClass from '@/components/LiveClass';
 import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
+
+interface LiveSession {
+  id: string;
+  title: string;
+  agora_channel: string | null;
+  scheduled_start: string;
+  scheduled_end: string;
+}
 
 const LiveClassRoom = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { user } = useAuth();
   
   const [showLiveClass, setShowLiveClass] = useState(false);
   const [channelName, setChannelName] = useState('');
   const [isTeacher, setIsTeacher] = useState(false);
+  const [liveSessions, setLiveSessions] = useState<LiveSession[]>([]);
+  const [loading, setLoading] = useState(true);
   
   // Using the provided Agora App ID
   const AGORA_APP_ID = '76fe48407b1d4e0986592d7ad3d5a361';
+
+  // Check URL parameters for auto-join
+  useEffect(() => {
+    const channel = searchParams.get('channel');
+    const teacher = searchParams.get('teacher') === 'true';
+    
+    if (channel) {
+      setChannelName(channel);
+      setIsTeacher(teacher);
+      setShowLiveClass(true);
+    }
+  }, [searchParams]);
+
+  const fetchLiveSessions = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('live_sessions')
+        .select('*')
+        .not('agora_channel', 'is', null)
+        .gte('scheduled_end', new Date().toISOString())
+        .order('scheduled_start', { ascending: true });
+
+      if (error) throw error;
+      setLiveSessions(data || []);
+    } catch (error) {
+      console.error('Error fetching live sessions:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchLiveSessions();
+  }, []);
 
   const handleJoinClass = (channel: string, asTeacher: boolean = false) => {
     if (!channel.trim()) {
@@ -31,6 +77,19 @@ const LiveClassRoom = () => {
     setChannelName(channel);
     setIsTeacher(asTeacher);
     setShowLiveClass(true);
+  };
+
+  const joinLiveSession = (session: LiveSession) => {
+    if (session.agora_channel) {
+      handleJoinClass(session.agora_channel, false);
+    }
+  };
+
+  const isSessionLive = (session: LiveSession) => {
+    const now = new Date();
+    const start = new Date(session.scheduled_start);
+    const end = new Date(session.scheduled_end);
+    return now >= start && now <= end;
   };
 
   if (showLiveClass) {
@@ -84,6 +143,57 @@ const LiveClassRoom = () => {
                 <li>Use interactive features like hand raising</li>
               </ul>
             </div>
+          </CardContent>
+        </Card>
+
+        {/* Live Sessions */}
+        <Card className="mb-8">
+          <CardHeader>
+            <CardTitle className="flex items-center">
+              <Clock className="h-5 w-5 mr-2" />
+              Live & Scheduled Classes
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {loading ? (
+              <div className="text-center py-4">Loading live sessions...</div>
+            ) : liveSessions.length === 0 ? (
+              <div className="text-center py-8 text-gray-500">
+                No live classes scheduled at the moment
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {liveSessions.map((session) => {
+                  const isLive = isSessionLive(session);
+                  return (
+                    <div key={session.id} className="flex items-center justify-between p-4 border rounded-lg">
+                      <div>
+                        <h3 className="font-semibold">{session.title}</h3>
+                        <p className="text-sm text-muted-foreground">
+                          {new Date(session.scheduled_start).toLocaleString()} - {new Date(session.scheduled_end).toLocaleString()}
+                        </p>
+                        {session.agora_channel && (
+                          <p className="text-xs text-gray-500">Channel: {session.agora_channel}</p>
+                        )}
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Badge className={isLive ? 'bg-red-500' : 'bg-blue-500'}>
+                          {isLive ? 'LIVE' : 'Scheduled'}
+                        </Badge>
+                        <Button 
+                          size="sm" 
+                          onClick={() => joinLiveSession(session)}
+                          disabled={!session.agora_channel}
+                          className={isLive ? 'bg-red-600 hover:bg-red-700' : ''}
+                        >
+                          {isLive ? 'Join Live' : 'Join'}
+                        </Button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </CardContent>
         </Card>
 
@@ -144,48 +254,6 @@ const LiveClassRoom = () => {
             </CardContent>
           </Card>
         </div>
-
-        {/* Scheduled Classes */}
-        <Card className="mt-8">
-          <CardHeader>
-            <CardTitle className="flex items-center">
-              <Clock className="h-5 w-5 mr-2" />
-              Scheduled Classes
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between p-4 border rounded-lg">
-                <div>
-                  <h3 className="font-semibold">Mathematics - Algebra</h3>
-                  <p className="text-sm text-muted-foreground">Today, 3:00 PM</p>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Badge>Live</Badge>
-                  <Button 
-                    size="sm" 
-                    onClick={() => handleJoinClass('math-algebra-001', false)}
-                  >
-                    Join
-                  </Button>
-                </div>
-              </div>
-              
-              <div className="flex items-center justify-between p-4 border rounded-lg">
-                <div>
-                  <h3 className="font-semibold">Physics - Mechanics</h3>
-                  <p className="text-sm text-muted-foreground">Tomorrow, 10:00 AM</p>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Badge variant="secondary">Scheduled</Badge>
-                  <Button size="sm" variant="outline" disabled>
-                    Not Started
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
       </div>
     </div>
   );

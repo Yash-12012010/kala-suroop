@@ -7,6 +7,7 @@ import WebsiteSettingsManager from './WebsiteSettingsManager';
 import PageContentManager from './PageContentManager';
 import AnnouncementManager from './AnnouncementManager';
 import WebsiteTemplateManager from './WebsiteTemplateManager';
+import LiveClassAdmin from './LiveClassAdmin';
 
 const WebsiteManager = () => {
   return (
@@ -21,13 +22,14 @@ const WebsiteManager = () => {
       </div>
 
       <Tabs defaultValue="content" className="w-full">
-        <TabsList className="grid w-full grid-cols-6">
+        <TabsList className="grid w-full grid-cols-7">
           <TabsTrigger value="content">Content</TabsTrigger>
           <TabsTrigger value="banners">Banners</TabsTrigger>
           <TabsTrigger value="navigation">Navigation</TabsTrigger>
           <TabsTrigger value="settings">Settings</TabsTrigger>
           <TabsTrigger value="templates">Templates</TabsTrigger>
           <TabsTrigger value="announcements">Announcements</TabsTrigger>
+          <TabsTrigger value="live-classes">Live Classes</TabsTrigger>
         </TabsList>
 
         <TabsContent value="content" className="mt-6">
@@ -52,6 +54,10 @@ const WebsiteManager = () => {
 
         <TabsContent value="announcements" className="mt-6">
           <AnnouncementManager />
+        </TabsContent>
+
+        <TabsContent value="live-classes" className="mt-6">
+          <LiveClassAdmin />
         </TabsContent>
       </Tabs>
     </div>
