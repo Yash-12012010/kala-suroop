@@ -427,14 +427,34 @@ const AgoraVideoCall: React.FC<AgoraVideoCallProps> = ({
 
   const mainParticipant = isLocalUserMain
     ? { isLocal: true, uid: localUid || 'local', videoTrack: localVideoTrack, isVideoEnabled, isAudioEnabled, isTeacher }
-    : { isLocal: false, ...remoteTeacher, isTeacher: true };
+    : {
+        isLocal: false,
+        ...(remoteTeacher!),
+        isVideoEnabled: !!remoteTeacher!.videoTrack,
+        isAudioEnabled: !!remoteTeacher!.audioTrack,
+        isTeacher: true
+      };
 
   const thumbnailParticipants = isLocalUserMain
-    ? remoteUsers.map(u => ({ isLocal: false, ...u, isTeacher: u.uid.startsWith('teacher-') }))
+    ? remoteUsers.map(u => ({
+        isLocal: false,
+        ...u,
+        isTeacher: u.uid.startsWith('teacher-'),
+        isVideoEnabled: !!u.videoTrack,
+        isAudioEnabled: !!u.audioTrack,
+      }))
     : [
         { isLocal: true, uid: localUid || 'local', videoTrack: localVideoTrack, isVideoEnabled, isAudioEnabled, isTeacher },
-        ...remoteUsers.filter(u => u.uid !== remoteTeacher?.uid).map(u => ({ isLocal: false, ...u, isTeacher: u.uid.startsWith('teacher-') }))
-    ];
+        ...remoteUsers
+          .filter(u => u.uid !== remoteTeacher?.uid)
+          .map(u => ({
+            isLocal: false,
+            ...u,
+            isTeacher: u.uid.startsWith('teacher-'),
+            isVideoEnabled: !!u.videoTrack,
+            isAudioEnabled: !!u.audioTrack,
+          })),
+      ];
 
   return (
     <div className="h-screen flex flex-col bg-gray-900">
@@ -529,7 +549,15 @@ const AgoraVideoCall: React.FC<AgoraVideoCallProps> = ({
                       {!user.isTeacher && <Wand className="h-3 w-3" />}
                     </div>
                   </div>
-                  {(!user.videoTrack || (user.isLocal && !user.isVideoEnabled)) && (
+                  <div className="absolute top-2 right-2 flex space-x-1">
+                    {!user.isVideoEnabled && (
+                      <div className="bg-red-600 p-1 rounded"><VideoOff className="h-3 w-3 text-white" /></div>
+                    )}
+                    {!user.isAudioEnabled && (
+                      <div className="bg-red-600 p-1 rounded"><MicOff className="h-3 w-3 text-white" /></div>
+                    )}
+                  </div>
+                  {!user.isVideoEnabled && (
                     <div className="absolute inset-0 bg-gray-800 flex items-center justify-center">
                       <VideoOff className="h-8 w-8 text-gray-400" />
                     </div>
