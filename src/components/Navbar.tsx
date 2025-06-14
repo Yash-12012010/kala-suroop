@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
-import { Menu, X, User, LogOut, Settings } from 'lucide-react';
+import { Menu, X, User, LogOut, Settings, Palette } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -26,32 +26,44 @@ const Navbar = () => {
     { name: 'Home', path: '/' },
     ...(user ? [
       { name: 'Dashboard', path: '/dashboard' },
-      { name: 'Courses', path: '/courses' },
-      { name: 'Store', path: '/store' },
-      { name: 'Timetable', path: '/timetable' },
-      { name: 'Announcements', path: '/announcements' },
+      { name: 'Art Classes', path: '/courses' },
+      { name: 'Art Store', path: '/store' },
+      { name: 'Schedule', path: '/timetable' },
+      { name: 'Updates', path: '/announcements' },
     ] : []),
   ];
 
   return (
-    <nav className="bg-white dark:bg-gray-900 shadow-lg fixed w-full top-0 z-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-16">
-          <div className="flex items-center">
-            <Link to="/" className="flex-shrink-0">
-              <h1 className="text-2xl font-bold text-blue-600 dark:text-blue-400">
-                EduPlatform
-              </h1>
+    <nav className="bg-white/95 backdrop-blur-sm dark:bg-gray-900/95 shadow-lg border-b border-orange-100 dark:border-orange-800/20 fixed w-full top-0 z-50">
+      <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6">
+        <div className="flex justify-between items-center h-14 sm:h-16">
+          {/* Logo */}
+          <div className="flex items-center flex-shrink-0">
+            <Link to="/" className="flex items-center space-x-2 group">
+              <div className="p-1.5 sm:p-2 bg-gradient-to-br from-orange-500 via-pink-500 to-purple-500 rounded-lg group-hover:scale-105 transition-transform duration-200">
+                <Palette className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
+              </div>
+              <div className="hidden sm:block">
+                <h1 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-orange-600 via-pink-600 to-purple-600 bg-clip-text text-transparent">
+                  Kala Suroop
+                </h1>
+                <p className="text-xs text-gray-500 dark:text-gray-400 -mt-1">Art Academy</p>
+              </div>
+              <div className="sm:hidden">
+                <h1 className="text-lg font-bold bg-gradient-to-r from-orange-600 via-pink-600 to-purple-600 bg-clip-text text-transparent">
+                  Kala Suroop
+                </h1>
+              </div>
             </Link>
           </div>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-8">
+          <div className="hidden lg:flex items-center space-x-1">
             {navItems.map((item) => (
               <Link
                 key={item.name}
                 to={item.path}
-                className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-3 py-2 text-sm font-medium transition-colors"
+                className="text-gray-700 dark:text-gray-300 hover:text-orange-600 dark:hover:text-orange-400 px-3 py-2 text-sm font-medium transition-colors rounded-md hover:bg-orange-50 dark:hover:bg-orange-900/20"
               >
                 {item.name}
               </Link>
@@ -59,112 +71,112 @@ const Navbar = () => {
           </div>
 
           {/* Desktop Auth */}
-          <div className="hidden md:flex items-center space-x-4">
+          <div className="hidden md:flex items-center space-x-2 sm:space-x-3">
             {user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="flex items-center space-x-2">
+                  <Button variant="ghost" className="flex items-center space-x-2 hover:bg-orange-50 dark:hover:bg-orange-900/20 text-sm">
                     <User className="h-4 w-4" />
-                    <span>{user.email}</span>
+                    <span className="hidden lg:inline max-w-24 truncate">{user.email}</span>
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem onClick={() => navigate('/dashboard')}>
+                <DropdownMenuContent align="end" className="w-56 bg-white dark:bg-gray-800 border border-orange-200 dark:border-orange-700">
+                  <DropdownMenuItem onClick={() => navigate('/dashboard')} className="hover:bg-orange-50 dark:hover:bg-orange-900/20">
                     <User className="mr-2 h-4 w-4" />
-                    Profile
+                    Artist Profile
                   </DropdownMenuItem>
                   {isAdmin && (
-                    <DropdownMenuItem onClick={() => navigate('/admin')}>
+                    <DropdownMenuItem onClick={() => navigate('/admin')} className="hover:bg-orange-50 dark:hover:bg-orange-900/20">
                       <Settings className="mr-2 h-4 w-4" />
                       Admin Panel
                     </DropdownMenuItem>
                   )}
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={handleLogout}>
+                  <DropdownMenuItem onClick={handleLogout} className="hover:bg-orange-50 dark:hover:bg-orange-900/20">
                     <LogOut className="mr-2 h-4 w-4" />
                     Logout
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
-              <div className="space-x-2">
-                <Button variant="ghost" asChild>
+              <div className="flex items-center space-x-2">
+                <Button variant="ghost" size="sm" asChild className="hover:bg-orange-50 dark:hover:bg-orange-900/20">
                   <Link to="/login">Login</Link>
                 </Button>
-                <Button asChild>
-                  <Link to="/signup">Sign Up</Link>
+                <Button size="sm" asChild className="bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600 text-white border-0">
+                  <Link to="/signup">Join Us</Link>
                 </Button>
               </div>
             )}
           </div>
 
           {/* Mobile menu button */}
-          <div className="md:hidden flex items-center">
+          <div className="flex items-center md:hidden">
+            {user && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="sm" className="mr-2 p-2 hover:bg-orange-50 dark:hover:bg-orange-900/20">
+                    <User className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48 bg-white dark:bg-gray-800 border border-orange-200 dark:border-orange-700">
+                  <DropdownMenuItem onClick={() => navigate('/dashboard')} className="hover:bg-orange-50 dark:hover:bg-orange-900/20">
+                    <User className="mr-2 h-4 w-4" />
+                    Profile
+                  </DropdownMenuItem>
+                  {isAdmin && (
+                    <DropdownMenuItem onClick={() => navigate('/admin')} className="hover:bg-orange-50 dark:hover:bg-orange-900/20">
+                      <Settings className="mr-2 h-4 w-4" />
+                      Admin
+                    </DropdownMenuItem>
+                  )}
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleLogout} className="hover:bg-orange-50 dark:hover:bg-orange-900/20">
+                    <LogOut className="mr-2 h-4 w-4" />
+                    Logout
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400"
+              className="p-2 text-gray-700 dark:text-gray-300 hover:text-orange-600 dark:hover:text-orange-400 hover:bg-orange-50 dark:hover:bg-orange-900/20 rounded-md transition-colors"
             >
-              {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+              {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </button>
           </div>
         </div>
 
         {/* Mobile Navigation */}
         {isMenuOpen && (
-          <div className="md:hidden">
-            <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700">
+          <div className="md:hidden lg:hidden border-t border-orange-200 dark:border-orange-700">
+            <div className="px-2 pt-2 pb-3 space-y-1 bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm">
               {navItems.map((item) => (
                 <Link
                   key={item.name}
                   to={item.path}
-                  className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 block px-3 py-2 text-base font-medium"
+                  className="text-gray-700 dark:text-gray-300 hover:text-orange-600 dark:hover:text-orange-400 hover:bg-orange-50 dark:hover:bg-orange-900/20 block px-3 py-2 text-base font-medium rounded-md transition-colors"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   {item.name}
                 </Link>
               ))}
               
-              {user ? (
-                <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
-                  <div className="px-3 py-2">
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                      Signed in as {user.email}
-                    </p>
-                  </div>
-                  {isAdmin && (
-                    <Link
-                      to="/admin"
-                      className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 block px-3 py-2 text-base font-medium"
-                      onClick={() => setIsMenuOpen(false)}
-                    >
-                      Admin Panel
-                    </Link>
-                  )}
-                  <button
-                    onClick={() => {
-                      handleLogout();
-                      setIsMenuOpen(false);
-                    }}
-                    className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 block w-full text-left px-3 py-2 text-base font-medium"
-                  >
-                    Logout
-                  </button>
-                </div>
-              ) : (
-                <div className="border-t border-gray-200 dark:border-gray-700 pt-4 space-y-1">
+              {!user && (
+                <div className="border-t border-orange-200 dark:border-orange-700 pt-4 space-y-1">
                   <Link
                     to="/login"
-                    className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 block px-3 py-2 text-base font-medium"
+                    className="text-gray-700 dark:text-gray-300 hover:text-orange-600 dark:hover:text-orange-400 hover:bg-orange-50 dark:hover:bg-orange-900/20 block px-3 py-2 text-base font-medium rounded-md transition-colors"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     Login
                   </Link>
                   <Link
                     to="/signup"
-                    className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 block px-3 py-2 text-base font-medium"
+                    className="bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600 text-white block px-3 py-2 text-base font-medium rounded-md transition-colors"
                     onClick={() => setIsMenuOpen(false)}
                   >
-                    Sign Up
+                    Join Our Art Community
                   </Link>
                 </div>
               )}
