@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -35,84 +34,87 @@ function App() {
             <div className="min-h-screen bg-gradient-to-br from-orange-50 via-pink-50 to-purple-50 dark:from-orange-950/10 dark:via-pink-950/10 dark:to-purple-950/10">
               <DynamicBanner position="top" />
               <Navbar />
-              <Routes>
-                <Route path="/" element={<Index />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/signup" element={<Signup />} />
-                <Route path="/forgot-password" element={<ForgotPassword />} />
-                <Route
-                  path="/dashboard"
-                  element={
-                    <ProtectedRoute>
-                      <Dashboard />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/courses"
-                  element={
-                    <ProtectedRoute>
-                      <Courses />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/store"
-                  element={
-                    <ProtectedRoute>
-                      <Store />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/checkout"
-                  element={
-                    <ProtectedRoute>
-                      <Checkout />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/timetable"
-                  element={
-                    <ProtectedRoute>
-                      <Timetable />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/admin"
-                  element={
-                    <ProtectedRoute>
-                      <AdminManagement />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/live/:sessionId"
-                  element={
-                    <ProtectedRoute>
-                      <LiveClassRoom />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/live-classroom"
-                  element={
-                    <ProtectedRoute>
-                      <LiveClassRoom />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/announcements"
-                  element={
-                    <ProtectedRoute>
-                      <Announcements />
-                    </ProtectedRoute>
-                  }
-                />
-              </Routes>
+              <main className="relative">
+                <Routes>
+                  <Route path="/" element={<Index />} />
+                  <Route path="/login" element={<Login />} />
+                  <Route path="/signup" element={<Signup />} />
+                  <Route path="/forgot-password" element={<ForgotPassword />} />
+                  <Route
+                    path="/dashboard"
+                    element={
+                      <ProtectedRoute>
+                        <Dashboard />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/courses"
+                    element={
+                      <ProtectedRoute>
+                        <Courses />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/store"
+                    element={
+                      <ProtectedRoute>
+                        <Store />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/checkout"
+                    element={
+                      <ProtectedRoute>
+                        <Checkout />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/timetable"
+                    element={
+                      <ProtectedRoute>
+                        <Timetable />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/admin"
+                    element={
+                      <ProtectedRoute>
+                        <AdminManagement />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/live/:sessionId"
+                    element={
+                      <ProtectedRoute>
+                        <LiveClassRoom />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/live-classroom"
+                    element={
+                      <ProtectedRoute>
+                        <LiveClassRoom />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/announcements"
+                    element={
+                      <ProtectedRoute>
+                        <Announcements />
+                      </ProtectedRoute>
+                    }
+                  />
+                </Routes>
+                <DynamicBanner position="sidebar" />
+              </main>
               <DynamicBanner position="bottom" />
               <DynamicBanner position="popup" />
             </div>
