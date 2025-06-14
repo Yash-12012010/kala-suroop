@@ -6,11 +6,12 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useAuth } from '../contexts/AuthContext';
-import { Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff, AlertCircle } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 const Signup = () => {
   const [formData, setFormData] = useState({
-    name: '',
+    fullName: '',
     email: '',
     password: '',
     confirmPassword: ''
@@ -18,6 +19,8 @@ const Signup = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
   const { signup } = useAuth();
   const navigate = useNavigate();
 
@@ -30,19 +33,40 @@ const Signup = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
+    setSuccess(null);
     
     if (formData.password !== formData.confirmPassword) {
-      alert('Passwords do not match');
+      setError('Passwords do not match');
+      return;
+    }
+
+    if (formData.password.length < 6) {
+      setError('Password must be at least 6 characters long');
       return;
     }
 
     setIsLoading(true);
     
     try {
-      await signup(formData.email, formData.password, formData.name);
-      navigate('/dashboard');
+      const { error: signupError } = await signup(
+        formData.email, 
+        formData.password, 
+        formData.fullName
+      );
+      
+      if (signupError) {
+        setError(signupError.message);
+      } else {
+        setSuccess('Account created successfully! Please check your email to verify your account.');
+        // Optionally redirect after a delay
+        setTimeout(() => {
+          navigate('/login');
+        }, 3000);
+      }
     } catch (error) {
       console.error('Signup failed:', error);
+      setError('An unexpected error occurred. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -65,14 +89,27 @@ const Signup = () => {
             <CardTitle>Sign up for free</CardTitle>
           </CardHeader>
           <CardContent>
+            {error && (
+              <Alert variant="destructive" className="mb-6">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
+
+            {success && (
+              <Alert className="mb-6">
+                <AlertDescription>{success}</AlertDescription>
+              </Alert>
+            )}
+
             <form onSubmit={handleSubmit} className="space-y-6">
               <div>
-                <Label htmlFor="name">Full name</Label>
+                <Label htmlFor="fullName">Full name</Label>
                 <Input
-                  id="name"
-                  name="name"
+                  id="fullName"
+                  name="fullName"
                   type="text"
-                  value={formData.name}
+                  value={formData.fullName}
                   onChange={handleChange}
                   required
                   className="mt-1"

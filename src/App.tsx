@@ -19,6 +19,7 @@ import Dashboard from "./pages/Dashboard";
 import Checkout from "./pages/Checkout";
 import LiveClassRoom from "./pages/LiveClassRoom";
 import NotFound from "./pages/NotFound";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 const queryClient = new QueryClient();
 
@@ -37,16 +38,47 @@ const App = () => {
                 <Navbar isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode} />
                 <Routes>
                   <Route path="/" element={<Home />} />
-                  <Route path="/courses" element={<Courses />} />
-                  <Route path="/announcements" element={<Announcements />} />
-                  <Route path="/timetable" element={<Timetable />} />
-                  <Route path="/store" element={<Store />} />
                   <Route path="/login" element={<Login />} />
                   <Route path="/signup" element={<Signup />} />
                   <Route path="/forgot-password" element={<ForgotPassword />} />
-                  <Route path="/dashboard" element={<Dashboard />} />
-                  <Route path="/checkout" element={<Checkout />} />
-                  <Route path="/live-class" element={<LiveClassRoom />} />
+                  
+                  {/* Protected Routes */}
+                  <Route path="/courses" element={
+                    <ProtectedRoute>
+                      <Courses />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/announcements" element={
+                    <ProtectedRoute>
+                      <Announcements />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/timetable" element={
+                    <ProtectedRoute>
+                      <Timetable />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/store" element={
+                    <ProtectedRoute>
+                      <Store />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/dashboard" element={
+                    <ProtectedRoute>
+                      <Dashboard />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/checkout" element={
+                    <ProtectedRoute>
+                      <Checkout />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/live-class" element={
+                    <ProtectedRoute>
+                      <LiveClassRoom />
+                    </ProtectedRoute>
+                  } />
+                  
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </BrowserRouter>

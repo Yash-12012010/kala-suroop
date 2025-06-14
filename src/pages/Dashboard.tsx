@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -16,7 +15,18 @@ import {
 import { useAuth } from '@/contexts/AuthContext';
 
 const Dashboard = () => {
-  const { user } = useAuth();
+  const { user, profile, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="pt-20 pb-16 flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p>Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   const enrolledCourses = [
     {
@@ -46,7 +56,7 @@ const Dashboard = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-            Welcome back, {user?.name || 'Student'}!
+            Welcome back, {profile?.full_name || user?.email || 'Student'}!
           </h1>
           <p className="text-lg text-gray-600 dark:text-gray-300">
             Continue your learning journey
