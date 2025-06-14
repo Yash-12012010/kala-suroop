@@ -54,6 +54,7 @@ const AgoraVideoCall: React.FC<AgoraVideoCallProps> = ({
   const [connectionStatus, setConnectionStatus] = useState<string>('Initializing...');
 
   const localVideoRef = useRef<HTMLDivElement>(null);
+  const remoteVideoRefs = useRef<{[key: string]: HTMLDivElement | null}>({});
 
   // Check and request permissions
   const checkPermissions = async () => {
@@ -112,6 +113,28 @@ const AgoraVideoCall: React.FC<AgoraVideoCallProps> = ({
     }
   };
 
+  // Improved video playing function
+  const playVideoTrack = (track: ICameraVideoTrack | IRemoteVideoTrack, container: HTMLDivElement, uid?: string) => {
+    if (!track || !container) {
+      console.log('❌ Missing track or container for video play');
+      return;
+    }
+
+    try {
+      console.log(`🎥 Playing video track for ${uid || 'local user'}`);
+      
+      // Clear any existing content
+      container.innerHTML = '';
+      
+      // Play the track
+      track.play(container);
+      
+      console.log(`✅ Video track played successfully for ${uid || 'local user'}`);
+    } catch (error) {
+      console.error(`❌ Error playing video track for ${uid || 'local user'}:`, error);
+    }
+  };
+
   // Initialize Agora client
   useEffect(() => {
     if (!permissionsGranted) return;
@@ -147,15 +170,12 @@ const AgoraVideoCall: React.FC<AgoraVideoCallProps> = ({
         }
       });
 
-      // Play remote video immediately
+      // Play remote video immediately if it's a video track
       if (mediaType === 'video' && user.videoTrack) {
-        setTimeout(() => {
-          const remoteVideoContainer = document.getElementById(`remote-video-${user.uid}`);
-          if (remoteVideoContainer && user.videoTrack) {
-            console.log('🎥 Playing remote video for user:', user.uid);
-            user.videoTrack.play(remoteVideoContainer);
-          }
-        }, 100);
+        const container = remoteVideoRefs.current[user.uid.toString()];
+        if (container) {
+          playVideoTrack(user.videoTrack, container, user.uid.toString());
+        }
       }
     });
 
@@ -176,6 +196,7 @@ const AgoraVideoCall: React.FC<AgoraVideoCallProps> = ({
 
     agoraClient.on('user-left', (user) => {
       console.log('👤 User left:', user.uid);
+      delete remoteVideoRefs.current[user.uid.toString()];
       setRemoteUsers(prevUsers => prevUsers.filter(u => u.uid !== user.uid.toString()));
     });
 
@@ -193,14 +214,23 @@ const AgoraVideoCall: React.FC<AgoraVideoCallProps> = ({
   useEffect(() => {
     if (localVideoTrack && localVideoRef.current) {
       console.log('🎥 Playing local video track');
-      try {
-        localVideoTrack.play(localVideoRef.current);
-        console.log('✅ Local video is now playing');
-      } catch (error) {
-        console.error('❌ Error playing local video:', error);
-      }
+      playVideoTrack(localVideoTrack, localVideoRef.current);
     }
   }, [localVideoTrack]);
+
+  // Play remote videos when users change
+  useEffect(() => {
+    console.log('👥 Remote users updated:', remoteUsers.length, 'users');
+    remoteUsers.forEach(user => {
+      if (user.videoTrack) {
+        const container = remoteVideoRefs.current[user.uid];
+        if (container) {
+          console.log(`🎥 Playing remote video for user: ${user.uid}`);
+          playVideoTrack(user.videoTrack, container, user.uid);
+        }
+      }
+    });
+  }, [remoteUsers]);
 
   const joinChannel = async () => {
     if (!client || !permissionsGranted) {
@@ -275,6 +305,7 @@ const AgoraVideoCall: React.FC<AgoraVideoCallProps> = ({
       setLocalVideoTrack(null);
       setLocalAudioTrack(null);
       setRemoteUsers([]);
+      remoteVideoRefs.current = {};
       setConnectionStatus('Disconnected');
       
       onLeave();
@@ -301,23 +332,6 @@ const AgoraVideoCall: React.FC<AgoraVideoCallProps> = ({
       console.log('✅ Audio toggled successfully');
     }
   };
-
-  // Render remote videos when users change
-  useEffect(() => {
-    console.log('👥 Remote users updated:', remoteUsers.length, 'users');
-    remoteUsers.forEach(user => {
-      console.log(`User ${user.uid}: video=${!!user.videoTrack}, audio=${!!user.audioTrack}`);
-      if (user.videoTrack) {
-        setTimeout(() => {
-          const container = document.getElementById(`remote-video-${user.uid}`);
-          if (container && user.videoTrack) {
-            console.log('🎥 Playing remote video for user:', user.uid);
-            user.videoTrack.play(container);
-          }
-        }, 100);
-      }
-    });
-  }, [remoteUsers]);
 
   if (isCheckingPermissions) {
     return (
@@ -459,8 +473,7 @@ const AgoraVideoCall: React.FC<AgoraVideoCallProps> = ({
           <div className="relative bg-gray-800 rounded-lg overflow-hidden border-2 border-blue-500">
             <div 
               ref={localVideoRef}
-              className="w-full h-full min-h-[200px]"
-              style={{ background: 'black' }}
+              className="w-full h-full min-h-[300px] bg-black"
             />
             <div className="absolute bottom-2 left-2 bg-black bg-opacity-75 text-white px-3 py-1 rounded text-sm font-medium">
               You {isTeacher ? '(Teacher)' : '(Student)'}
@@ -488,9 +501,8 @@ const AgoraVideoCall: React.FC<AgoraVideoCallProps> = ({
           {remoteUsers.map((user) => (
             <div key={user.uid} className="relative bg-gray-800 rounded-lg overflow-hidden border-2 border-gray-600">
               <div 
-                id={`remote-video-${user.uid}`}
-                className="w-full h-full min-h-[200px]"
-                style={{ background: 'black' }}
+                ref={(el) => { remoteVideoRefs.current[user.uid] = el; }}
+                className="w-full h-full min-h-[300px] bg-black"
               />
               <div className="absolute bottom-2 left-2 bg-black bg-opacity-75 text-white px-3 py-1 rounded text-sm font-medium">
                 User {user.uid} {isTeacher ? '(Student)' : user.uid.includes('teacher') ? '(Teacher)' : ''}
@@ -505,7 +517,7 @@ const AgoraVideoCall: React.FC<AgoraVideoCallProps> = ({
           
           {/* Show waiting message if no remote users */}
           {remoteUsers.length === 0 && (
-            <div className="bg-gray-800 rounded-lg border-2 border-dashed border-gray-600 flex items-center justify-center min-h-[200px]">
+            <div className="bg-gray-800 rounded-lg border-2 border-dashed border-gray-600 flex items-center justify-center min-h-[300px]">
               <div className="text-center text-gray-400">
                 <Users className="h-12 w-12 mx-auto mb-2" />
                 <p className="text-lg font-medium">Waiting for others to join...</p>
