@@ -17,6 +17,27 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 
+// Define types for the new tables
+interface CoursePurchase {
+  id: string;
+  user_id: string;
+  course_id: string;
+  status: string;
+  created_at: string;
+  updated_at: string;
+}
+
+interface LiveSession {
+  id: string;
+  course_id: string;
+  title: string;
+  scheduled_start: string;
+  scheduled_end: string;
+  agora_channel: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
 const Dashboard = () => {
   const { user, profile, loading } = useAuth();
 
@@ -33,7 +54,7 @@ const Dashboard = () => {
         .eq('status', 'paid');
       
       if (error) throw error;
-      return data;
+      return data as CoursePurchase[];
     },
     enabled: !!user?.id
   });
@@ -53,7 +74,7 @@ const Dashboard = () => {
         .order('scheduled_start', { ascending: true });
       
       if (error) throw error;
-      return data;
+      return data as LiveSession[];
     },
     enabled: purchasedCourses.length > 0
   });
