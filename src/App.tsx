@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import Navbar from "@/components/Navbar";
+import DynamicBanner from "@/components/DynamicBanner";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
@@ -32,6 +33,7 @@ function App() {
           <Sonner />
           <BrowserRouter>
             <div className="min-h-screen bg-gradient-to-br from-orange-50 via-pink-50 to-purple-50 dark:from-orange-950/10 dark:via-pink-950/10 dark:to-purple-950/10">
+              <DynamicBanner position="top" />
               <Navbar />
               <Routes>
                 <Route path="/" element={<Index />} />
@@ -103,6 +105,8 @@ function App() {
                   }
                 />
               </Routes>
+              <DynamicBanner position="bottom" />
+              <DynamicBanner position="popup" />
             </div>
           </BrowserRouter>
         </AuthProvider>

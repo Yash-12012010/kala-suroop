@@ -6,6 +6,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import ClassManager from '@/components/admin/ClassManager';
 import SubjectManager from '@/components/admin/SubjectManager';
 import TopicManager from '@/components/admin/TopicManager';
+import WebsiteManager from '@/components/admin/WebsiteManager';
 
 const AdminManagement = () => {
   const { isAdmin } = useAuth();
@@ -32,16 +33,21 @@ const AdminManagement = () => {
             Admin Management
           </h1>
           <p className="text-base lg:text-lg text-gray-600 dark:text-gray-300">
-            Manage classes, subjects, and topics
+            Complete control over your website and content
           </p>
         </div>
 
-        <Tabs defaultValue="classes" className="w-full">
-          <TabsList className="grid w-full grid-cols-3 mb-4 lg:mb-6">
+        <Tabs defaultValue="website" className="w-full">
+          <TabsList className="grid w-full grid-cols-4 mb-4 lg:mb-6">
+            <TabsTrigger value="website" className="text-sm lg:text-base">Website</TabsTrigger>
             <TabsTrigger value="classes" className="text-sm lg:text-base">Classes</TabsTrigger>
             <TabsTrigger value="subjects" className="text-sm lg:text-base">Subjects</TabsTrigger>
             <TabsTrigger value="topics" className="text-sm lg:text-base">Topics</TabsTrigger>
           </TabsList>
+
+          <TabsContent value="website" className="mt-4 lg:mt-6">
+            <WebsiteManager />
+          </TabsContent>
 
           <TabsContent value="classes" className="mt-4 lg:mt-6">
             <ClassManager />
