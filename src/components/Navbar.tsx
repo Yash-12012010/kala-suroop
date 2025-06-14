@@ -34,8 +34,8 @@ const Navbar = () => {
   ];
 
   return (
-    <nav className="bg-white/95 backdrop-blur-sm dark:bg-gray-900/95 shadow-lg border-b border-orange-100 dark:border-orange-800/20 fixed w-full top-0 z-50">
-      <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 xl:px-8">
+    <nav className="bg-white/95 backdrop-blur-sm dark:bg-gray-900/95 shadow-lg border-b border-orange-100 dark:border-orange-800/20 fixed w-screen top-0 left-0 z-50">
+      <div className="w-full px-3 sm:px-4 lg:px-6 xl:px-8">
         <div className="flex justify-between items-center h-14 sm:h-16 lg:h-18">
           {/* Logo */}
           <div className="flex items-center flex-shrink-0">
