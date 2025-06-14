@@ -97,6 +97,14 @@ function App() {
                   }
                 />
                 <Route
+                  path="/live-classroom"
+                  element={
+                    <ProtectedRoute>
+                      <LiveClassRoom />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
                   path="/announcements"
                   element={
                     <ProtectedRoute>

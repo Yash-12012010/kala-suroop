@@ -116,7 +116,7 @@ const LiveClassAdmin = () => {
 
       fetchLiveClasses();
       
-      // Open live class in new window
+      // Use the correct route with query parameters
       window.open(`/live-classroom?channel=${channelName}&teacher=true`, '_blank');
     } catch (error) {
       console.error('Error starting live class:', error);

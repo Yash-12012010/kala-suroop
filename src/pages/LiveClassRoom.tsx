@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
+import { useLocation, useNavigate, useSearchParams, useParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -23,6 +23,7 @@ const LiveClassRoom = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const { sessionId } = useParams();
   const { user } = useAuth();
   
   const [showLiveClass, setShowLiveClass] = useState(false);
@@ -40,14 +41,47 @@ const LiveClassRoom = () => {
     const teacher = searchParams.get('teacher') === 'true';
     
     if (channel) {
+      console.log('Auto-joining channel from URL:', channel, 'as teacher:', teacher);
       setChannelName(channel);
       setIsTeacher(teacher);
       setShowLiveClass(true);
+      return;
     }
-  }, [searchParams]);
+
+    // Check if we have a sessionId from the route
+    if (sessionId) {
+      console.log('Loading session from ID:', sessionId);
+      loadSessionById(sessionId);
+    }
+  }, [searchParams, sessionId]);
+
+  const loadSessionById = async (id: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('live_sessions')
+        .select('*')
+        .eq('id', id)
+        .single();
+
+      if (error) {
+        console.error('Error loading session:', error);
+        return;
+      }
+
+      if (data && data.agora_channel) {
+        console.log('Found session:', data);
+        setChannelName(data.agora_channel);
+        setIsTeacher(false); // Default to student unless specified
+        setShowLiveClass(true);
+      }
+    } catch (error) {
+      console.error('Error loading session by ID:', error);
+    }
+  };
 
   const fetchLiveSessions = async () => {
     try {
+      console.log('Fetching live sessions...');
       const { data, error } = await supabase
         .from('live_sessions')
         .select('*')
@@ -56,6 +90,7 @@ const LiveClassRoom = () => {
         .order('scheduled_start', { ascending: true });
 
       if (error) throw error;
+      console.log('Fetched sessions:', data);
       setLiveSessions(data || []);
     } catch (error) {
       console.error('Error fetching live sessions:', error);
@@ -74,6 +109,7 @@ const LiveClassRoom = () => {
       return;
     }
     
+    console.log('Joining class:', channel, 'as teacher:', asTeacher);
     setChannelName(channel);
     setIsTeacher(asTeacher);
     setShowLiveClass(true);
@@ -81,6 +117,7 @@ const LiveClassRoom = () => {
 
   const joinLiveSession = (session: LiveSession) => {
     if (session.agora_channel) {
+      console.log('Joining live session:', session);
       handleJoinClass(session.agora_channel, false);
     }
   };
@@ -122,6 +159,25 @@ const LiveClassRoom = () => {
             Join ongoing classes or start a new session
           </p>
         </div>
+
+        {/* Debug Info */}
+        <Card className="mb-8 border-blue-200 bg-blue-50 dark:bg-blue-900/20">
+          <CardHeader>
+            <CardTitle className="flex items-center text-blue-800 dark:text-blue-200">
+              <AlertCircle className="h-5 w-5 mr-2" />
+              Debug Information
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2 text-sm">
+              <p><strong>Session ID from URL:</strong> {sessionId || 'None'}</p>
+              <p><strong>Channel from query:</strong> {searchParams.get('channel') || 'None'}</p>
+              <p><strong>Teacher mode:</strong> {searchParams.get('teacher') || 'false'}</p>
+              <p><strong>Current channel:</strong> {channelName || 'None'}</p>
+              <p><strong>Live sessions found:</strong> {liveSessions.length}</p>
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Setup Instructions */}
         <Card className="mb-8 border-green-200 bg-green-50 dark:bg-green-900/20">
