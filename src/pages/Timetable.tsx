@@ -103,11 +103,11 @@ const Timetable = () => {
   return (
     <div className="pt-20 pb-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
+        <div className="text-center mb-8 lg:mb-12">
+          <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-4">
             Class Timetable
           </h1>
-          <p className="text-lg text-gray-600 dark:text-gray-300">
+          <p className="text-base lg:text-lg text-gray-600 dark:text-gray-300">
             Weekly schedule for live classes and sessions
           </p>
         </div>
@@ -116,61 +116,110 @@ const Timetable = () => {
           <TimetableEditor scheduleData={schedule} onRefresh={fetchTimetable} />
         )}
 
-        <div className="overflow-x-auto">
-          <div className="min-w-full">
-            <Card>
-              <CardHeader>
-                <CardTitle>Weekly Schedule</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-8 gap-2">
-                  {/* Header */}
-                  <div className="font-semibold text-center py-2">Time</div>
-                  {days.map(day => (
-                    <div key={day} className="font-semibold text-center py-2">
-                      {day}
-                    </div>
-                  ))}
-
-                  {/* Time slots and classes */}
-                  {timeSlots.map(time => (
-                    <React.Fragment key={time}>
-                      <div className="text-sm font-medium text-center py-4 border-r">
-                        {time}
-                      </div>
-                      {days.map(day => {
-                        const classInfo = schedule[day]?.[time];
-                        return (
-                          <div key={`${day}-${time}`} className="p-2 min-h-[80px] border">
+        {/* Mobile View */}
+        <div className="block lg:hidden mb-8">
+          <div className="space-y-4">
+            {days.map(day => (
+              <Card key={day}>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-lg">{day}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    {timeSlots.map(time => {
+                      const classInfo = schedule[day]?.[time];
+                      return (
+                        <div key={`${day}-${time}`} className="flex items-start space-x-3 p-3 rounded-lg border">
+                          <div className="text-sm font-medium text-muted-foreground min-w-[70px]">
+                            {time}
+                          </div>
+                          <div className="flex-1">
                             {classInfo ? (
-                              <div className={`p-2 rounded-lg h-full ${getSubjectColor(classInfo.subject)}`}>
-                                <div className="font-semibold text-xs mb-1">
+                              <div className={`p-3 rounded-lg ${getSubjectColor(classInfo.subject)}`}>
+                                <div className="font-semibold text-sm mb-1">
                                   {classInfo.subject}
                                 </div>
-                                <div className="text-xs opacity-90">
+                                <div className="text-xs opacity-90 mb-1">
                                   {classInfo.class_name}
                                 </div>
-                                <div className="text-xs opacity-75 mt-1">
+                                <div className="text-xs opacity-75">
                                   {classInfo.teacher}
                                 </div>
                               </div>
                             ) : (
-                              <div className="h-full flex items-center justify-center text-muted-foreground text-xs">
-                                -
+                              <div className="text-sm text-muted-foreground italic">
+                                No class scheduled
                               </div>
                             )}
                           </div>
-                        );
-                      })}
-                    </React.Fragment>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
           </div>
         </div>
 
-        <div className="mt-8 grid md:grid-cols-2 gap-6">
+        {/* Desktop View */}
+        <div className="hidden lg:block">
+          <Card>
+            <CardHeader>
+              <CardTitle>Weekly Schedule</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="overflow-x-auto">
+                <div className="min-w-[800px]">
+                  <div className="grid grid-cols-8 gap-2">
+                    {/* Header */}
+                    <div className="font-semibold text-center py-3 bg-muted rounded">Time</div>
+                    {days.map(day => (
+                      <div key={day} className="font-semibold text-center py-3 bg-muted rounded">
+                        {day}
+                      </div>
+                    ))}
+
+                    {/* Time slots and classes */}
+                    {timeSlots.map(time => (
+                      <React.Fragment key={time}>
+                        <div className="text-sm font-medium text-center py-4 border-r flex items-center justify-center">
+                          {time}
+                        </div>
+                        {days.map(day => {
+                          const classInfo = schedule[day]?.[time];
+                          return (
+                            <div key={`${day}-${time}`} className="p-2 min-h-[100px] border rounded">
+                              {classInfo ? (
+                                <div className={`p-2 rounded-lg h-full ${getSubjectColor(classInfo.subject)}`}>
+                                  <div className="font-semibold text-xs mb-1">
+                                    {classInfo.subject}
+                                  </div>
+                                  <div className="text-xs opacity-90 mb-1">
+                                    {classInfo.class_name}
+                                  </div>
+                                  <div className="text-xs opacity-75">
+                                    {classInfo.teacher}
+                                  </div>
+                                </div>
+                              ) : (
+                                <div className="h-full flex items-center justify-center text-muted-foreground text-xs">
+                                  -
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </React.Fragment>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        <div className="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-6">
           <Card>
             <CardHeader>
               <CardTitle>Important Notes</CardTitle>
@@ -196,12 +245,12 @@ const Timetable = () => {
               <CardTitle>Subject Legend</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {Object.keys({
                   'Mathematics': '', 'Physics': '', 'Chemistry': '', 'Biology': '',
                   'English': '', 'Doubt Session': '', 'Test Series': '', 'Revision Class': ''
                 }).map(subject => (
-                  <Badge key={subject} className={getSubjectColor(subject)}>
+                  <Badge key={subject} className={`${getSubjectColor(subject)} justify-center`}>
                     {subject}
                   </Badge>
                 ))}
