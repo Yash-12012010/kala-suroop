@@ -61,32 +61,32 @@ const CourseEnrollmentManager = () => {
         return;
       }
 
-      // Process enrollments sequentially to avoid complex type issues
+      // Process enrollments with proper error handling
       const enrichedEnrollments: CourseEnrollment[] = [];
       
       for (const enrollment of enrollmentData) {
         let userEmail = 'Unknown';
         let courseTitle = 'Unknown Course';
 
-        // Get user email
+        // Get user email with proper error handling
         try {
-          const { data: userData } = await supabase.auth.admin.getUserById(enrollment.user_id);
-          if (userData?.user?.email) {
+          const { data: userData, error: userError } = await supabase.auth.admin.getUserById(enrollment.user_id);
+          if (!userError && userData?.user?.email) {
             userEmail = userData.user.email;
           }
         } catch (error) {
           console.error('Error fetching user data:', error);
         }
 
-        // Get course title
+        // Get course title with proper error handling
         try {
-          const { data: courseData } = await supabase
+          const { data: courseData, error: courseError } = await supabase
             .from('courses')
             .select('title')
             .eq('id', enrollment.course_id)
             .single();
           
-          if (courseData?.title) {
+          if (!courseError && courseData?.title) {
             courseTitle = courseData.title;
           }
         } catch (error) {
@@ -141,14 +141,15 @@ const CourseEnrollmentManager = () => {
     const expiresAt = formData.get('expiresAt') as string;
 
     try {
-      // Get user ID from auth users
+      // Get user ID from auth users with proper type handling
       const { data: usersData, error: usersError } = await supabase.auth.admin.listUsers();
       
       if (usersError) {
         throw usersError;
       }
 
-      const targetUser = usersData.users.find(user => user.email === userEmail);
+      // Find user with proper type checking
+      const targetUser = usersData.users.find((user: any) => user.email === userEmail);
       
       if (!targetUser) {
         toast({
