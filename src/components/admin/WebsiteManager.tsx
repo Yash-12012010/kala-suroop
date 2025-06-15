@@ -42,10 +42,9 @@ const WebsiteManager = () => {
             <TabsTrigger value="subjects">Subjects</TabsTrigger>
             <TabsTrigger value="settings">Settings</TabsTrigger>
           </TabsList>
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="announcements">Announcements</TabsTrigger>
             <TabsTrigger value="live-classes">Live Classes</TabsTrigger>
-            <TabsTrigger value=""><!-- Empty slot --></TabsTrigger>
           </TabsList>
         </div>
 
