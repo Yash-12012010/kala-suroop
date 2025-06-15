@@ -10,6 +10,12 @@ import WebsiteTemplateManager from './WebsiteTemplateManager';
 import LiveClassAdmin from './LiveClassAdmin';
 import LiveContentManager from './LiveContentManager';
 import QuickEditPanel from './QuickEditPanel';
+import CourseManager from './CourseManager';
+import StoreManager from './StoreManager';
+import ClassManager from './ClassManager';
+import SubjectManager from './SubjectManager';
+import TopicManager from './TopicManager';
+import TimetableManager from './TimetableManager';
 
 const WebsiteManager = () => {
   return (
@@ -32,7 +38,15 @@ const WebsiteManager = () => {
             <TabsTrigger value="banners">Banners</TabsTrigger>
             <TabsTrigger value="navigation">Navigation</TabsTrigger>
           </TabsList>
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
+            <TabsTrigger value="courses">Courses</TabsTrigger>
+            <TabsTrigger value="store">Store</TabsTrigger>
+            <TabsTrigger value="academic">Academic</TabsTrigger>
+            <TabsTrigger value="classes">Classes</TabsTrigger>
+            <TabsTrigger value="subjects">Subjects</TabsTrigger>
+          </TabsList>
+          <TabsList className="grid w-full grid-cols-5">
+            <TabsTrigger value="topics">Topics</TabsTrigger>
             <TabsTrigger value="settings">Settings</TabsTrigger>
             <TabsTrigger value="templates">Templates</TabsTrigger>
             <TabsTrigger value="announcements">Announcements</TabsTrigger>
@@ -58,6 +72,30 @@ const WebsiteManager = () => {
 
         <TabsContent value="navigation" className="mt-6">
           <NavigationManager />
+        </TabsContent>
+
+        <TabsContent value="courses" className="mt-6">
+          <CourseManager />
+        </TabsContent>
+
+        <TabsContent value="store" className="mt-6">
+          <StoreManager />
+        </TabsContent>
+
+        <TabsContent value="academic" className="mt-6">
+          <TimetableManager />
+        </TabsContent>
+
+        <TabsContent value="classes" className="mt-6">
+          <ClassManager />
+        </TabsContent>
+
+        <TabsContent value="subjects" className="mt-6">
+          <SubjectManager />
+        </TabsContent>
+
+        <TabsContent value="topics" className="mt-6">
+          <TopicManager />
         </TabsContent>
 
         <TabsContent value="settings" className="mt-6">

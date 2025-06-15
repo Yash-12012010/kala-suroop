@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -11,6 +11,7 @@ import { Badge } from '@/components/ui/badge';
 import { Plus, Edit, Trash2, FileText, Video, Calendar } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 interface Course {
   id: string;
@@ -22,11 +23,10 @@ interface Course {
   status: string;
   instructor: string;
   created_at: string;
+  updated_at: string;
 }
 
 const CourseManager = () => {
-  const [courses, setCourses] = useState<Course[]>([]);
-  const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingCourse, setEditingCourse] = useState<Course | null>(null);
   const [formData, setFormData] = useState({
@@ -39,72 +39,52 @@ const CourseManager = () => {
     instructor: ''
   });
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
-  // Mock course data for demonstration
-  const mockCourses: Course[] = [
-    {
-      id: 'neet-2025',
-      title: 'NEET 2025 Complete Course',
-      description: 'Comprehensive preparation for NEET 2025 with live classes and doubt sessions',
-      price: 15000,
-      duration: '12 months',
-      level: 'intermediate',
-      status: 'active',
-      instructor: 'Dr. Sharma',
-      created_at: new Date().toISOString()
-    },
-    {
-      id: 'jee-main-2025',
-      title: 'JEE Main 2025 Foundation',
-      description: 'Complete JEE Main preparation with test series and revision classes',
-      price: 18000,
-      duration: '10 months',
-      level: 'advanced',
-      status: 'active',
-      instructor: 'Mr. Kumar',
-      created_at: new Date().toISOString()
-    },
-    {
-      id: 'class-12-physics',
-      title: 'Class 12 Physics',
-      description: 'Complete Class 12 Physics course with practical sessions',
-      price: 8000,
-      duration: '8 months',
-      level: 'intermediate',
-      status: 'active',
-      instructor: 'Dr. Patel',
-      created_at: new Date().toISOString()
+  const { data: courses = [], isLoading } = useQuery({
+    queryKey: ['courses'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('courses')
+        .select('*')
+        .order('created_at', { ascending: false });
+      
+      if (error) {
+        console.error('Error fetching courses:', error);
+        throw error;
+      }
+      
+      return data || [];
     }
-  ];
-
-  useEffect(() => {
-    // For now, using mock data. In a real implementation, you would fetch from database
-    setCourses(mockCourses);
-    setLoading(false);
-  }, []);
+  });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       if (editingCourse) {
         // Update existing course
-        const updatedCourses = courses.map(course =>
-          course.id === editingCourse.id
-            ? { ...course, ...formData }
-            : course
-        );
-        setCourses(updatedCourses);
+        const { error } = await supabase
+          .from('courses')
+          .update({
+            ...formData,
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', editingCourse.id);
+
+        if (error) throw error;
         toast({ title: "Success", description: "Course updated successfully" });
       } else {
         // Create new course
-        const newCourse: Course = {
-          id: `course-${Date.now()}`,
-          ...formData,
-          created_at: new Date().toISOString()
-        };
-        setCourses([...courses, newCourse]);
+        const { error } = await supabase
+          .from('courses')
+          .insert([formData]);
+
+        if (error) throw error;
         toast({ title: "Success", description: "Course created successfully" });
       }
+
+      // Refetch courses
+      queryClient.invalidateQueries({ queryKey: ['courses'] });
 
       setFormData({
         title: '',
@@ -133,8 +113,15 @@ const CourseManager = () => {
     }
 
     try {
-      const updatedCourses = courses.filter(course => course.id !== id);
-      setCourses(updatedCourses);
+      const { error } = await supabase
+        .from('courses')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+
+      // Refetch courses
+      queryClient.invalidateQueries({ queryKey: ['courses'] });
       toast({ title: "Success", description: "Course deleted successfully" });
     } catch (error) {
       console.error('Error deleting course:', error);
@@ -312,8 +299,16 @@ const CourseManager = () => {
           </Dialog>
         </CardHeader>
         <CardContent>
-          {loading ? (
+          {isLoading ? (
             <div className="text-center py-4">Loading courses...</div>
+          ) : courses.length === 0 ? (
+            <div className="text-center py-8">
+              <p className="text-muted-foreground mb-4">No courses found</p>
+              <Button onClick={() => openDialog()}>
+                <Plus className="h-4 w-4 mr-2" />
+                Create Your First Course
+              </Button>
+            </div>
           ) : (
             <Table>
               <TableHeader>
@@ -353,13 +348,6 @@ const CourseManager = () => {
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end space-x-2">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => window.open(`/course/${course.id}`, '_blank')}
-                        >
-                          <FileText className="h-4 w-4" />
-                        </Button>
                         <Button
                           size="sm"
                           variant="outline"
