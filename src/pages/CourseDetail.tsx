@@ -24,6 +24,7 @@ interface Course {
   status: string;
   created_at: string;
   updated_at: string;
+  enrolled_students: number | null;
 }
 
 const CourseDetail = () => {
@@ -133,7 +134,7 @@ const CourseDetail = () => {
                 <div className="flex items-center space-x-6 text-sm text-muted-foreground">
                   <div className="flex items-center">
                     <Users className="h-4 w-4 mr-1" />
-                    {Math.floor(Math.random() * 500) + 100} students
+                    {course.enrolled_students || 0} students
                   </div>
                   <div className="flex items-center">
                     <Clock className="h-4 w-4 mr-1" />

@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -27,7 +26,7 @@ interface Course {
   featured: boolean;
   created_at: string;
   updated_at: string;
-  enrolled_students?: number;
+  enrolled_students: number | null;
 }
 
 const CourseManager = () => {
@@ -80,6 +79,7 @@ const CourseManager = () => {
             price: formData.price,
             status: formData.status,
             featured: formData.featured,
+            enrolled_students: formData.enrolled_students,
             updated_at: new Date().toISOString()
           })
           .eq('id', editingCourse.id);
@@ -98,7 +98,8 @@ const CourseManager = () => {
             duration: formData.duration,
             price: formData.price,
             status: formData.status,
-            featured: formData.featured
+            featured: formData.featured,
+            enrolled_students: formData.enrolled_students
           }]);
 
         if (error) throw error;
@@ -396,7 +397,7 @@ const CourseManager = () => {
                         <Badge variant="outline" className="capitalize">{course.level}</Badge>
                       </TableCell>
                       <TableCell className="hidden lg:table-cell">
-                        {course.enrolled_students || Math.floor(Math.random() * 500) + 100}
+                        {course.enrolled_students || 0}
                       </TableCell>
                       <TableCell>
                         <span className="font-semibold text-green-600">₹{course.price}</span>
