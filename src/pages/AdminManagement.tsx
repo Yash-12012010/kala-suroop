@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Navigate } from 'react-router-dom';
@@ -16,21 +17,19 @@ import WebsiteSettingsManager from '@/components/admin/WebsiteSettingsManager';
 import ContentEditor from '@/components/admin/ContentEditor';
 import CourseEnrollmentManager from '@/components/admin/CourseEnrollmentManager';
 import { useToast } from '@/hooks/use-toast';
-import { usePopup } from '@/contexts/PopupContext';
 import { useBrowserPopupOverride } from '@/hooks/useBrowserPopupOverride';
 
 const AdminManagement = () => {
   const { user, isAdmin, loading } = useAuth();
   const { toast } = useToast();
-  const { showAlert, showConfirm, showPrompt } = usePopup();
   
-  // Override browser popups with custom ones
-  useBrowserPopupOverride();
+  // Get custom popup functions
+  const { showAlert, showConfirm, showPrompt } = useBrowserPopupOverride();
 
   const handleContentSave = async (content: any) => {
     console.log('Saving content:', content);
     
-    // Example of using custom popup instead of browser alert
+    // Use custom popup instead of browser confirm
     const confirmed = await showConfirm('Are you sure you want to save these changes?', 'Confirm Save');
     
     if (confirmed) {
@@ -40,6 +39,22 @@ const AdminManagement = () => {
       });
       await showAlert('Content has been saved successfully!', 'Success');
     }
+  };
+
+  // Test function to demonstrate popup functionality
+  const testCustomPopups = async () => {
+    console.log('Testing custom popups...');
+    
+    // Test alert
+    await showAlert('This is a custom alert!', 'Test Alert');
+    
+    // Test confirm
+    const confirmed = await showConfirm('Do you want to continue?', 'Test Confirm');
+    console.log('Confirmed:', confirmed);
+    
+    // Test prompt
+    const userInput = await showPrompt('Enter your name:', 'Test Prompt', 'Default Name');
+    console.log('User input:', userInput);
   };
 
   if (loading) {
@@ -64,6 +79,14 @@ const AdminManagement = () => {
           <p className="text-gray-600 dark:text-gray-300">
             Manage your platform's content, courses, and settings
           </p>
+          
+          {/* Test button for custom popups */}
+          <button 
+            onClick={testCustomPopups}
+            className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+          >
+            Test Custom Popups
+          </button>
         </div>
 
         <Tabs defaultValue="courses" className="w-full">
