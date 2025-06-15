@@ -1,6 +1,7 @@
+
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import { QueryClient } from 'react-query';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider } from './contexts/AuthContext';
 import Navbar from './components/Navbar';
 import Index from './pages/Index';
@@ -20,9 +21,11 @@ import ProtectedRoute from './components/ProtectedRoute';
 import { Toaster } from '@/components/ui/toaster';
 import CourseDetail from '@/pages/CourseDetail';
 
+const queryClient = new QueryClient();
+
 function App() {
   return (
-    <QueryClient>
+    <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <Router>
           <div className="min-h-screen bg-gradient-to-br from-orange-50 via-pink-50 to-purple-50 dark:from-orange-950/10 dark:via-pink-950/10 dark:to-purple-950/10">
@@ -47,7 +50,7 @@ function App() {
           </div>
         </Router>
       </AuthProvider>
-    </QueryClient>
+    </QueryClientProvider>
   );
 }
 
