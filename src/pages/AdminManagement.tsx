@@ -9,6 +9,7 @@ import TopicManager from '@/components/admin/TopicManager';
 import WebsiteManager from '@/components/admin/WebsiteManager';
 import CourseManager from '@/components/admin/CourseManager';
 import TimetableManager from '@/components/admin/TimetableManager';
+import StoreManager from '@/components/admin/StoreManager';
 
 const AdminManagement = () => {
   const { isAdmin } = useAuth();
@@ -40,9 +41,10 @@ const AdminManagement = () => {
         </div>
 
         <Tabs defaultValue="website" className="w-full">
-          <TabsList className="grid w-full grid-cols-3 mb-4 lg:mb-6">
+          <TabsList className="grid w-full grid-cols-4 mb-4 lg:mb-6">
             <TabsTrigger value="website" className="text-sm lg:text-base">Website</TabsTrigger>
             <TabsTrigger value="courses" className="text-sm lg:text-base">Courses</TabsTrigger>
+            <TabsTrigger value="store" className="text-sm lg:text-base">Store</TabsTrigger>
             <TabsTrigger value="academic" className="text-sm lg:text-base">Academic</TabsTrigger>
           </TabsList>
           <TabsList className="grid w-full grid-cols-3 mb-4 lg:mb-6">
@@ -57,6 +59,10 @@ const AdminManagement = () => {
 
           <TabsContent value="courses" className="mt-4 lg:mt-6">
             <CourseManager />
+          </TabsContent>
+
+          <TabsContent value="store" className="mt-4 lg:mt-6">
+            <StoreManager />
           </TabsContent>
 
           <TabsContent value="academic" className="mt-4 lg:mt-6">
