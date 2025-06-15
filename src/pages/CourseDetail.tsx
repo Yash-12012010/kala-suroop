@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -33,11 +34,21 @@ const CourseDetail = () => {
   const { isAdmin } = useAuth();
   const [activeTab, setActiveTab] = useState('live');
 
+  // Add debug logging
+  useEffect(() => {
+    console.log('CourseDetail mounted with courseId:', courseId);
+  }, [courseId]);
+
   // Fetch course data from database
-  const { data: course, isLoading } = useQuery({
+  const { data: course, isLoading, error } = useQuery({
     queryKey: ['course', courseId],
     queryFn: async () => {
-      if (!courseId) return null;
+      if (!courseId) {
+        console.error('No courseId provided');
+        return null;
+      }
+      
+      console.log('Fetching course with ID:', courseId);
       
       const { data, error } = await supabase
         .from('courses')
@@ -50,6 +61,7 @@ const CourseDetail = () => {
         throw error;
       }
       
+      console.log('Course data fetched:', data);
       return data as Course;
     },
     enabled: !!courseId
@@ -71,7 +83,42 @@ const CourseDetail = () => {
       <div className="pt-20 pb-16 bg-gradient-to-br from-orange-50 via-pink-50 to-purple-50 dark:from-orange-950/10 dark:via-pink-950/10 dark:to-purple-950/10 min-h-screen">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center py-12">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
             <p className="text-lg text-gray-600 dark:text-gray-300">Loading course...</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">Course ID: {courseId}</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    console.error('Course fetch error:', error);
+    return (
+      <div className="pt-20 pb-16 bg-gradient-to-br from-orange-50 via-pink-50 to-purple-50 dark:from-orange-950/10 dark:via-pink-950/10 dark:to-purple-950/10 min-h-screen">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center py-12">
+            <div className="bg-white/80 backdrop-blur-sm rounded-lg p-8 shadow-lg max-w-md mx-auto">
+              <h2 className="text-2xl font-bold text-red-600 mb-4">Error Loading Course</h2>
+              <p className="text-gray-600 dark:text-gray-300 mb-4">
+                Failed to load course data. The course might not exist or there was a connection error.
+              </p>
+              <p className="text-sm text-gray-500 dark:text-gray-400 mb-6 font-mono bg-gray-100 dark:bg-gray-800 p-2 rounded">
+                Course ID: {courseId}
+              </p>
+              <div className="space-y-3">
+                <Button onClick={() => navigate('/courses')} className="w-full">
+                  Back to Courses
+                </Button>
+                <Button 
+                  variant="outline" 
+                  onClick={() => window.location.reload()}
+                  className="w-full"
+                >
+                  Retry
+                </Button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -83,10 +130,29 @@ const CourseDetail = () => {
       <div className="pt-20 pb-16 bg-gradient-to-br from-orange-50 via-pink-50 to-purple-50 dark:from-orange-950/10 dark:via-pink-950/10 dark:to-purple-950/10 min-h-screen">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center py-12">
-            <p className="text-lg text-gray-600 dark:text-gray-300">Course not found</p>
-            <Button onClick={() => navigate('/courses')} className="mt-4">
-              Back to Courses
-            </Button>
+            <div className="bg-white/80 backdrop-blur-sm rounded-lg p-8 shadow-lg max-w-md mx-auto">
+              <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-200 mb-4">Course Not Found</h2>
+              <p className="text-gray-600 dark:text-gray-300 mb-4">
+                The course you're looking for doesn't exist or has been removed.
+              </p>
+              <p className="text-sm text-gray-500 dark:text-gray-400 mb-6 font-mono bg-gray-100 dark:bg-gray-800 p-2 rounded">
+                Course ID: {courseId}
+              </p>
+              <div className="space-y-3">
+                <Button onClick={() => navigate('/courses')} className="w-full">
+                  Browse All Courses
+                </Button>
+                {isAdmin && (
+                  <Button 
+                    variant="outline" 
+                    onClick={() => navigate('/admin')}
+                    className="w-full"
+                  >
+                    Go to Admin Panel
+                  </Button>
+                )}
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -101,7 +167,7 @@ const CourseDetail = () => {
           <Button 
             variant="outline" 
             onClick={() => navigate('/courses')}
-            className="mb-6"
+            className="mb-6 bg-white/80 backdrop-blur-sm hover:bg-white/90"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Courses
@@ -110,15 +176,22 @@ const CourseDetail = () => {
           <div className="grid lg:grid-cols-3 gap-8">
             {/* Course Info */}
             <div className="lg:col-span-2">
-              <div className="bg-white/80 backdrop-blur-sm rounded-lg p-6 shadow-lg">
+              <div className="bg-white/80 backdrop-blur-sm rounded-lg p-6 shadow-lg border border-white/20">
                 <div className="flex items-start justify-between mb-4">
                   <div>
                     <h1 className="text-3xl font-bold bg-gradient-to-r from-orange-600 via-pink-600 to-purple-600 bg-clip-text text-transparent mb-2">
                       {course.title}
                     </h1>
-                    <Badge className="bg-gradient-to-r from-orange-500 to-pink-500 text-white capitalize">
-                      {course.level}
-                    </Badge>
+                    <div className="flex flex-wrap gap-2">
+                      <Badge className="bg-gradient-to-r from-orange-500 to-pink-500 text-white capitalize">
+                        {course.level}
+                      </Badge>
+                      {course.featured && (
+                        <Badge className="bg-gradient-to-r from-yellow-500 to-orange-500 text-white">
+                          Featured
+                        </Badge>
+                      )}
+                    </div>
                   </div>
                   {isAdmin && (
                     <Badge className="bg-gradient-to-r from-purple-600 to-blue-600 text-white">
@@ -127,7 +200,7 @@ const CourseDetail = () => {
                   )}
                 </div>
 
-                <p className="text-gray-600 dark:text-gray-300 mb-6">
+                <p className="text-gray-600 dark:text-gray-300 mb-6 leading-relaxed">
                   {course.description || 'No description available for this course.'}
                 </p>
 
@@ -150,14 +223,14 @@ const CourseDetail = () => {
 
             {/* Course Image */}
             <div className="lg:col-span-1">
-              <div className="bg-white/80 backdrop-blur-sm rounded-lg overflow-hidden shadow-lg">
+              <div className="bg-white/80 backdrop-blur-sm rounded-lg overflow-hidden shadow-lg border border-white/20">
                 <img 
                   src={getDefaultImage(course.level)} 
                   alt={course.title}
                   className="w-full h-48 object-cover"
                 />
                 <div className="p-4">
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between mb-2">
                     <div>
                       <span className="text-2xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
                         {isAdmin ? 'FREE' : `₹${course.price}`}
@@ -169,7 +242,7 @@ const CourseDetail = () => {
                       </Badge>
                     )}
                   </div>
-                  <div className="mt-2 text-sm text-muted-foreground">
+                  <div className="text-sm text-muted-foreground">
                     Instructor: {course.instructor}
                   </div>
                 </div>
@@ -180,7 +253,7 @@ const CourseDetail = () => {
 
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-3 mb-8 bg-white/70 backdrop-blur-sm">
+          <TabsList className="grid w-full grid-cols-3 mb-8 bg-white/70 backdrop-blur-sm border border-white/20">
             <TabsTrigger value="live" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-purple-500 data-[state=active]:text-white">
               Live Sessions
             </TabsTrigger>
