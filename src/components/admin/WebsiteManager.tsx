@@ -10,7 +10,6 @@ import StoreManager from './StoreManager';
 import AnnouncementManager from './AnnouncementManager';
 import BannerManager from './BannerManager';
 import LiveClassAdmin from './LiveClassAdmin';
-import LiveContentManager from './LiveContentManager';
 import NavigationManager from './NavigationManager';
 import WebsiteSettingsManager from './WebsiteSettingsManager';
 import WebsiteTemplateManager from './WebsiteTemplateManager';
@@ -28,7 +27,7 @@ const WebsiteManager = () => {
         </CardHeader>
         <CardContent>
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-4 lg:grid-cols-8">
+            <TabsList className="grid w-full grid-cols-4 lg:grid-cols-7">
               <TabsTrigger value="courses">Courses</TabsTrigger>
               <TabsTrigger value="live">Live Classes</TabsTrigger>
               <TabsTrigger value="classes">Classes</TabsTrigger>
@@ -44,10 +43,7 @@ const WebsiteManager = () => {
             </TabsContent>
 
             <TabsContent value="live" className="mt-6">
-              <div className="space-y-6">
-                <LiveClassAdmin />
-                <LiveContentManager />
-              </div>
+              <LiveClassAdmin />
             </TabsContent>
 
             <TabsContent value="classes" className="mt-6">
