@@ -4,7 +4,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Navigate } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Settings, Users, Megaphone, BookOpen, Store, Clock, Video } from 'lucide-react';
+import { Settings, Users, Megaphone, BookOpen, Store, Clock, Video, Globe, FileText, Palette, Navigation } from 'lucide-react';
 import CourseManager from '@/components/admin/CourseManager';
 import AnnouncementManager from '@/components/admin/AnnouncementManager';
 import StoreManager from '@/components/admin/StoreManager';
@@ -97,7 +97,13 @@ const AdminManagement = () => {
 
               <Card className="shadow-lg border-0 bg-gradient-to-br from-green-50 to-blue-50 dark:from-green-950/20 dark:to-blue-950/20">
                 <CardHeader>
-                  <CardTitle className="text-lg sm:text-xl font-semibold">Course Enrollments</CardTitle>
+                  <CardTitle className="flex items-center gap-2">
+                    <Users className="h-5 w-5" />
+                    Course Enrollments
+                  </CardTitle>
+                  <CardDescription>
+                    Manage student course enrollments
+                  </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <CourseEnrollmentManager />
@@ -191,7 +197,13 @@ const AdminManagement = () => {
 
               <Card className="shadow-lg border-0 bg-gradient-to-br from-yellow-50 to-orange-50 dark:from-yellow-950/20 dark:to-orange-950/20">
                 <CardHeader>
-                  <CardTitle className="text-lg sm:text-xl font-semibold">Banner Management</CardTitle>
+                  <CardTitle className="flex items-center gap-2">
+                    <Globe className="h-5 w-5" />
+                    Banner Management
+                  </CardTitle>
+                  <CardDescription>
+                    Create and manage website banners
+                  </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <BannerManager />
@@ -204,7 +216,13 @@ const AdminManagement = () => {
             <div className="space-y-6">
               <Card className="shadow-lg border-0 bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900">
                 <CardHeader>
-                  <CardTitle className="text-lg sm:text-xl font-semibold">Navigation Management</CardTitle>
+                  <CardTitle className="flex items-center gap-2">
+                    <Navigation className="h-5 w-5" />
+                    Navigation Management
+                  </CardTitle>
+                  <CardDescription>
+                    Manage website navigation items
+                  </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <NavigationManager />
@@ -213,7 +231,13 @@ const AdminManagement = () => {
 
               <Card className="shadow-lg border-0 bg-gradient-to-br from-green-50 to-blue-50 dark:from-green-950/20 dark:to-blue-950/20">
                 <CardHeader>
-                  <CardTitle className="text-lg sm:text-xl font-semibold">Website Settings</CardTitle>
+                  <CardTitle className="flex items-center gap-2">
+                    <Settings className="h-5 w-5" />
+                    Website Settings
+                  </CardTitle>
+                  <CardDescription>
+                    Configure website appearance and behavior
+                  </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <WebsiteSettingsManager />
@@ -222,7 +246,13 @@ const AdminManagement = () => {
               
               <Card className="shadow-lg border-0 bg-gradient-to-br from-teal-50 to-cyan-50 dark:from-teal-950/20 dark:to-cyan-950/20">
                 <CardHeader>
-                  <CardTitle className="text-lg sm:text-xl font-semibold">Content Editor</CardTitle>
+                  <CardTitle className="flex items-center gap-2">
+                    <FileText className="h-5 w-5" />
+                    Content Editor
+                  </CardTitle>
+                  <CardDescription>
+                    Edit page content and templates
+                  </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <ContentEditor onSave={handleContentSave} />
