@@ -3,8 +3,6 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/contexts/AuthContext';
-import TimetableEditor from '@/components/TimetableEditor';
 import { useToast } from '@/hooks/use-toast';
 
 interface TimetableEntry {
@@ -17,7 +15,6 @@ interface TimetableEntry {
 }
 
 const Timetable = () => {
-  const { isAdmin } = useAuth();
   const [schedule, setSchedule] = useState<Record<string, Record<string, TimetableEntry>>>({});
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
@@ -111,10 +108,6 @@ const Timetable = () => {
             Weekly schedule for live classes and sessions
           </p>
         </div>
-
-        {isAdmin && (
-          <TimetableEditor scheduleData={schedule} onRefresh={fetchTimetable} />
-        )}
 
         {/* Mobile View */}
         <div className="block lg:hidden mb-8">
