@@ -1,10 +1,9 @@
-
 import React from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Navigate } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Settings, Users, Megaphone, BookOpen, Store, Clock, Video, Globe, FileText, Palette, Navigation } from 'lucide-react';
+import { Settings, Users, Megaphone, BookOpen, Store, Clock, Video, Globe, FileText, Navigation } from 'lucide-react';
 import CourseManager from '@/components/admin/CourseManager';
 import AnnouncementManager from '@/components/admin/AnnouncementManager';
 import StoreManager from '@/components/admin/StoreManager';
@@ -17,17 +16,30 @@ import WebsiteSettingsManager from '@/components/admin/WebsiteSettingsManager';
 import ContentEditor from '@/components/admin/ContentEditor';
 import CourseEnrollmentManager from '@/components/admin/CourseEnrollmentManager';
 import { useToast } from '@/hooks/use-toast';
+import { usePopup } from '@/contexts/PopupContext';
+import { useBrowserPopupOverride } from '@/hooks/useBrowserPopupOverride';
 
 const AdminManagement = () => {
   const { user, isAdmin, loading } = useAuth();
   const { toast } = useToast();
+  const { showAlert, showConfirm, showPrompt } = usePopup();
+  
+  // Override browser popups with custom ones
+  useBrowserPopupOverride();
 
-  const handleContentSave = (content: any) => {
+  const handleContentSave = async (content: any) => {
     console.log('Saving content:', content);
-    toast({
-      title: "Success",
-      description: "Content saved successfully",
-    });
+    
+    // Example of using custom popup instead of browser alert
+    const confirmed = await showConfirm('Are you sure you want to save these changes?', 'Confirm Save');
+    
+    if (confirmed) {
+      toast({
+        title: "Success",
+        description: "Content saved successfully",
+      });
+      await showAlert('Content has been saved successfully!', 'Success');
+    }
   };
 
   if (loading) {
