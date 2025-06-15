@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -17,10 +18,14 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 
 // Define types for the new tables
-interface CoursePurchase {
+interface Course {
   id: string;
-  user_id: string;
-  course_id: string;
+  title: string;
+  description: string | null;
+  instructor: string;
+  level: string;
+  duration: string | null;
+  price: number;
   status: string;
   created_at: string;
   updated_at: string;
@@ -38,33 +43,30 @@ interface LiveSession {
 }
 
 const Dashboard = () => {
-  const { user, profile, loading } = useAuth();
+  const { user, profile, loading, isAdmin } = useAuth();
 
-  // Fetch purchased courses
-  const { data: purchasedCourses = [], isLoading: coursesLoading } = useQuery({
-    queryKey: ['purchased-courses', user?.id],
+  // Fetch courses created by admin (only for admin users)
+  const { data: createdCourses = [], isLoading: coursesLoading } = useQuery({
+    queryKey: ['created-courses'],
     queryFn: async () => {
-      if (!user?.id) return [];
-      
       const { data, error } = await supabase
-        .from('course_purchases')
+        .from('courses')
         .select('*')
-        .eq('user_id', user.id)
-        .eq('status', 'paid');
+        .order('created_at', { ascending: false });
       
       if (error) throw error;
-      return data as CoursePurchase[];
+      return data as Course[];
     },
-    enabled: !!user?.id
+    enabled: isAdmin
   });
 
-  // Fetch live sessions for purchased courses
+  // Fetch live sessions for created courses (only for admin users)
   const { data: liveSessions = [] } = useQuery({
-    queryKey: ['live-sessions', purchasedCourses],
+    queryKey: ['live-sessions', createdCourses],
     queryFn: async () => {
-      if (purchasedCourses.length === 0) return [];
+      if (createdCourses.length === 0) return [];
       
-      const courseIds = purchasedCourses.map(course => course.course_id);
+      const courseIds = createdCourses.map(course => course.id);
       const { data, error } = await supabase
         .from('live_sessions')
         .select('*')
@@ -75,28 +77,18 @@ const Dashboard = () => {
       if (error) throw error;
       return data as LiveSession[];
     },
-    enabled: purchasedCourses.length > 0
+    enabled: isAdmin && createdCourses.length > 0
   });
-
-  // Map course IDs to art course names
-  const courseNames = {
-    '1': 'Drawing Fundamentals',
-    '2': 'Color Theory Basics',
-    '3': 'Digital Painting Mastery',
-    '4': 'Portrait Painting Techniques',
-    '5': 'Abstract Expressionism'
-  };
 
   // Map course IDs to art-themed images
   const courseImages = {
-    '1': 'https://images.unsplash.com/photo-1465146344425-f00d5f5c8f07?w=300&h=200&fit=crop',
-    '2': 'https://images.unsplash.com/photo-1470813740244-df37b8c1edcb?w=300&h=200&fit=crop',
-    '3': 'https://images.unsplash.com/photo-1500673922987-e212871fec22?w=300&h=200&fit=crop',
-    '4': 'https://images.unsplash.com/photo-1486718448742-163732cd1544?w=300&h=200&fit=crop',
-    '5': 'https://images.unsplash.com/photo-1493397212122-2b85dda8106b?w=300&h=200&fit=crop'
+    'beginner': 'https://images.unsplash.com/photo-1465146344425-f00d5f5c8f07?w=300&h=200&fit=crop',
+    'intermediate': 'https://images.unsplash.com/photo-1470813740244-df37b8c1edcb?w=300&h=200&fit=crop',
+    'advanced': 'https://images.unsplash.com/photo-1500673922987-e212871fec22?w=300&h=200&fit=crop',
+    'specialized': 'https://images.unsplash.com/photo-1493397212122-2b85dda8106b?w=300&h=200&fit=crop'
   };
 
-  if (loading || coursesLoading) {
+  if (loading || (isAdmin && coursesLoading)) {
     return (
       <div className="pt-20 pb-16 flex items-center justify-center min-h-screen">
         <div className="text-center">
@@ -107,8 +99,8 @@ const Dashboard = () => {
     );
   }
 
-  // Get upcoming classes for purchased courses
-  const upcomingClasses = liveSessions.slice(0, 3).map(session => {
+  // Get upcoming classes for created courses (admin only)
+  const upcomingClasses = isAdmin ? liveSessions.slice(0, 3).map(session => {
     const isLive = new Date(session.scheduled_start) <= new Date() && 
                    new Date(session.scheduled_end) > new Date();
     const startTime = new Date(session.scheduled_start);
@@ -122,7 +114,7 @@ const Dashboard = () => {
       channel: session.agora_channel,
       isLive
     };
-  });
+  }) : [];
 
   return (
     <div className="pt-20 pb-16 bg-gradient-to-br from-orange-50 via-pink-50 to-purple-50 dark:from-orange-950/10 dark:via-pink-950/10 dark:to-purple-950/10 min-h-screen">
@@ -132,7 +124,7 @@ const Dashboard = () => {
             Welcome back to Kala Suroop, {profile?.full_name || user?.email || 'Artist'}!
           </h1>
           <p className="text-base lg:text-lg text-gray-600 dark:text-gray-300">
-            Continue your artistic journey and create beautiful masterpieces
+            {isAdmin ? 'Manage your art courses and inspire students' : 'Continue your artistic journey and create beautiful masterpieces'}
           </p>
         </div>
 
@@ -151,9 +143,11 @@ const Dashboard = () => {
           <Card className="hover:shadow-lg transition-shadow cursor-pointer bg-white/80 backdrop-blur-sm border-0">
             <CardContent className="p-4 lg:p-6 text-center">
               <Palette className="h-6 w-6 lg:h-8 lg:w-8 mx-auto mb-2 lg:mb-3 text-orange-600" />
-              <h3 className="font-semibold text-sm lg:text-base mb-2">My Courses</h3>
-              <Link to="/courses">
-                <Button size="sm" variant="outline" className="w-full text-xs lg:text-sm border-orange-600 text-orange-600 hover:bg-orange-50">View All</Button>
+              <h3 className="font-semibold text-sm lg:text-base mb-2">{isAdmin ? 'Manage Courses' : 'My Courses'}</h3>
+              <Link to={isAdmin ? "/admin" : "/courses"}>
+                <Button size="sm" variant="outline" className="w-full text-xs lg:text-sm border-orange-600 text-orange-600 hover:bg-orange-50">
+                  {isAdmin ? 'Admin Panel' : 'View All'}
+                </Button>
               </Link>
             </CardContent>
           </Card>
@@ -178,56 +172,85 @@ const Dashboard = () => {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
-          {/* Purchased Courses */}
-          <div className="lg:col-span-2">
-            <Card className="bg-white/80 backdrop-blur-sm border-0">
-              <CardHeader className="pb-4 lg:pb-6">
-                <CardTitle className="flex items-center text-lg lg:text-xl">
-                  <Palette className="h-4 w-4 lg:h-5 lg:w-5 mr-2 text-pink-600" />
-                  My Art Courses
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3 lg:space-y-4">
-                {purchasedCourses.length === 0 ? (
+          {/* Created Courses (Admin Only) */}
+          {isAdmin && (
+            <div className="lg:col-span-2">
+              <Card className="bg-white/80 backdrop-blur-sm border-0">
+                <CardHeader className="pb-4 lg:pb-6">
+                  <CardTitle className="flex items-center text-lg lg:text-xl">
+                    <Palette className="h-4 w-4 lg:h-5 lg:w-5 mr-2 text-pink-600" />
+                    My Created Art Courses
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3 lg:space-y-4">
+                  {createdCourses.length === 0 ? (
+                    <div className="text-center py-6 lg:py-8">
+                      <Palette className="h-10 w-10 lg:h-12 lg:w-12 mx-auto mb-3 lg:mb-4 text-gray-400" />
+                      <p className="text-gray-500 mb-3 lg:mb-4 text-sm lg:text-base">You haven't created any art courses yet</p>
+                      <Link to="/admin">
+                        <Button className="text-sm lg:text-base bg-gradient-to-r from-pink-600 to-purple-600">Create Your First Course</Button>
+                      </Link>
+                    </div>
+                  ) : (
+                    createdCourses.slice(0, 3).map((course) => (
+                      <div key={course.id} className="flex flex-col sm:flex-row sm:items-center space-y-3 sm:space-y-0 sm:space-x-4 p-3 lg:p-4 border rounded-lg">
+                        <img 
+                          src={courseImages[course.level as keyof typeof courseImages] || courseImages.beginner} 
+                          alt={course.title}
+                          className="w-full sm:w-14 lg:w-16 h-32 sm:h-14 lg:h-16 rounded-lg object-cover"
+                        />
+                        <div className="flex-1 min-w-0">
+                          <h3 className="font-semibold text-sm lg:text-base truncate">
+                            {course.title}
+                          </h3>
+                          <div className="flex items-center space-x-2 mt-1">
+                            <Badge className="text-xs capitalize">{course.level}</Badge>
+                            <Badge variant="outline" className="text-xs">{course.status}</Badge>
+                          </div>
+                          <p className="text-xs lg:text-sm text-muted-foreground mt-1">
+                            Created: {new Date(course.created_at).toLocaleDateString()}
+                          </p>
+                        </div>
+                        <Link to={`/courses/${course.id}`}>
+                          <Button size="sm" className="w-full sm:w-auto text-xs lg:text-sm">View Course</Button>
+                        </Link>
+                      </div>
+                    ))
+                  )}
+                  {createdCourses.length > 3 && (
+                    <div className="text-center pt-2">
+                      <Link to="/admin">
+                        <Button variant="outline" size="sm">View All Courses</Button>
+                      </Link>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+          )}
+
+          {/* Regular user content - just show welcome message */}
+          {!isAdmin && (
+            <div className="lg:col-span-2">
+              <Card className="bg-white/80 backdrop-blur-sm border-0">
+                <CardHeader className="pb-4 lg:pb-6">
+                  <CardTitle className="flex items-center text-lg lg:text-xl">
+                    <Palette className="h-4 w-4 lg:h-5 lg:w-5 mr-2 text-pink-600" />
+                    Welcome to Kala Suroop
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3 lg:space-y-4">
                   <div className="text-center py-6 lg:py-8">
                     <Palette className="h-10 w-10 lg:h-12 lg:w-12 mx-auto mb-3 lg:mb-4 text-gray-400" />
-                    <p className="text-gray-500 mb-3 lg:mb-4 text-sm lg:text-base">You haven't enrolled in any art courses yet</p>
+                    <p className="text-gray-500 mb-3 lg:mb-4 text-sm lg:text-base">Explore our amazing art courses and start your creative journey</p>
                     <Link to="/courses">
                       <Button className="text-sm lg:text-base bg-gradient-to-r from-pink-600 to-purple-600">Browse Art Courses</Button>
                     </Link>
                   </div>
-                ) : (
-                  purchasedCourses.map((purchase) => (
-                    <div key={purchase.id} className="flex flex-col sm:flex-row sm:items-center space-y-3 sm:space-y-0 sm:space-x-4 p-3 lg:p-4 border rounded-lg">
-                      <img 
-                        src={courseImages[purchase.course_id as keyof typeof courseImages] || 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=300&h=200&fit=crop'} 
-                        alt={courseNames[purchase.course_id as keyof typeof courseNames] || 'Course'}
-                        className="w-full sm:w-14 lg:w-16 h-32 sm:h-14 lg:h-16 rounded-lg object-cover"
-                      />
-                      <div className="flex-1 min-w-0">
-                        <h3 className="font-semibold text-sm lg:text-base truncate">
-                          {courseNames[purchase.course_id as keyof typeof courseNames] || `Course ${purchase.course_id}`}
-                        </h3>
-                        <div className="flex items-center space-x-2 mt-1 lg:mt-2">
-                          <div className="flex-1 bg-gray-200 dark:bg-gray-700 rounded-full h-1.5 lg:h-2">
-                            <div 
-                              className="bg-green-600 h-1.5 lg:h-2 rounded-full transition-all duration-300"
-                              style={{ width: '0%' }}
-                            />
-                          </div>
-                          <span className="text-xs lg:text-sm text-muted-foreground">0%</span>
-                        </div>
-                        <p className="text-xs lg:text-sm text-muted-foreground mt-1">
-                          Purchased: {new Date(purchase.created_at).toLocaleDateString()}
-                        </p>
-                      </div>
-                      <Button size="sm" className="w-full sm:w-auto text-xs lg:text-sm">Continue</Button>
-                    </div>
-                  ))
-                )}
-              </CardContent>
-            </Card>
-          </div>
+                </CardContent>
+              </Card>
+            </div>
+          )}
 
           {/* Sidebar */}
           <div className="space-y-4 lg:space-y-6">
@@ -236,14 +259,16 @@ const Dashboard = () => {
               <CardHeader className="pb-4">
                 <CardTitle className="flex items-center text-lg">
                   <Clock className="h-4 w-4 lg:h-5 lg:w-5 mr-2 text-orange-600" />
-                  Upcoming Art Classes
+                  {isAdmin ? 'Upcoming Sessions' : 'Upcoming Art Classes'}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-2 lg:space-y-3">
                 {upcomingClasses.length === 0 ? (
                   <div className="text-center py-3 lg:py-4">
                     <Clock className="h-6 w-6 lg:h-8 lg:w-8 mx-auto mb-2 text-gray-400" />
-                    <p className="text-xs lg:text-sm text-gray-500">No upcoming art classes</p>
+                    <p className="text-xs lg:text-sm text-gray-500">
+                      {isAdmin ? 'No upcoming sessions for your courses' : 'No upcoming art classes'}
+                    </p>
                   </div>
                 ) : (
                   upcomingClasses.map((classItem, index) => (
@@ -273,22 +298,43 @@ const Dashboard = () => {
               <CardHeader className="pb-4">
                 <CardTitle className="flex items-center text-lg">
                   <TrendingUp className="h-4 w-4 lg:h-5 lg:w-5 mr-2 text-purple-600" />
-                  This Week
+                  {isAdmin ? 'Course Stats' : 'This Week'}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3 lg:space-y-4">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs lg:text-sm">Art Classes Attended</span>
-                  <span className="font-semibold text-sm lg:text-base">0/0</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-xs lg:text-sm">Projects Completed</span>
-                  <span className="font-semibold text-sm lg:text-base">0/0</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-xs lg:text-sm">Creative Hours</span>
-                  <span className="font-semibold text-sm lg:text-base">0h</span>
-                </div>
+                {isAdmin ? (
+                  <>
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs lg:text-sm">Total Courses</span>
+                      <span className="font-semibold text-sm lg:text-base">{createdCourses.length}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs lg:text-sm">Active Courses</span>
+                      <span className="font-semibold text-sm lg:text-base">
+                        {createdCourses.filter(course => course.status === 'active').length}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs lg:text-sm">Upcoming Sessions</span>
+                      <span className="font-semibold text-sm lg:text-base">{liveSessions.length}</span>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs lg:text-sm">Art Classes Attended</span>
+                      <span className="font-semibold text-sm lg:text-base">0/0</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs lg:text-sm">Projects Completed</span>
+                      <span className="font-semibold text-sm lg:text-base">0/0</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs lg:text-sm">Creative Hours</span>
+                      <span className="font-semibold text-sm lg:text-base">0h</span>
+                    </div>
+                  </>
+                )}
               </CardContent>
             </Card>
           </div>
