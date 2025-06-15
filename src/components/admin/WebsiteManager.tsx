@@ -13,9 +13,19 @@ import NavigationManager from './NavigationManager';
 import WebsiteSettingsManager from './WebsiteSettingsManager';
 import WebsiteTemplateManager from './WebsiteTemplateManager';
 import ContentEditor from './ContentEditor';
+import { useToast } from '@/hooks/use-toast';
 
 const WebsiteManager = () => {
   const [activeTab, setActiveTab] = useState('courses');
+  const { toast } = useToast();
+
+  const handleContentSave = (content: any) => {
+    console.log('Saving content:', content);
+    toast({
+      title: "Success",
+      description: "Content saved successfully",
+    });
+  };
 
   return (
     <div className="container mx-auto p-6 space-y-8">
@@ -105,7 +115,7 @@ const WebsiteManager = () => {
             <CardTitle className="text-xl font-semibold">Content Editor</CardTitle>
           </CardHeader>
           <CardContent>
-            <ContentEditor />
+            <ContentEditor onSave={handleContentSave} />
           </CardContent>
         </Card>
       </div>
