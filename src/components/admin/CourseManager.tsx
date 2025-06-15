@@ -15,32 +15,42 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 interface Course {
   id: string;
-  name: string;
+  title: string;
   description: string | null;
+  instructor: string;
+  level: string;
+  duration: string | null;
+  price: number;
+  status: string;
   created_at: string;
-  updated_at: string | null;
+  updated_at: string;
 }
 
 const CourseManager = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingCourse, setEditingCourse] = useState<Course | null>(null);
   const [formData, setFormData] = useState({
-    name: '',
-    description: ''
+    title: '',
+    description: '',
+    instructor: '',
+    level: 'beginner',
+    duration: '',
+    price: 0,
+    status: 'active'
   });
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
   const { data: courses = [], isLoading } = useQuery({
-    queryKey: ['classes'],
+    queryKey: ['courses'],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('classes')
+        .from('courses')
         .select('*')
         .order('created_at', { ascending: false });
       
       if (error) {
-        console.error('Error fetching classes:', error);
+        console.error('Error fetching courses:', error);
         throw error;
       }
       
@@ -52,9 +62,9 @@ const CourseManager = () => {
     e.preventDefault();
     try {
       if (editingCourse) {
-        // Update existing class
+        // Update existing course
         const { error } = await supabase
-          .from('classes')
+          .from('courses')
           .update({
             ...formData,
             updated_at: new Date().toISOString()
@@ -62,57 +72,62 @@ const CourseManager = () => {
           .eq('id', editingCourse.id);
 
         if (error) throw error;
-        toast({ title: "Success", description: "Class updated successfully" });
+        toast({ title: "Success", description: "Course updated successfully" });
       } else {
-        // Create new class
+        // Create new course
         const { error } = await supabase
-          .from('classes')
+          .from('courses')
           .insert([formData]);
 
         if (error) throw error;
-        toast({ title: "Success", description: "Class created successfully" });
+        toast({ title: "Success", description: "Course created successfully" });
       }
 
-      // Refetch classes
-      queryClient.invalidateQueries({ queryKey: ['classes'] });
+      // Refetch courses
+      queryClient.invalidateQueries({ queryKey: ['courses'] });
 
       setFormData({
-        name: '',
-        description: ''
+        title: '',
+        description: '',
+        instructor: '',
+        level: 'beginner',
+        duration: '',
+        price: 0,
+        status: 'active'
       });
       setEditingCourse(null);
       setDialogOpen(false);
     } catch (error) {
-      console.error('Error saving class:', error);
+      console.error('Error saving course:', error);
       toast({
         title: "Error",
-        description: "Failed to save class",
+        description: "Failed to save course",
         variant: "destructive"
       });
     }
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this class?')) {
+    if (!confirm('Are you sure you want to delete this course?')) {
       return;
     }
 
     try {
       const { error } = await supabase
-        .from('classes')
+        .from('courses')
         .delete()
         .eq('id', id);
 
       if (error) throw error;
 
-      // Refetch classes
-      queryClient.invalidateQueries({ queryKey: ['classes'] });
-      toast({ title: "Success", description: "Class deleted successfully" });
+      // Refetch courses
+      queryClient.invalidateQueries({ queryKey: ['courses'] });
+      toast({ title: "Success", description: "Course deleted successfully" });
     } catch (error) {
-      console.error('Error deleting class:', error);
+      console.error('Error deleting course:', error);
       toast({
         title: "Error",
-        description: "Failed to delete class",
+        description: "Failed to delete course",
         variant: "destructive"
       });
     }
@@ -122,14 +137,24 @@ const CourseManager = () => {
     if (course) {
       setEditingCourse(course);
       setFormData({
-        name: course.name,
-        description: course.description || ''
+        title: course.title,
+        description: course.description || '',
+        instructor: course.instructor,
+        level: course.level,
+        duration: course.duration || '',
+        price: course.price,
+        status: course.status
       });
     } else {
       setEditingCourse(null);
       setFormData({
-        name: '',
-        description: ''
+        title: '',
+        description: '',
+        instructor: '',
+        level: 'beginner',
+        duration: '',
+        price: 0,
+        status: 'active'
       });
     }
     setDialogOpen(true);
@@ -155,11 +180,11 @@ const CourseManager = () => {
               </DialogHeader>
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                  <label className="text-sm font-medium">Name</label>
+                  <label className="text-sm font-medium">Title</label>
                   <Input
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    placeholder="Enter course name"
+                    value={formData.title}
+                    onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                    placeholder="Enter course title"
                     required
                   />
                 </div>
@@ -171,6 +196,64 @@ const CourseManager = () => {
                     placeholder="Enter course description"
                     rows={3}
                   />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-sm font-medium">Instructor</label>
+                    <Input
+                      value={formData.instructor}
+                      onChange={(e) => setFormData({ ...formData, instructor: e.target.value })}
+                      placeholder="Enter instructor name"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium">Level</label>
+                    <Select value={formData.level} onValueChange={(value) => setFormData({ ...formData, level: value })}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="beginner">Beginner</SelectItem>
+                        <SelectItem value="intermediate">Intermediate</SelectItem>
+                        <SelectItem value="advanced">Advanced</SelectItem>
+                        <SelectItem value="specialized">Specialized</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-sm font-medium">Duration</label>
+                    <Input
+                      value={formData.duration}
+                      onChange={(e) => setFormData({ ...formData, duration: e.target.value })}
+                      placeholder="e.g., 80 hours"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium">Price (₹)</label>
+                    <Input
+                      type="number"
+                      value={formData.price}
+                      onChange={(e) => setFormData({ ...formData, price: parseInt(e.target.value) || 0 })}
+                      placeholder="Enter price"
+                      required
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="text-sm font-medium">Status</label>
+                  <Select value={formData.status} onValueChange={(value) => setFormData({ ...formData, status: value })}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="active">Active</SelectItem>
+                      <SelectItem value="inactive">Inactive</SelectItem>
+                      <SelectItem value="draft">Draft</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div className="flex justify-end space-x-2">
                   <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>
@@ -199,8 +282,11 @@ const CourseManager = () => {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Course Name</TableHead>
-                  <TableHead>Description</TableHead>
+                  <TableHead>Course Title</TableHead>
+                  <TableHead>Instructor</TableHead>
+                  <TableHead>Level</TableHead>
+                  <TableHead>Price</TableHead>
+                  <TableHead>Status</TableHead>
                   <TableHead>Created</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
@@ -209,12 +295,20 @@ const CourseManager = () => {
                 {courses.map((course) => (
                   <TableRow key={course.id}>
                     <TableCell>
-                      <div className="font-medium">{course.name}</div>
-                    </TableCell>
-                    <TableCell>
+                      <div className="font-medium">{course.title}</div>
                       <div className="text-sm text-muted-foreground">
                         {course.description?.substring(0, 60)}...
                       </div>
+                    </TableCell>
+                    <TableCell>{course.instructor}</TableCell>
+                    <TableCell>
+                      <Badge variant="outline">{course.level}</Badge>
+                    </TableCell>
+                    <TableCell>₹{course.price}</TableCell>
+                    <TableCell>
+                      <Badge variant={course.status === 'active' ? 'default' : 'secondary'}>
+                        {course.status}
+                      </Badge>
                     </TableCell>
                     <TableCell>{new Date(course.created_at).toLocaleDateString()}</TableCell>
                     <TableCell className="text-right">
