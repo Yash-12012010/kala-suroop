@@ -46,66 +46,69 @@ const WebsiteManager = () => {
         </CardHeader>
         <CardContent className="p-3 sm:p-4 lg:p-6">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full mb-6 sm:mb-8 bg-gray-100 dark:bg-gray-800 rounded-xl p-1 overflow-x-auto min-h-[48px]">
-              <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 xl:grid-cols-9 w-full gap-1">
-                <TabsTrigger 
-                  value="courses" 
-                  className="text-xs sm:text-sm font-medium px-2 py-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-purple-600 data-[state=active]:text-white rounded-lg transition-all duration-300"
-                >
-                  Courses
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="live" 
-                  className="text-xs sm:text-sm font-medium px-2 py-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-pink-600 data-[state=active]:text-white rounded-lg transition-all duration-300"
-                >
-                  Live
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="classes" 
-                  className="text-xs sm:text-sm font-medium px-2 py-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-pink-600 data-[state=active]:to-orange-600 data-[state=active]:text-white rounded-lg transition-all duration-300"
-                >
-                  Classes
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="timetable" 
-                  className="text-xs sm:text-sm font-medium px-2 py-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-600 data-[state=active]:to-red-600 data-[state=active]:text-white rounded-lg transition-all duration-300"
-                >
-                  <span className="hidden sm:inline">Timetable</span>
-                  <span className="sm:hidden">Time</span>
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="store" 
-                  className="text-xs sm:text-sm font-medium px-2 py-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-red-600 data-[state=active]:to-yellow-600 data-[state=active]:text-white rounded-lg transition-all duration-300"
-                >
-                  Store
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="announcements" 
-                  className="text-xs sm:text-sm font-medium px-2 py-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-yellow-600 data-[state=active]:to-green-600 data-[state=active]:text-white rounded-lg transition-all duration-300"
-                >
-                  <span className="hidden sm:inline">Announcements</span>
-                  <span className="sm:hidden">News</span>
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="navigation" 
-                  className="text-xs sm:text-sm font-medium px-2 py-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-600 data-[state=active]:to-teal-600 data-[state=active]:text-white rounded-lg transition-all duration-300"
-                >
-                  <span className="hidden sm:inline">Navigation</span>
-                  <span className="sm:hidden">Nav</span>
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="settings" 
-                  className="text-xs sm:text-sm font-medium px-2 py-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-teal-600 data-[state=active]:to-cyan-600 data-[state=active]:text-white rounded-lg transition-all duration-300"
-                >
-                  Settings
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="templates" 
-                  className="text-xs sm:text-sm font-medium px-2 py-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-cyan-600 data-[state=active]:to-indigo-600 data-[state=active]:text-white rounded-lg transition-all duration-300"
-                >
-                  <span className="hidden sm:inline">Templates</span>
-                  <span className="sm:hidden">Temp</span>
-                </TabsTrigger>
+            <TabsList className="w-full mb-6 sm:mb-8 bg-gray-100 dark:bg-gray-800 rounded-xl p-2">
+              <div className="w-full space-y-2">
+                {/* First Row */}
+                <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 w-full gap-1">
+                  <TabsTrigger 
+                    value="courses" 
+                    className="text-xs sm:text-sm font-medium px-2 py-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-purple-600 data-[state=active]:text-white rounded-lg transition-all duration-300"
+                  >
+                    Courses
+                  </TabsTrigger>
+                  <TabsTrigger 
+                    value="live" 
+                    className="text-xs sm:text-sm font-medium px-2 py-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-pink-600 data-[state=active]:text-white rounded-lg transition-all duration-300"
+                  >
+                    Live
+                  </TabsTrigger>
+                  <TabsTrigger 
+                    value="classes" 
+                    className="text-xs sm:text-sm font-medium px-2 py-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-pink-600 data-[state=active]:to-orange-600 data-[state=active]:text-white rounded-lg transition-all duration-300"
+                  >
+                    Classes
+                  </TabsTrigger>
+                  <TabsTrigger 
+                    value="timetable" 
+                    className="text-xs sm:text-sm font-medium px-2 py-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-600 data-[state=active]:to-red-600 data-[state=active]:text-white rounded-lg transition-all duration-300"
+                  >
+                    Timetable
+                  </TabsTrigger>
+                  <TabsTrigger 
+                    value="store" 
+                    className="text-xs sm:text-sm font-medium px-2 py-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-red-600 data-[state=active]:to-yellow-600 data-[state=active]:text-white rounded-lg transition-all duration-300"
+                  >
+                    Store
+                  </TabsTrigger>
+                </div>
+                
+                {/* Second Row */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 w-full gap-1">
+                  <TabsTrigger 
+                    value="announcements" 
+                    className="text-xs sm:text-sm font-medium px-2 py-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-yellow-600 data-[state=active]:to-green-600 data-[state=active]:text-white rounded-lg transition-all duration-300"
+                  >
+                    Announcements
+                  </TabsTrigger>
+                  <TabsTrigger 
+                    value="navigation" 
+                    className="text-xs sm:text-sm font-medium px-2 py-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-600 data-[state=active]:to-teal-600 data-[state=active]:text-white rounded-lg transition-all duration-300"
+                  >
+                    Navigation
+                  </TabsTrigger>
+                  <TabsTrigger 
+                    value="settings" 
+                    className="text-xs sm:text-sm font-medium px-2 py-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-teal-600 data-[state=active]:to-cyan-600 data-[state=active]:text-white rounded-lg transition-all duration-300"
+                  >
+                    Settings
+                  </TabsTrigger>
+                  <TabsTrigger 
+                    value="templates" 
+                    className="text-xs sm:text-sm font-medium px-2 py-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-cyan-600 data-[state=active]:to-indigo-600 data-[state=active]:text-white rounded-lg transition-all duration-300"
+                  >
+                    Templates
+                  </TabsTrigger>
+                </div>
               </div>
             </TabsList>
 

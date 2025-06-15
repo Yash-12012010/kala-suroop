@@ -38,6 +38,7 @@ const CourseManager = () => {
     level: 'beginner',
     duration: '',
     price: 0,
+    enrolled_students: 0,
     featured: false
   });
   
@@ -65,6 +66,7 @@ const CourseManager = () => {
       level: 'beginner',
       duration: '',
       price: 0,
+      enrolled_students: 0,
       featured: false
     });
     setSelectedCourse(null);
@@ -130,6 +132,7 @@ const CourseManager = () => {
       level: course.level,
       duration: course.duration || '',
       price: course.price,
+      enrolled_students: course.enrolled_students || 0,
       featured: course.featured
     });
     setIsDialogOpen(true);
@@ -284,6 +287,18 @@ const CourseManager = () => {
                     type="number"
                     value={formData.price}
                     onChange={(e) => setFormData(prev => ({ ...prev, price: Number(e.target.value) }))}
+                    min="0"
+                    className="mt-1"
+                  />
+                </div>
+                
+                <div>
+                  <Label htmlFor="enrolled_students">Enrolled Students</Label>
+                  <Input
+                    id="enrolled_students"
+                    type="number"
+                    value={formData.enrolled_students}
+                    onChange={(e) => setFormData(prev => ({ ...prev, enrolled_students: Number(e.target.value) }))}
                     min="0"
                     className="mt-1"
                   />
