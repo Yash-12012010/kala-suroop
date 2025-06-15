@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -6,7 +5,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Video, Users, Play, Square, Calendar, CheckCircle, AlertCircle } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Video, Users, Play, Square, Calendar, CheckCircle, AlertCircle, Plus, Edit, Trash2, User } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
@@ -28,14 +28,30 @@ interface Course {
   instructor: string;
 }
 
+interface ClassData {
+  id: string;
+  name: string;
+  description: string;
+}
+
+interface Teacher {
+  id: string;
+  name: string;
+  subject: string;
+}
+
 const LiveClassAdmin = () => {
   const [classes, setClasses] = useState<LiveClass[]>([]);
   const [courses, setCourses] = useState<Course[]>([]);
+  const [classData, setClassData] = useState<ClassData[]>([]);
+  const [teachers, setTeachers] = useState<Teacher[]>([]);
   const [loading, setLoading] = useState(true);
   const [startingClass, setStartingClass] = useState<string | null>(null);
   const [endingClass, setEndingClass] = useState<string | null>(null);
   const [systemStatus, setSystemStatus] = useState<string[]>([]);
   const [autoEndInterval, setAutoEndInterval] = useState<NodeJS.Timeout | null>(null);
+  const [teacherDialogOpen, setTeacherDialogOpen] = useState(false);
+  const [editingTeacher, setEditingTeacher] = useState<Teacher | null>(null);
   const { user } = useAuth();
   const { toast } = useToast();
 
@@ -44,15 +60,18 @@ const LiveClassAdmin = () => {
     course_id: '',
     scheduled_start: '',
     scheduled_end: '',
-    duration: '60', // minutes
+    duration: '60',
     subject: '',
     class_name: '',
     teacher: ''
   });
 
+  const [teacherForm, setTeacherForm] = useState({
+    name: '',
+    subject: ''
+  });
+
   const subjects = ['Mathematics', 'Physics', 'Chemistry', 'Biology', 'English', 'Doubt Session', 'Test Series', 'Revision Class'];
-  const classNames = ['Class 9', 'Class 10', 'Class 11', 'Class 12', 'All Classes'];
-  const teachers = ['Mr. Kumar', 'Dr. Sharma', 'Ms. Patel', 'Mrs. Singh', 'Dr. Verma', 'All Teachers', 'Academic Team'];
 
   const addStatusCheck = (message: string) => {
     console.log('🔍 ADMIN CHECK:', message);
@@ -73,6 +92,41 @@ const LiveClassAdmin = () => {
     } catch (error) {
       console.error('Error fetching courses:', error);
       addStatusCheck('❌ Course fetch failed');
+    }
+  };
+
+  const fetchClasses = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('classes')
+        .select('*')
+        .order('name');
+
+      if (error) throw error;
+      setClassData(data || []);
+      addStatusCheck(`✅ Found ${data?.length || 0} class categories`);
+    } catch (error) {
+      console.error('Error fetching classes:', error);
+      addStatusCheck('❌ Classes fetch failed');
+    }
+  };
+
+  const fetchTeachers = async () => {
+    try {
+      // For now, we'll use a static list but this could be from a database table
+      const defaultTeachers = [
+        { id: '1', name: 'Mr. Kumar', subject: 'Mathematics' },
+        { id: '2', name: 'Dr. Sharma', subject: 'Physics' },
+        { id: '3', name: 'Ms. Patel', subject: 'Chemistry' },
+        { id: '4', name: 'Mrs. Singh', subject: 'Biology' },
+        { id: '5', name: 'Dr. Verma', subject: 'English' },
+        { id: '6', name: 'Academic Team', subject: 'All Subjects' }
+      ];
+      setTeachers(defaultTeachers);
+      addStatusCheck(`✅ Found ${defaultTeachers.length} teachers`);
+    } catch (error) {
+      console.error('Error fetching teachers:', error);
+      addStatusCheck('❌ Teachers fetch failed');
     }
   };
 
@@ -122,6 +176,8 @@ const LiveClassAdmin = () => {
     setAutoEndInterval(intervalId);
     
     fetchCourses();
+    fetchClasses();
+    fetchTeachers();
     fetchLiveClasses();
 
     return () => {
@@ -371,6 +427,59 @@ const LiveClassAdmin = () => {
     addStatusCheck('✅ Manual check completed');
   };
 
+  const handleTeacherSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (editingTeacher) {
+      const updatedTeachers = teachers.map(teacher =>
+        teacher.id === editingTeacher.id
+          ? { ...teacher, name: teacherForm.name, subject: teacherForm.subject }
+          : teacher
+      );
+      setTeachers(updatedTeachers);
+      toast({
+        title: "Success",
+        description: "Teacher updated successfully",
+      });
+    } else {
+      const newTeacher: Teacher = {
+        id: Date.now().toString(),
+        name: teacherForm.name,
+        subject: teacherForm.subject
+      };
+      setTeachers([...teachers, newTeacher]);
+      toast({
+        title: "Success",
+        description: "Teacher added successfully",
+      });
+    }
+
+    setTeacherForm({ name: '', subject: '' });
+    setEditingTeacher(null);
+    setTeacherDialogOpen(false);
+  };
+
+  const deleteTeacher = (teacherId: string) => {
+    if (confirm('Are you sure you want to delete this teacher?')) {
+      setTeachers(teachers.filter(t => t.id !== teacherId));
+      toast({
+        title: "Success",
+        description: "Teacher deleted successfully",
+      });
+    }
+  };
+
+  const openTeacherDialog = (teacher?: Teacher) => {
+    if (teacher) {
+      setEditingTeacher(teacher);
+      setTeacherForm({ name: teacher.name, subject: teacher.subject });
+    } else {
+      setEditingTeacher(null);
+      setTeacherForm({ name: '', subject: '' });
+    }
+    setTeacherDialogOpen(true);
+  };
+
   return (
     <div className="space-y-6">
       <div className="text-center">
@@ -409,6 +518,93 @@ const LiveClassAdmin = () => {
               <AlertCircle className="h-4 w-4 mr-2" />
               Manual Check for Expired Classes
             </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Teacher Management */}
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <CardTitle className="flex items-center">
+            <User className="h-5 w-5 mr-2" />
+            Teacher Management
+          </CardTitle>
+          <Dialog open={teacherDialogOpen} onOpenChange={setTeacherDialogOpen}>
+            <DialogTrigger asChild>
+              <Button onClick={() => openTeacherDialog()}>
+                <Plus className="h-4 w-4 mr-2" />
+                Add Teacher
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>
+                  {editingTeacher ? 'Edit Teacher' : 'Add New Teacher'}
+                </DialogTitle>
+              </DialogHeader>
+              <form onSubmit={handleTeacherSubmit} className="space-y-4">
+                <div>
+                  <Label htmlFor="name">Teacher Name</Label>
+                  <Input
+                    id="name"
+                    value={teacherForm.name}
+                    onChange={(e) => setTeacherForm({ ...teacherForm, name: e.target.value })}
+                    placeholder="Enter teacher name"
+                    required
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="subject">Subject/Specialization</Label>
+                  <Select value={teacherForm.subject} onValueChange={(value) => setTeacherForm({ ...teacherForm, subject: value })}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select subject" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {subjects.map((subject) => (
+                        <SelectItem key={subject} value={subject}>{subject}</SelectItem>
+                      ))}
+                      <SelectItem value="All Subjects">All Subjects</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="flex justify-end space-x-2">
+                  <Button type="button" variant="outline" onClick={() => setTeacherDialogOpen(false)}>
+                    Cancel
+                  </Button>
+                  <Button type="submit">
+                    {editingTeacher ? 'Update' : 'Add'}
+                  </Button>
+                </div>
+              </form>
+            </DialogContent>
+          </Dialog>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {teachers.map((teacher) => (
+              <div key={teacher.id} className="border rounded-lg p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <h4 className="font-semibold">{teacher.name}</h4>
+                  <div className="flex space-x-1">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => openTeacherDialog(teacher)}
+                    >
+                      <Edit className="h-3 w-3" />
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="destructive"
+                      onClick={() => deleteTeacher(teacher.id)}
+                    >
+                      <Trash2 className="h-3 w-3" />
+                    </Button>
+                  </div>
+                </div>
+                <p className="text-sm text-muted-foreground">{teacher.subject}</p>
+              </div>
+            ))}
           </div>
         </CardContent>
       </Card>
@@ -461,15 +657,16 @@ const LiveClassAdmin = () => {
               </Select>
             </div>
             <div>
-              <Label htmlFor="class_name">Class</Label>
+              <Label htmlFor="class_name">Class Category</Label>
               <Select value={newClass.class_name} onValueChange={(value) => setNewClass({ ...newClass, class_name: value })}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Select class" />
+                  <SelectValue placeholder="Select class category" />
                 </SelectTrigger>
                 <SelectContent>
-                  {classNames.map((className) => (
-                    <SelectItem key={className} value={className}>{className}</SelectItem>
+                  {classData.map((cls) => (
+                    <SelectItem key={cls.id} value={cls.name}>{cls.name}</SelectItem>
                   ))}
+                  <SelectItem value="All Classes">All Classes</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -481,7 +678,7 @@ const LiveClassAdmin = () => {
                 </SelectTrigger>
                 <SelectContent>
                   {teachers.map((teacher) => (
-                    <SelectItem key={teacher} value={teacher}>{teacher}</SelectItem>
+                    <SelectItem key={teacher.id} value={teacher.name}>{teacher.name}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>

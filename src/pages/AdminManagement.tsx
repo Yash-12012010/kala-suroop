@@ -4,13 +4,14 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Navigate } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Settings, Users, Megaphone, BookOpen, Store, Globe, Calendar, Video } from 'lucide-react';
+import { Settings, Users, Megaphone, BookOpen, Store, Globe, Calendar, Video, Clock } from 'lucide-react';
 import CourseManager from '@/components/admin/CourseManager';
 import AnnouncementManager from '@/components/admin/AnnouncementManager';
 import WebsiteManager from '@/components/admin/WebsiteManager';
 import StoreManager from '@/components/admin/StoreManager';
 import ClassManager from '@/components/admin/ClassManager';
 import LiveClassAdmin from '@/components/admin/LiveClassAdmin';
+import TimetableManager from '@/components/admin/TimetableManager';
 
 const AdminManagement = () => {
   const { user, isAdmin, loading } = useAuth();
@@ -40,7 +41,7 @@ const AdminManagement = () => {
         </div>
 
         <Tabs defaultValue="courses" className="w-full">
-          <TabsList className="grid w-full grid-cols-6">
+          <TabsList className="grid w-full grid-cols-7">
             <TabsTrigger value="courses" className="flex items-center gap-2">
               <BookOpen className="h-4 w-4" />
               Courses
@@ -48,6 +49,14 @@ const AdminManagement = () => {
             <TabsTrigger value="classes" className="flex items-center gap-2">
               <Users className="h-4 w-4" />
               Classes
+            </TabsTrigger>
+            <TabsTrigger value="timetable" className="flex items-center gap-2">
+              <Clock className="h-4 w-4" />
+              Timetable
+            </TabsTrigger>
+            <TabsTrigger value="live-classes" className="flex items-center gap-2">
+              <Video className="h-4 w-4" />
+              Live Classes
             </TabsTrigger>
             <TabsTrigger value="announcements" className="flex items-center gap-2">
               <Megaphone className="h-4 w-4" />
@@ -60,10 +69,6 @@ const AdminManagement = () => {
             <TabsTrigger value="website" className="flex items-center gap-2">
               <Globe className="h-4 w-4" />
               Website
-            </TabsTrigger>
-            <TabsTrigger value="live-classes" className="flex items-center gap-2">
-              <Video className="h-4 w-4" />
-              Live Classes
             </TabsTrigger>
           </TabsList>
 
@@ -97,6 +102,40 @@ const AdminManagement = () => {
               </CardHeader>
               <CardContent>
                 <ClassManager />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="timetable" className="mt-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Clock className="h-5 w-5" />
+                  Timetable Management
+                </CardTitle>
+                <CardDescription>
+                  Manage class schedules and subject legends
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <TimetableManager />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="live-classes" className="mt-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Video className="h-5 w-5" />
+                  Live Class Management
+                </CardTitle>
+                <CardDescription>
+                  Schedule and manage live classes with teacher management
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <LiveClassAdmin />
               </CardContent>
             </Card>
           </TabsContent>
@@ -148,23 +187,6 @@ const AdminManagement = () => {
               </CardHeader>
               <CardContent>
                 <WebsiteManager />
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="live-classes" className="mt-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Video className="h-5 w-5" />
-                  Live Class Management
-                </CardTitle>
-                <CardDescription>
-                  Schedule and manage live classes
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <LiveClassAdmin />
               </CardContent>
             </Card>
           </TabsContent>
