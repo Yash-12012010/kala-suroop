@@ -27,6 +27,7 @@ interface AgoraVideoCallProps {
   isTeacher?: boolean;
   onLeave: () => void;
   uid?: string | null;
+  onTeacherLeave?: () => void; // New prop to handle teacher leaving
 }
 
 interface RemoteUser {
@@ -41,7 +42,8 @@ const AgoraVideoCall: React.FC<AgoraVideoCallProps> = ({
   token = null,
   isTeacher = false,
   onLeave,
-  uid: localUid = null
+  uid: localUid = null,
+  onTeacherLeave
 }) => {
   const [client, setClient] = useState<IAgoraRTCClient | null>(null);
   const [localVideoTrack, setLocalVideoTrack] = useState<ICameraVideoTrack | null>(null);
@@ -199,13 +201,21 @@ const AgoraVideoCall: React.FC<AgoraVideoCallProps> = ({
     agoraClient.on('user-left', (user) => {
       console.log('👤 User left:', user.uid);
       delete remoteVideoRefs.current[user.uid.toString()];
+      
+      // Check if a teacher left and notify parent component
+      const userIdString = user.uid.toString();
+      if (userIdString.startsWith('teacher-') && onTeacherLeave) {
+        console.log('🎓 Teacher left the class, triggering class end');
+        onTeacherLeave();
+      }
+      
       setRemoteUsers(prevUsers => prevUsers.filter(u => u.uid !== user.uid.toString()));
     });
 
     return () => {
       agoraClient.removeAllListeners();
     };
-  }, [permissionsGranted]);
+  }, [permissionsGranted, onTeacherLeave]);
 
   // Check permissions on mount
   useEffect(() => {
@@ -286,6 +296,12 @@ const AgoraVideoCall: React.FC<AgoraVideoCallProps> = ({
     try {
       console.log('🚪 Leaving channel...');
       setConnectionStatus('Disconnecting...');
+      
+      // If this is a teacher leaving, trigger the teacher leave callback before actual leave
+      if (isTeacher && onTeacherLeave) {
+        console.log('🎓 Teacher is leaving, triggering class end');
+        onTeacherLeave();
+      }
       
       // Stop and close local tracks
       if (localVideoTrack) {
