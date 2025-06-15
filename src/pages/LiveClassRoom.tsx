@@ -10,6 +10,7 @@ import LiveClass from '@/components/LiveClass';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { checkAndEndExpiredClasses } from '@/utils/classAutoEnd';
 
 interface LiveSession {
   id: string;
@@ -125,6 +126,10 @@ const LiveClassRoom = () => {
   const fetchLiveSessions = async () => {
     try {
       console.log('Fetching live sessions...');
+      
+      // Check for expired classes before fetching
+      await checkAndEndExpiredClasses();
+      
       const { data, error } = await supabase
         .from('live_sessions')
         .select('*')
@@ -170,6 +175,14 @@ const LiveClassRoom = () => {
     } else {
       addTestResult('Agora App ID missing');
     }
+
+    // Set up periodic check for expired classes
+    const interval = setInterval(async () => {
+      await checkAndEndExpiredClasses();
+      await fetchLiveSessions();
+    }, 60000); // Check every minute
+
+    return () => clearInterval(interval);
   }, []);
 
   const handleJoinClass = (channel: string, asTeacher: boolean = false) => {

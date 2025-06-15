@@ -9,6 +9,7 @@ import { Video, Users, Play, Square, Calendar, CheckCircle, AlertCircle } from '
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
+import { startAutoEndScheduler, stopAutoEndScheduler, checkAndEndExpiredClasses } from '@/utils/classAutoEnd';
 
 interface LiveClass {
   id: string;
@@ -26,6 +27,7 @@ const LiveClassAdmin = () => {
   const [startingClass, setStartingClass] = useState<string | null>(null);
   const [endingClass, setEndingClass] = useState<string | null>(null);
   const [systemStatus, setSystemStatus] = useState<string[]>([]);
+  const [autoEndInterval, setAutoEndInterval] = useState<NodeJS.Timeout | null>(null);
   const { user } = useAuth();
   const { toast } = useToast();
 
@@ -83,8 +85,21 @@ const LiveClassAdmin = () => {
     
     addStatusCheck('✅ Supabase client configured');
     addStatusCheck('✅ Live sessions table accessible');
+    addStatusCheck('✅ Auto-end scheduler starting...');
+    
+    // Start the auto-end scheduler
+    const intervalId = startAutoEndScheduler();
+    setAutoEndInterval(intervalId);
     
     fetchLiveClasses();
+
+    // Cleanup function
+    return () => {
+      if (intervalId) {
+        stopAutoEndScheduler(intervalId);
+        addStatusCheck('Auto-end scheduler stopped');
+      }
+    };
   }, []);
 
   const createAnnouncement = async (classTitle: string, channelName: string) => {
@@ -285,6 +300,13 @@ const LiveClassAdmin = () => {
     window.open(url, '_blank');
   };
 
+  const handleManualCheck = async () => {
+    addStatusCheck('Manual check for expired classes...');
+    await checkAndEndExpiredClasses();
+    await fetchLiveClasses();
+    addStatusCheck('✅ Manual check completed');
+  };
+
   return (
     <div className="space-y-6">
       <div className="text-center">
@@ -292,7 +314,7 @@ const LiveClassAdmin = () => {
           Live Class Management
         </h3>
         <p className="text-gray-600 dark:text-gray-300">
-          Schedule and manage live classes with automatic announcements
+          Schedule and manage live classes with automatic announcements and auto-end functionality
         </p>
       </div>
 
@@ -312,6 +334,17 @@ const LiveClassAdmin = () => {
                 {status}
               </p>
             ))}
+          </div>
+          <div className="mt-4 pt-4 border-t">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleManualCheck}
+              className="w-full"
+            >
+              <AlertCircle className="h-4 w-4 mr-2" />
+              Manual Check for Expired Classes
+            </Button>
           </div>
         </CardContent>
       </Card>
