@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useSearchParams, useParams } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, Play, Download, Calendar, Users, Clock, Video } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
@@ -11,6 +13,7 @@ import { useQuery } from '@tanstack/react-query';
 import CourseFiles from '@/components/CourseFiles';
 import CourseRecordings from '@/components/CourseRecordings';
 import CourseLiveSessions from '@/components/CourseLiveSessions';
+import CourseAccessGuard from '@/components/CourseAccessGuard';
 
 interface Course {
   id: string;
@@ -252,32 +255,39 @@ const CourseDetail = () => {
           </div>
         </div>
 
-        {/* Tabs */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-3 mb-8 bg-white/70 backdrop-blur-sm border border-white/20">
-            <TabsTrigger value="live" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-purple-500 data-[state=active]:text-white">
-              Live Sessions
-            </TabsTrigger>
-            <TabsTrigger value="files" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-pink-500 data-[state=active]:text-white">
-              Course Files
-            </TabsTrigger>
-            <TabsTrigger value="recordings" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-pink-500 data-[state=active]:to-orange-500 data-[state=active]:text-white">
-              Recordings
-            </TabsTrigger>
-          </TabsList>
+        {/* Course Content with Access Guard */}
+        <CourseAccessGuard 
+          courseId={courseId || ''} 
+          courseName={course.title}
+          coursePrice={course.price}
+        >
+          {/* Tabs */}
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <TabsList className="grid w-full grid-cols-3 mb-8 bg-white/70 backdrop-blur-sm border border-white/20">
+              <TabsTrigger value="live" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-purple-500 data-[state=active]:text-white">
+                Live Sessions
+              </TabsTrigger>
+              <TabsTrigger value="files" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-pink-500 data-[state=active]:text-white">
+                Course Files
+              </TabsTrigger>
+              <TabsTrigger value="recordings" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-pink-500 data-[state=active]:to-orange-500 data-[state=active]:text-white">
+                Recordings
+              </TabsTrigger>
+            </TabsList>
 
-          <TabsContent value="live">
-            <CourseLiveSessions courseId={courseId || ''} />
-          </TabsContent>
+            <TabsContent value="live">
+              <CourseLiveSessions courseId={courseId || ''} />
+            </TabsContent>
 
-          <TabsContent value="files">
-            <CourseFiles courseId={courseId || ''} />
-          </TabsContent>
+            <TabsContent value="files">
+              <CourseFiles courseId={courseId || ''} />
+            </TabsContent>
 
-          <TabsContent value="recordings">
-            <CourseRecordings courseId={courseId || ''} />
-          </TabsContent>
-        </Tabs>
+            <TabsContent value="recordings">
+              <CourseRecordings courseId={courseId || ''} />
+            </TabsContent>
+          </Tabs>
+        </CourseAccessGuard>
       </div>
     </div>
   );

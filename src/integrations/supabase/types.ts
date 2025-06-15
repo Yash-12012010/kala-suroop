@@ -170,6 +170,42 @@ export type Database = {
         }
         Relationships: []
       }
+      course_enrollments: {
+        Row: {
+          access_granted: boolean
+          course_id: string
+          created_at: string | null
+          enrolled_at: string | null
+          expires_at: string | null
+          id: string
+          payment_status: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          access_granted?: boolean
+          course_id: string
+          created_at?: string | null
+          enrolled_at?: string | null
+          expires_at?: string | null
+          id?: string
+          payment_status?: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          access_granted?: boolean
+          course_id?: string
+          created_at?: string | null
+          enrolled_at?: string | null
+          expires_at?: string | null
+          id?: string
+          payment_status?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       course_files: {
         Row: {
           course_id: string

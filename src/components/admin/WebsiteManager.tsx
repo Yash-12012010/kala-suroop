@@ -12,6 +12,7 @@ import LiveClassAdmin from './LiveClassAdmin';
 import NavigationManager from './NavigationManager';
 import WebsiteSettingsManager from './WebsiteSettingsManager';
 import ContentEditor from './ContentEditor';
+import CourseEnrollmentManager from './CourseEnrollmentManager';
 import { useToast } from '@/hooks/use-toast';
 
 const WebsiteManager = () => {
@@ -56,6 +57,12 @@ const WebsiteManager = () => {
                     Courses
                   </TabsTrigger>
                   <TabsTrigger 
+                    value="enrollments" 
+                    className="text-xs sm:text-sm font-medium px-3 py-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-600 data-[state=active]:to-blue-600 data-[state=active]:text-white rounded-lg transition-all duration-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                  >
+                    Enrollments
+                  </TabsTrigger>
+                  <TabsTrigger 
                     value="live" 
                     className="text-xs sm:text-sm font-medium px-3 py-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-pink-600 data-[state=active]:text-white rounded-lg transition-all duration-300 hover:bg-gray-100 dark:hover:bg-gray-700"
                   >
@@ -67,16 +74,16 @@ const WebsiteManager = () => {
                   >
                     Classes
                   </TabsTrigger>
+                </div>
+                
+                {/* Second Row */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 w-full gap-1">
                   <TabsTrigger 
                     value="timetable" 
                     className="text-xs sm:text-sm font-medium px-3 py-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-600 data-[state=active]:to-red-600 data-[state=active]:text-white rounded-lg transition-all duration-300 hover:bg-gray-100 dark:hover:bg-gray-700"
                   >
                     Timetable
                   </TabsTrigger>
-                </div>
-                
-                {/* Second Row */}
-                <div className="grid grid-cols-2 sm:grid-cols-3 w-full gap-1">
                   <TabsTrigger 
                     value="store" 
                     className="text-xs sm:text-sm font-medium px-3 py-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-red-600 data-[state=active]:to-yellow-600 data-[state=active]:text-white rounded-lg transition-all duration-300 hover:bg-gray-100 dark:hover:bg-gray-700"
@@ -112,6 +119,10 @@ const WebsiteManager = () => {
             <div className="mt-4 sm:mt-6">
               <TabsContent value="courses" className="space-y-4">
                 <CourseManager />
+              </TabsContent>
+
+              <TabsContent value="enrollments" className="space-y-4">
+                <CourseEnrollmentManager />
               </TabsContent>
 
               <TabsContent value="live" className="space-y-4">
