@@ -5,11 +5,13 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/componen
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Star, Users, Clock } from 'lucide-react';
+import { Star, Users, Clock, Settings, Eye } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
 
 const Courses = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { isAdmin } = useAuth();
   const [activeTab, setActiveTab] = useState('beginner');
 
   // Check if we received a selected level from navigation
@@ -108,7 +110,38 @@ const Courses = () => {
   };
 
   const handleEnrollClick = (course: any) => {
-    navigate('/checkout', { state: { course } });
+    if (isAdmin) {
+      // Admins get direct access without going through checkout
+      navigate('/live-classroom', { 
+        state: { 
+          course,
+          adminAccess: true,
+          message: 'Admin access granted - you have full access to this course'
+        }
+      });
+    } else {
+      navigate('/checkout', { state: { course } });
+    }
+  };
+
+  const handleAdminPreview = (course: any) => {
+    navigate('/live-classroom', { 
+      state: { 
+        course,
+        previewMode: true,
+        adminAccess: true,
+        message: 'Admin preview mode - viewing course content'
+      }
+    });
+  };
+
+  const handleAdminManage = (course: any) => {
+    navigate('/admin', { 
+      state: { 
+        selectedCourse: course,
+        tab: 'classes'
+      }
+    });
   };
 
   return (
@@ -117,9 +150,17 @@ const Courses = () => {
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold bg-gradient-to-r from-orange-600 via-pink-600 to-purple-600 bg-clip-text text-transparent mb-4">
             All Art Courses
+            {isAdmin && (
+              <Badge className="ml-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white">
+                Admin Access
+              </Badge>
+            )}
           </h1>
           <p className="text-lg text-gray-600 dark:text-gray-300">
-            Discover your artistic passion with our comprehensive collection of art courses
+            {isAdmin 
+              ? "Administrator view - you have full access to all courses and management tools"
+              : "Discover your artistic passion with our comprehensive collection of art courses"
+            }
           </p>
         </div>
 
@@ -146,6 +187,11 @@ const Courses = () => {
                       <Badge className="absolute top-3 left-3 bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600 border-0">
                         {course.discount}% OFF
                       </Badge>
+                      {isAdmin && (
+                        <Badge className="absolute top-3 right-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white border-0">
+                          ADMIN
+                        </Badge>
+                      )}
                     </div>
                     
                     <CardHeader>
@@ -169,21 +215,48 @@ const Courses = () => {
                       </div>
                     </CardHeader>
 
-                    <CardFooter className="flex items-center justify-between">
-                      <div className="flex items-center space-x-2">
-                        <span className="text-2xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
-                          ₹{course.discountedPrice}
-                        </span>
-                        <span className="text-sm text-muted-foreground line-through">
-                          ₹{course.originalPrice}
-                        </span>
+                    <CardFooter className="flex flex-col space-y-3">
+                      <div className="flex items-center justify-between w-full">
+                        <div className="flex items-center space-x-2">
+                          <span className="text-2xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
+                            {isAdmin ? 'FREE' : `₹${course.discountedPrice}`}
+                          </span>
+                          {!isAdmin && (
+                            <span className="text-sm text-muted-foreground line-through">
+                              ₹{course.originalPrice}
+                            </span>
+                          )}
+                        </div>
+                        <Button 
+                          onClick={() => handleEnrollClick(course)}
+                          className="bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700 shadow-lg hover:shadow-xl transition-all duration-300"
+                        >
+                          {isAdmin ? 'Access Course' : 'Enroll Now'}
+                        </Button>
                       </div>
-                      <Button 
-                        onClick={() => handleEnrollClick(course)}
-                        className="bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700 shadow-lg hover:shadow-xl transition-all duration-300"
-                      >
-                        Enroll Now
-                      </Button>
+                      
+                      {isAdmin && (
+                        <div className="flex space-x-2 w-full">
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => handleAdminPreview(course)}
+                            className="flex-1 border-blue-200 hover:bg-blue-50"
+                          >
+                            <Eye className="h-4 w-4 mr-1" />
+                            Preview
+                          </Button>
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => handleAdminManage(course)}
+                            className="flex-1 border-purple-200 hover:bg-purple-50"
+                          >
+                            <Settings className="h-4 w-4 mr-1" />
+                            Manage
+                          </Button>
+                        </div>
+                      )}
                     </CardFooter>
                   </Card>
                 ))}
