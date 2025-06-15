@@ -36,6 +36,8 @@ const Courses = () => {
   const { data: courses = [], isLoading } = useQuery({
     queryKey: ['courses'],
     queryFn: async () => {
+      console.log('Fetching courses from database...');
+      
       const { data, error } = await supabase
         .from('courses')
         .select('*')
@@ -47,6 +49,7 @@ const Courses = () => {
         throw error;
       }
       
+      console.log('Courses fetched successfully:', data);
       return data as Course[];
     }
   });

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -34,10 +33,8 @@ const CourseDetail = () => {
   const { isAdmin } = useAuth();
   const [activeTab, setActiveTab] = useState('live');
 
-  // Add debug logging
   useEffect(() => {
     console.log('CourseDetail mounted with courseId:', courseId);
-    console.log('courseId type:', typeof courseId);
   }, [courseId]);
 
   // Fetch course data from database
@@ -50,18 +47,6 @@ const CourseDetail = () => {
       }
       
       console.log('Fetching course with ID:', courseId);
-      console.log('Attempting to query courses table...');
-      
-      // First, let's check if there are any courses at all
-      const { data: allCourses, error: listError } = await supabase
-        .from('courses')
-        .select('id, title')
-        .limit(5);
-      
-      console.log('Sample courses in database:', allCourses);
-      if (listError) {
-        console.error('Error listing courses:', listError);
-      }
       
       const { data, error } = await supabase
         .from('courses')
@@ -99,9 +84,6 @@ const CourseDetail = () => {
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
             <p className="text-lg text-gray-600 dark:text-gray-300">Loading course...</p>
             <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">Course ID: {courseId}</p>
-            <div className="mt-4 text-xs text-gray-400">
-              <p>Checking database connection and course existence...</p>
-            </div>
           </div>
         </div>
       </div>
@@ -156,9 +138,6 @@ const CourseDetail = () => {
               </p>
               <p className="text-sm text-gray-500 dark:text-gray-400 mb-4 font-mono bg-gray-100 dark:bg-gray-800 p-2 rounded">
                 Requested Course ID: {courseId}
-              </p>
-              <p className="text-xs text-gray-500 mb-6">
-                This could mean the course was deleted, the ID is incorrect, or it was never created.
               </p>
               <div className="space-y-3">
                 <Button onClick={() => navigate('/courses')} className="w-full">
