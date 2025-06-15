@@ -54,7 +54,7 @@ const CourseDetail = () => {
         .from('courses')
         .select('*')
         .eq('id', courseId)
-        .single();
+        .maybeSingle();
       
       if (error) {
         console.error('Error fetching course:', error);
@@ -62,7 +62,7 @@ const CourseDetail = () => {
       }
       
       console.log('Course data fetched:', data);
-      return data as Course;
+      return data as Course | null;
     },
     enabled: !!courseId
   });
@@ -101,7 +101,7 @@ const CourseDetail = () => {
             <div className="bg-white/80 backdrop-blur-sm rounded-lg p-8 shadow-lg max-w-md mx-auto">
               <h2 className="text-2xl font-bold text-red-600 mb-4">Error Loading Course</h2>
               <p className="text-gray-600 dark:text-gray-300 mb-4">
-                Failed to load course data. The course might not exist or there was a connection error.
+                Failed to load course data. There was a connection error or the course might not exist.
               </p>
               <p className="text-sm text-gray-500 dark:text-gray-400 mb-6 font-mono bg-gray-100 dark:bg-gray-800 p-2 rounded">
                 Course ID: {courseId}
