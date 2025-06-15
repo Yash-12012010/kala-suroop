@@ -355,39 +355,6 @@ export type Database = {
           },
         ]
       }
-      page_content: {
-        Row: {
-          content: Json
-          created_at: string
-          created_by: string | null
-          id: string
-          is_active: boolean
-          page_slug: string
-          section_key: string
-          updated_at: string
-        }
-        Insert: {
-          content: Json
-          created_at?: string
-          created_by?: string | null
-          id?: string
-          is_active?: boolean
-          page_slug: string
-          section_key: string
-          updated_at?: string
-        }
-        Update: {
-          content?: Json
-          created_at?: string
-          created_by?: string | null
-          id?: string
-          is_active?: boolean
-          page_slug?: string
-          section_key?: string
-          updated_at?: string
-        }
-        Relationships: []
-      }
       products: {
         Row: {
           category: string
@@ -448,41 +415,6 @@ export type Database = {
         }
         Relationships: []
       }
-      subjects: {
-        Row: {
-          class_id: string | null
-          created_at: string | null
-          description: string | null
-          id: string
-          name: string
-          updated_at: string | null
-        }
-        Insert: {
-          class_id?: string | null
-          created_at?: string | null
-          description?: string | null
-          id?: string
-          name: string
-          updated_at?: string | null
-        }
-        Update: {
-          class_id?: string | null
-          created_at?: string | null
-          description?: string | null
-          id?: string
-          name?: string
-          updated_at?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "subjects_class_id_fkey"
-            columns: ["class_id"]
-            isOneToOne: false
-            referencedRelation: "classes"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       timetable: {
         Row: {
           class_name: string
@@ -515,44 +447,6 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: []
-      }
-      topics: {
-        Row: {
-          created_at: string | null
-          description: string | null
-          id: string
-          name: string
-          order_index: number | null
-          subject_id: string | null
-          updated_at: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          description?: string | null
-          id?: string
-          name: string
-          order_index?: number | null
-          subject_id?: string | null
-          updated_at?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          description?: string | null
-          id?: string
-          name?: string
-          order_index?: number | null
-          subject_id?: string | null
-          updated_at?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "topics_subject_id_fkey"
-            columns: ["subject_id"]
-            isOneToOne: false
-            referencedRelation: "subjects"
-            referencedColumns: ["id"]
-          },
-        ]
       }
       user_roles: {
         Row: {
