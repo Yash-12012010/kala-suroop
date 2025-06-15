@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -12,6 +11,7 @@ import { Plus, Edit, Trash2, Star, Users, Clock, DollarSign } from 'lucide-react
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { usePopup } from '@/contexts/PopupContext';
 
 interface Course {
   id: string;
@@ -44,6 +44,7 @@ const CourseManager = () => {
   
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { showConfirm } = usePopup();
 
   const { data: courses = [], isLoading } = useQuery({
     queryKey: ['admin-courses'],
@@ -139,7 +140,8 @@ const CourseManager = () => {
   };
 
   const handleDelete = async (courseId: string) => {
-    if (!confirm('Are you sure you want to delete this course?')) return;
+    const confirmed = await showConfirm('Are you sure you want to delete this course?', 'Delete Course');
+    if (!confirmed) return;
     
     try {
       const { error } = await supabase
