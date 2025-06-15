@@ -44,13 +44,16 @@ const WebsiteManager = () => {
         </CardHeader>
         <CardContent className="p-6">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-3 lg:grid-cols-6 mb-8 h-12 bg-gray-100 dark:bg-gray-800">
+            <TabsList className="grid w-full grid-cols-2 lg:grid-cols-4 xl:grid-cols-9 mb-8 h-auto bg-gray-100 dark:bg-gray-800">
               <TabsTrigger value="courses" className="text-sm font-medium">Courses</TabsTrigger>
               <TabsTrigger value="live" className="text-sm font-medium">Live Classes</TabsTrigger>
               <TabsTrigger value="classes" className="text-sm font-medium">Classes</TabsTrigger>
               <TabsTrigger value="timetable" className="text-sm font-medium">Timetable</TabsTrigger>
               <TabsTrigger value="store" className="text-sm font-medium">Store</TabsTrigger>
               <TabsTrigger value="announcements" className="text-sm font-medium">Announcements</TabsTrigger>
+              <TabsTrigger value="navigation" className="text-sm font-medium">Navigation</TabsTrigger>
+              <TabsTrigger value="settings" className="text-sm font-medium">Settings</TabsTrigger>
+              <TabsTrigger value="templates" className="text-sm font-medium">Templates</TabsTrigger>
             </TabsList>
 
             <TabsContent value="courses" className="mt-6">
@@ -74,58 +77,49 @@ const WebsiteManager = () => {
             </TabsContent>
 
             <TabsContent value="announcements" className="mt-6">
-              <AnnouncementManager />
+              <div className="space-y-6">
+                <AnnouncementManager />
+                <Card className="shadow-lg border-0 bg-gradient-to-br from-yellow-50 to-orange-50 dark:from-yellow-950/20 dark:to-orange-950/20">
+                  <CardHeader>
+                    <CardTitle className="text-xl font-semibold">Banner Management</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <BannerManager />
+                  </CardContent>
+                </Card>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="navigation" className="mt-6">
+              <NavigationManager />
+            </TabsContent>
+
+            <TabsContent value="settings" className="mt-6">
+              <div className="space-y-6">
+                <Card className="shadow-lg border-0 bg-gradient-to-br from-green-50 to-blue-50 dark:from-green-950/20 dark:to-blue-950/20">
+                  <CardHeader>
+                    <CardTitle className="text-xl font-semibold">Website Settings</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <WebsiteSettingsManager />
+                  </CardContent>
+                </Card>
+                
+                <Card className="shadow-lg border-0 bg-gradient-to-br from-teal-50 to-cyan-50 dark:from-teal-950/20 dark:to-cyan-950/20">
+                  <CardHeader>
+                    <CardTitle className="text-xl font-semibold">Content Editor</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <ContentEditor onSave={handleContentSave} />
+                  </CardContent>
+                </Card>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="templates" className="mt-6">
+              <WebsiteTemplateManager />
             </TabsContent>
           </Tabs>
-        </CardContent>
-      </Card>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card className="shadow-lg border-0 bg-gradient-to-br from-green-50 to-blue-50 dark:from-green-950/20 dark:to-blue-950/20">
-          <CardHeader>
-            <CardTitle className="text-xl font-semibold">Website Settings</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <WebsiteSettingsManager />
-          </CardContent>
-        </Card>
-
-        <Card className="shadow-lg border-0 bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-950/20 dark:to-pink-950/20">
-          <CardHeader>
-            <CardTitle className="text-xl font-semibold">Navigation</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <NavigationManager />
-          </CardContent>
-        </Card>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card className="shadow-lg border-0 bg-gradient-to-br from-orange-50 to-red-50 dark:from-orange-950/20 dark:to-red-950/20">
-          <CardHeader>
-            <CardTitle className="text-xl font-semibold">Website Templates</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <WebsiteTemplateManager />
-          </CardContent>
-        </Card>
-
-        <Card className="shadow-lg border-0 bg-gradient-to-br from-teal-50 to-cyan-50 dark:from-teal-950/20 dark:to-cyan-950/20">
-          <CardHeader>
-            <CardTitle className="text-xl font-semibold">Content Editor</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ContentEditor onSave={handleContentSave} />
-          </CardContent>
-        </Card>
-      </div>
-
-      <Card className="shadow-lg border-0 bg-gradient-to-br from-yellow-50 to-orange-50 dark:from-yellow-950/20 dark:to-orange-950/20">
-        <CardHeader>
-          <CardTitle className="text-xl font-semibold">Banner Management</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <BannerManager />
         </CardContent>
       </Card>
     </div>
