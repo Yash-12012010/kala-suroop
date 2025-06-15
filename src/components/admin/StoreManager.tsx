@@ -11,102 +11,161 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { Plus, Edit, Trash2, Package, ShoppingBag, TrendingUp } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 
 interface Product {
-  id: number;
+  id: string;
   title: string;
   image: string;
   price: number;
-  originalPrice: number;
-  inStock: boolean;
+  original_price: number;
+  in_stock: boolean;
   category: string;
   description?: string;
 }
 
 const StoreManager = () => {
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [formData, setFormData] = useState({
     title: '',
     image: '',
     price: 0,
-    originalPrice: 0,
-    inStock: false,
+    original_price: 0,
+    in_stock: false,
     category: '',
     description: ''
   });
 
-  // Mock data - in real implementation this would come from database
-  const [products, setProducts] = useState<Product[]>([
-    {
-      id: 1,
-      title: 'Professional Watercolor Paint Set',
-      image: 'https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?w=400&h=250&fit=crop',
-      price: 2499,
-      originalPrice: 3999,
-      inStock: true,
-      category: 'Art Supplies',
-      description: 'High-quality watercolor paints for professional artists'
-    },
-    {
-      id: 2,
-      title: 'Premium Canvas Set - Various Sizes',
-      image: 'https://images.unsplash.com/photo-1541961017774-22349e4a1262?w=400&h=250&fit=crop',
-      price: 1899,
-      originalPrice: 2999,
-      inStock: true,
-      category: 'Canvas & Paper',
-      description: 'Professional canvas set in multiple sizes'
+  const { data: products = [], isLoading } = useQuery({
+    queryKey: ['products'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('products')
+        .select('*')
+        .order('created_at', { ascending: false });
+      
+      if (error) {
+        console.error('Error fetching products:', error);
+        throw error;
+      }
+      
+      return data || [];
     }
-  ]);
+  });
+
+  const createProductMutation = useMutation({
+    mutationFn: async (productData: Omit<Product, 'id'>) => {
+      const { data, error } = await supabase
+        .from('products')
+        .insert([productData])
+        .select()
+        .single();
+      
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['products'] });
+      toast({
+        title: "Success",
+        description: "Product created successfully",
+      });
+      resetForm();
+    },
+    onError: (error) => {
+      console.error('Error creating product:', error);
+      toast({
+        title: "Error",
+        description: "Failed to create product",
+        variant: "destructive"
+      });
+    }
+  });
+
+  const updateProductMutation = useMutation({
+    mutationFn: async ({ id, ...productData }: Product) => {
+      const { data, error } = await supabase
+        .from('products')
+        .update(productData)
+        .eq('id', id)
+        .select()
+        .single();
+      
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['products'] });
+      toast({
+        title: "Success",
+        description: "Product updated successfully",
+      });
+      resetForm();
+    },
+    onError: (error) => {
+      console.error('Error updating product:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update product",
+        variant: "destructive"
+      });
+    }
+  });
+
+  const deleteProductMutation = useMutation({
+    mutationFn: async (productId: string) => {
+      const { error } = await supabase
+        .from('products')
+        .delete()
+        .eq('id', productId);
+      
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['products'] });
+      toast({
+        title: "Success",
+        description: "Product deleted successfully",
+      });
+    },
+    onError: (error) => {
+      console.error('Error deleting product:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete product",
+        variant: "destructive"
+      });
+    }
+  });
+
+  const resetForm = () => {
+    setFormData({
+      title: '',
+      image: '',
+      price: 0,
+      original_price: 0,
+      in_stock: false,
+      category: '',
+      description: ''
+    });
+    setEditingProduct(null);
+    setIsDialogOpen(false);
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    try {
-      if (editingProduct) {
-        const updatedProducts = products.map(product =>
-          product.id === editingProduct.id
-            ? { ...product, ...formData }
-            : product
-        );
-        setProducts(updatedProducts);
-        toast({
-          title: "Success",
-          description: "Product updated successfully",
-        });
-      } else {
-        const newProduct: Product = {
-          id: Math.max(...products.map(p => p.id), 0) + 1,
-          ...formData
-        };
-        setProducts([...products, newProduct]);
-        toast({
-          title: "Success",
-          description: "Product created successfully",
-        });
-      }
-      
-      setFormData({
-        title: '',
-        image: '',
-        price: 0,
-        originalPrice: 0,
-        inStock: false,
-        category: '',
-        description: ''
+    if (editingProduct) {
+      updateProductMutation.mutate({
+        id: editingProduct.id,
+        ...formData
       });
-      setEditingProduct(null);
-      setIsDialogOpen(false);
-      
-    } catch (error) {
-      console.error('Error saving product:', error);
-      toast({
-        title: "Error",
-        description: "Failed to save product",
-        variant: "destructive"
-      });
+    } else {
+      createProductMutation.mutate(formData);
     }
   };
 
@@ -116,49 +175,37 @@ const StoreManager = () => {
       title: product.title,
       image: product.image,
       price: product.price,
-      originalPrice: product.originalPrice,
-      inStock: product.inStock,
+      original_price: product.original_price,
+      in_stock: product.in_stock,
       category: product.category,
       description: product.description || ''
     });
     setIsDialogOpen(true);
   };
 
-  const handleDelete = (productId: number) => {
+  const handleDelete = (productId: string) => {
     if (!confirm('Are you sure you want to delete this product?')) {
       return;
     }
-
-    try {
-      const updatedProducts = products.filter(product => product.id !== productId);
-      setProducts(updatedProducts);
-      toast({
-        title: "Success",
-        description: "Product deleted successfully",
-      });
-    } catch (error) {
-      console.error('Error deleting product:', error);
-      toast({
-        title: "Error",
-        description: "Failed to delete product",
-        variant: "destructive"
-      });
-    }
+    deleteProductMutation.mutate(productId);
   };
 
   const openAddDialog = () => {
-    setEditingProduct(null);
-    setFormData({
-      title: '',
-      image: '',
-      price: 0,
-      originalPrice: 0,
-      inStock: false,
-      category: '',
-      description: ''
-    });
+    resetForm();
     setIsDialogOpen(true);
   };
+
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        <Card>
+          <CardContent className="pt-6">
+            <p className="text-center text-muted-foreground">Loading products...</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -217,12 +264,12 @@ const StoreManager = () => {
                     />
                   </div>
                   <div>
-                    <Label htmlFor="originalPrice">Original Price (₹)</Label>
+                    <Label htmlFor="original_price">Original Price (₹)</Label>
                     <Input
-                      id="originalPrice"
+                      id="original_price"
                       type="number"
-                      value={formData.originalPrice}
-                      onChange={(e) => setFormData({...formData, originalPrice: Number(e.target.value)})}
+                      value={formData.original_price}
+                      onChange={(e) => setFormData({...formData, original_price: Number(e.target.value)})}
                       placeholder="0"
                       required
                     />
@@ -253,18 +300,18 @@ const StoreManager = () => {
 
                 <div className="flex items-center space-x-2">
                   <Switch
-                    id="inStock"
-                    checked={formData.inStock}
-                    onCheckedChange={(checked) => setFormData({...formData, inStock: checked})}
+                    id="in_stock"
+                    checked={formData.in_stock}
+                    onCheckedChange={(checked) => setFormData({...formData, in_stock: checked})}
                   />
-                  <Label htmlFor="inStock">In Stock</Label>
+                  <Label htmlFor="in_stock">In Stock</Label>
                 </div>
 
                 <div className="flex justify-end space-x-2">
                   <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
                     Cancel
                   </Button>
-                  <Button type="submit">
+                  <Button type="submit" disabled={createProductMutation.isPending || updateProductMutation.isPending}>
                     {editingProduct ? 'Update' : 'Create'}
                   </Button>
                 </div>
@@ -308,13 +355,13 @@ const StoreManager = () => {
                     <div>
                       <span className="font-semibold text-green-600">₹{product.price}</span>
                       <span className="text-sm text-muted-foreground line-through ml-2">
-                        ₹{product.originalPrice}
+                        ₹{product.original_price}
                       </span>
                     </div>
                   </TableCell>
                   <TableCell>
-                    <Badge className={product.inStock ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}>
-                      {product.inStock ? 'In Stock' : 'Out of Stock'}
+                    <Badge className={product.in_stock ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}>
+                      {product.in_stock ? 'In Stock' : 'Out of Stock'}
                     </Badge>
                   </TableCell>
                   <TableCell className="text-right">
@@ -330,6 +377,7 @@ const StoreManager = () => {
                         size="sm"
                         variant="destructive"
                         onClick={() => handleDelete(product.id)}
+                        disabled={deleteProductMutation.isPending}
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>
@@ -359,13 +407,13 @@ const StoreManager = () => {
               <div className="flex justify-between">
                 <span>In Stock:</span>
                 <span className="font-semibold">
-                  {products.filter(p => p.inStock).length}
+                  {products.filter(p => p.in_stock).length}
                 </span>
               </div>
               <div className="flex justify-between">
                 <span>Out of Stock:</span>
                 <span className="font-semibold">
-                  {products.filter(p => !p.inStock).length}
+                  {products.filter(p => !p.in_stock).length}
                 </span>
               </div>
             </div>
@@ -390,7 +438,7 @@ const StoreManager = () => {
               <div className="flex justify-between">
                 <span>Potential Savings:</span>
                 <span className="font-semibold">
-                  ₹{products.reduce((sum, product) => sum + (product.originalPrice - product.price), 0).toLocaleString()}
+                  ₹{products.reduce((sum, product) => sum + (product.original_price - product.price), 0).toLocaleString()}
                 </span>
               </div>
             </div>
