@@ -15,42 +15,32 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 interface Course {
   id: string;
-  title: string;
+  name: string;
   description: string | null;
-  price: number;
-  duration: string | null;
-  level: string;
-  status: string;
-  instructor: string;
   created_at: string;
-  updated_at: string;
+  updated_at: string | null;
 }
 
 const CourseManager = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingCourse, setEditingCourse] = useState<Course | null>(null);
   const [formData, setFormData] = useState({
-    title: '',
-    description: '',
-    price: 0,
-    duration: '',
-    level: 'beginner',
-    status: 'active',
-    instructor: ''
+    name: '',
+    description: ''
   });
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
   const { data: courses = [], isLoading } = useQuery({
-    queryKey: ['courses'],
+    queryKey: ['classes'],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('courses')
+        .from('classes')
         .select('*')
         .order('created_at', { ascending: false });
       
       if (error) {
-        console.error('Error fetching courses:', error);
+        console.error('Error fetching classes:', error);
         throw error;
       }
       
@@ -62,9 +52,9 @@ const CourseManager = () => {
     e.preventDefault();
     try {
       if (editingCourse) {
-        // Update existing course
+        // Update existing class
         const { error } = await supabase
-          .from('courses')
+          .from('classes')
           .update({
             ...formData,
             updated_at: new Date().toISOString()
@@ -72,62 +62,57 @@ const CourseManager = () => {
           .eq('id', editingCourse.id);
 
         if (error) throw error;
-        toast({ title: "Success", description: "Course updated successfully" });
+        toast({ title: "Success", description: "Class updated successfully" });
       } else {
-        // Create new course
+        // Create new class
         const { error } = await supabase
-          .from('courses')
+          .from('classes')
           .insert([formData]);
 
         if (error) throw error;
-        toast({ title: "Success", description: "Course created successfully" });
+        toast({ title: "Success", description: "Class created successfully" });
       }
 
-      // Refetch courses
-      queryClient.invalidateQueries({ queryKey: ['courses'] });
+      // Refetch classes
+      queryClient.invalidateQueries({ queryKey: ['classes'] });
 
       setFormData({
-        title: '',
-        description: '',
-        price: 0,
-        duration: '',
-        level: 'beginner',
-        status: 'active',
-        instructor: ''
+        name: '',
+        description: ''
       });
       setEditingCourse(null);
       setDialogOpen(false);
     } catch (error) {
-      console.error('Error saving course:', error);
+      console.error('Error saving class:', error);
       toast({
         title: "Error",
-        description: "Failed to save course",
+        description: "Failed to save class",
         variant: "destructive"
       });
     }
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this course?')) {
+    if (!confirm('Are you sure you want to delete this class?')) {
       return;
     }
 
     try {
       const { error } = await supabase
-        .from('courses')
+        .from('classes')
         .delete()
         .eq('id', id);
 
       if (error) throw error;
 
-      // Refetch courses
-      queryClient.invalidateQueries({ queryKey: ['courses'] });
-      toast({ title: "Success", description: "Course deleted successfully" });
+      // Refetch classes
+      queryClient.invalidateQueries({ queryKey: ['classes'] });
+      toast({ title: "Success", description: "Class deleted successfully" });
     } catch (error) {
-      console.error('Error deleting course:', error);
+      console.error('Error deleting class:', error);
       toast({
         title: "Error",
-        description: "Failed to delete course",
+        description: "Failed to delete class",
         variant: "destructive"
       });
     }
@@ -137,53 +122,17 @@ const CourseManager = () => {
     if (course) {
       setEditingCourse(course);
       setFormData({
-        title: course.title,
-        description: course.description || '',
-        price: course.price,
-        duration: course.duration || '',
-        level: course.level,
-        status: course.status,
-        instructor: course.instructor
+        name: course.name,
+        description: course.description || ''
       });
     } else {
       setEditingCourse(null);
       setFormData({
-        title: '',
-        description: '',
-        price: 0,
-        duration: '',
-        level: 'beginner',
-        status: 'active',
-        instructor: ''
+        name: '',
+        description: ''
       });
     }
     setDialogOpen(true);
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'active':
-        return 'bg-green-100 text-green-800';
-      case 'inactive':
-        return 'bg-gray-100 text-gray-800';
-      case 'draft':
-        return 'bg-yellow-100 text-yellow-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
-    }
-  };
-
-  const getLevelColor = (level: string) => {
-    switch (level) {
-      case 'beginner':
-        return 'bg-blue-100 text-blue-800';
-      case 'intermediate':
-        return 'bg-purple-100 text-purple-800';
-      case 'advanced':
-        return 'bg-red-100 text-red-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
-    }
   };
 
   return (
@@ -205,25 +154,14 @@ const CourseManager = () => {
                 </DialogTitle>
               </DialogHeader>
               <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="text-sm font-medium">Title</label>
-                    <Input
-                      value={formData.title}
-                      onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                      placeholder="Enter course title"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium">Instructor</label>
-                    <Input
-                      value={formData.instructor}
-                      onChange={(e) => setFormData({ ...formData, instructor: e.target.value })}
-                      placeholder="Enter instructor name"
-                      required
-                    />
-                  </div>
+                <div>
+                  <label className="text-sm font-medium">Name</label>
+                  <Input
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    placeholder="Enter course name"
+                    required
+                  />
                 </div>
                 <div>
                   <label className="text-sm font-medium">Description</label>
@@ -233,58 +171,6 @@ const CourseManager = () => {
                     placeholder="Enter course description"
                     rows={3}
                   />
-                </div>
-                <div className="grid grid-cols-3 gap-4">
-                  <div>
-                    <label className="text-sm font-medium">Price (₹)</label>
-                    <Input
-                      type="number"
-                      value={formData.price}
-                      onChange={(e) => setFormData({ ...formData, price: Number(e.target.value) })}
-                      placeholder="0"
-                      min="0"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium">Duration</label>
-                    <Input
-                      value={formData.duration}
-                      onChange={(e) => setFormData({ ...formData, duration: e.target.value })}
-                      placeholder="e.g., 6 months"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium">Level</label>
-                    <Select
-                      value={formData.level}
-                      onValueChange={(value) => setFormData({ ...formData, level: value })}
-                    >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="beginner">Beginner</SelectItem>
-                        <SelectItem value="intermediate">Intermediate</SelectItem>
-                        <SelectItem value="advanced">Advanced</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-                <div>
-                  <label className="text-sm font-medium">Status</label>
-                  <Select
-                    value={formData.status}
-                    onValueChange={(value) => setFormData({ ...formData, status: value })}
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="active">Active</SelectItem>
-                      <SelectItem value="inactive">Inactive</SelectItem>
-                      <SelectItem value="draft">Draft</SelectItem>
-                    </SelectContent>
-                  </Select>
                 </div>
                 <div className="flex justify-end space-x-2">
                   <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>
@@ -313,12 +199,9 @@ const CourseManager = () => {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Course</TableHead>
-                  <TableHead>Instructor</TableHead>
-                  <TableHead>Price</TableHead>
-                  <TableHead>Duration</TableHead>
-                  <TableHead>Level</TableHead>
-                  <TableHead>Status</TableHead>
+                  <TableHead>Course Name</TableHead>
+                  <TableHead>Description</TableHead>
+                  <TableHead>Created</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
@@ -326,26 +209,14 @@ const CourseManager = () => {
                 {courses.map((course) => (
                   <TableRow key={course.id}>
                     <TableCell>
-                      <div>
-                        <div className="font-medium">{course.title}</div>
-                        <div className="text-sm text-muted-foreground">
-                          {course.description?.substring(0, 60)}...
-                        </div>
+                      <div className="font-medium">{course.name}</div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="text-sm text-muted-foreground">
+                        {course.description?.substring(0, 60)}...
                       </div>
                     </TableCell>
-                    <TableCell>{course.instructor}</TableCell>
-                    <TableCell>₹{course.price.toLocaleString()}</TableCell>
-                    <TableCell>{course.duration}</TableCell>
-                    <TableCell>
-                      <Badge className={getLevelColor(course.level)}>
-                        {course.level}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <Badge className={getStatusColor(course.status)}>
-                        {course.status}
-                      </Badge>
-                    </TableCell>
+                    <TableCell>{new Date(course.created_at).toLocaleDateString()}</TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end space-x-2">
                         <Button
@@ -386,18 +257,6 @@ const CourseManager = () => {
                 <span>Total Courses:</span>
                 <span className="font-semibold">{courses.length}</span>
               </div>
-              <div className="flex justify-between">
-                <span>Active Courses:</span>
-                <span className="font-semibold">
-                  {courses.filter(c => c.status === 'active').length}
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span>Draft Courses:</span>
-                <span className="font-semibold">
-                  {courses.filter(c => c.status === 'draft').length}
-                </span>
-              </div>
             </div>
           </CardContent>
         </Card>
@@ -434,12 +293,6 @@ const CourseManager = () => {
               <div className="flex justify-between">
                 <span>Last Updated:</span>
                 <span>{new Date().toLocaleDateString()}</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Total Revenue:</span>
-                <span className="font-semibold">
-                  ₹{courses.reduce((sum, course) => sum + course.price, 0).toLocaleString()}
-                </span>
               </div>
             </div>
           </CardContent>

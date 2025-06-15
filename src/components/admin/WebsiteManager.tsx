@@ -6,15 +6,12 @@ import NavigationManager from './NavigationManager';
 import WebsiteSettingsManager from './WebsiteSettingsManager';
 import PageContentManager from './PageContentManager';
 import AnnouncementManager from './AnnouncementManager';
-import WebsiteTemplateManager from './WebsiteTemplateManager';
 import LiveClassAdmin from './LiveClassAdmin';
-import LiveContentManager from './LiveContentManager';
 import QuickEditPanel from './QuickEditPanel';
 import CourseManager from './CourseManager';
 import StoreManager from './StoreManager';
 import ClassManager from './ClassManager';
 import SubjectManager from './SubjectManager';
-import TopicManager from './TopicManager';
 import TimetableManager from './TimetableManager';
 
 const WebsiteManager = () => {
@@ -29,34 +26,28 @@ const WebsiteManager = () => {
         </p>
       </div>
 
-      <Tabs defaultValue="live-editor" className="w-full">
+      <Tabs defaultValue="quick-create" className="w-full">
         <div className="space-y-2">
           <TabsList className="grid w-full grid-cols-5">
-            <TabsTrigger value="live-editor">Live Editor</TabsTrigger>
             <TabsTrigger value="quick-create">Quick Create</TabsTrigger>
             <TabsTrigger value="content">Content</TabsTrigger>
             <TabsTrigger value="banners">Banners</TabsTrigger>
             <TabsTrigger value="navigation">Navigation</TabsTrigger>
+            <TabsTrigger value="courses">Courses</TabsTrigger>
           </TabsList>
           <TabsList className="grid w-full grid-cols-5">
-            <TabsTrigger value="courses">Courses</TabsTrigger>
             <TabsTrigger value="store">Store</TabsTrigger>
             <TabsTrigger value="academic">Academic</TabsTrigger>
             <TabsTrigger value="classes">Classes</TabsTrigger>
             <TabsTrigger value="subjects">Subjects</TabsTrigger>
-          </TabsList>
-          <TabsList className="grid w-full grid-cols-5">
-            <TabsTrigger value="topics">Topics</TabsTrigger>
             <TabsTrigger value="settings">Settings</TabsTrigger>
-            <TabsTrigger value="templates">Templates</TabsTrigger>
+          </TabsList>
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="announcements">Announcements</TabsTrigger>
             <TabsTrigger value="live-classes">Live Classes</TabsTrigger>
+            <TabsTrigger value=""><!-- Empty slot --></TabsTrigger>
           </TabsList>
         </div>
-
-        <TabsContent value="live-editor" className="mt-6">
-          <LiveContentManager />
-        </TabsContent>
 
         <TabsContent value="quick-create" className="mt-6">
           <QuickEditPanel />
@@ -94,16 +85,8 @@ const WebsiteManager = () => {
           <SubjectManager />
         </TabsContent>
 
-        <TabsContent value="topics" className="mt-6">
-          <TopicManager />
-        </TabsContent>
-
         <TabsContent value="settings" className="mt-6">
           <WebsiteSettingsManager />
-        </TabsContent>
-
-        <TabsContent value="templates" className="mt-6">
-          <WebsiteTemplateManager />
         </TabsContent>
 
         <TabsContent value="announcements" className="mt-6">
