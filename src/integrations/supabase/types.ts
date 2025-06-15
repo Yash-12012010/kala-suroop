@@ -238,6 +238,7 @@ export type Database = {
           created_at: string
           description: string | null
           duration: string | null
+          enrolled_students: number | null
           featured: boolean
           id: string
           instructor: string
@@ -251,6 +252,7 @@ export type Database = {
           created_at?: string
           description?: string | null
           duration?: string | null
+          enrolled_students?: number | null
           featured?: boolean
           id?: string
           instructor: string
@@ -264,6 +266,7 @@ export type Database = {
           created_at?: string
           description?: string | null
           duration?: string | null
+          enrolled_students?: number | null
           featured?: boolean
           id?: string
           instructor?: string
