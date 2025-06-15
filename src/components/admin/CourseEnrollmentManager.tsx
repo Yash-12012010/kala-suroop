@@ -7,7 +7,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Calendar, User, CreditCard, Clock, Plus, Search } from 'lucide-react';
+import { Calendar, User, Search, Plus } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -24,11 +24,21 @@ interface CourseEnrollment {
   course_title?: string;
 }
 
+interface Course {
+  id: string;
+  title: string;
+}
+
+interface UserProfile {
+  id: string;
+  email?: string;
+}
+
 const CourseEnrollmentManager = () => {
   const { isAdmin } = useAuth();
   const { toast } = useToast();
   const [enrollments, setEnrollments] = useState<CourseEnrollment[]>([]);
-  const [courses, setCourses] = useState<any[]>([]);
+  const [courses, setCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [enrollmentDialogOpen, setEnrollmentDialogOpen] = useState(false);
@@ -42,7 +52,6 @@ const CourseEnrollmentManager = () => {
 
   const fetchEnrollments = async () => {
     try {
-      // First get enrollments
       const { data: enrollmentData, error: enrollmentError } = await supabase
         .from('course_enrollments')
         .select('*')
@@ -52,26 +61,56 @@ const CourseEnrollmentManager = () => {
         throw enrollmentError;
       }
 
-      // Then get user emails and course titles separately
-      const enrichedEnrollments = await Promise.all(
-        (enrollmentData || []).map(async (enrollment) => {
-          // Get user email
-          const { data: userData } = await supabase.auth.admin.getUserById(enrollment.user_id);
+      if (!enrollmentData) {
+        setEnrollments([]);
+        return;
+      }
+
+      // Fetch additional data for each enrollment
+      const enrichedEnrollments: CourseEnrollment[] = [];
+      
+      for (const enrollment of enrollmentData) {
+        let userEmail = 'Unknown';
+        let courseTitle = 'Unknown Course';
+
+        // Get user email from profiles table
+        try {
+          const { data: profileData } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', enrollment.user_id)
+            .single();
           
-          // Get course title
+          if (profileData) {
+            // Get email from auth.users via admin API
+            const { data: userData } = await supabase.auth.admin.getUserById(enrollment.user_id);
+            userEmail = userData?.user?.email || 'Unknown';
+          }
+        } catch (error) {
+          console.error('Error fetching user data:', error);
+        }
+
+        // Get course title
+        try {
           const { data: courseData } = await supabase
             .from('courses')
             .select('title')
             .eq('id', enrollment.course_id)
             .single();
+          
+          if (courseData) {
+            courseTitle = courseData.title;
+          }
+        } catch (error) {
+          console.error('Error fetching course data:', error);
+        }
 
-          return {
-            ...enrollment,
-            user_email: userData?.user?.email || 'Unknown',
-            course_title: courseData?.title || 'Unknown Course'
-          };
-        })
-      );
+        enrichedEnrollments.push({
+          ...enrollment,
+          user_email: userEmail,
+          course_title: courseTitle
+        });
+      }
 
       setEnrollments(enrichedEnrollments);
     } catch (error) {
@@ -114,14 +153,16 @@ const CourseEnrollmentManager = () => {
     const expiresAt = formData.get('expiresAt') as string;
 
     try {
-      // Get user ID from email
-      const { data: userData, error: userError } = await supabase
-        .from('profiles')
-        .select('id')
-        .eq('email', userEmail)
-        .single();
+      // Get user ID from profiles table by checking auth users
+      const { data: { users }, error: usersError } = await supabase.auth.admin.listUsers();
+      
+      if (usersError) {
+        throw usersError;
+      }
 
-      if (userError || !userData) {
+      const targetUser = users.find(user => user.email === userEmail);
+      
+      if (!targetUser) {
         toast({
           title: "Error",
           description: "User not found with that email",
@@ -133,7 +174,7 @@ const CourseEnrollmentManager = () => {
       const { error } = await supabase
         .from('course_enrollments')
         .insert({
-          user_id: userData.id,
+          user_id: targetUser.id,
           course_id: courseId,
           payment_status: paymentStatus,
           access_granted: accessGranted,
@@ -331,7 +372,7 @@ const CourseEnrollmentManager = () => {
                   </div>
                   {enrollment.expires_at && (
                     <div className="flex items-center">
-                      <Clock className="h-4 w-4 mr-2" />
+                      <Calendar className="h-4 w-4 mr-2" />
                       Expires: {new Date(enrollment.expires_at).toLocaleDateString()}
                     </div>
                   )}
