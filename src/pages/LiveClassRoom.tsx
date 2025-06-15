@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate, useSearchParams, useParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -18,6 +19,7 @@ interface LiveSession {
   agora_channel: string | null;
   scheduled_start: string;
   scheduled_end: string;
+  course_id: string;
 }
 
 const LiveClassRoom = () => {
@@ -36,7 +38,6 @@ const LiveClassRoom = () => {
   const [loading, setLoading] = useState(true);
   const [testResults, setTestResults] = useState<string[]>([]);
   
-  // Using the provided Agora App ID
   const AGORA_APP_ID = '76fe48407b1d4e0986592d7ad3d5a361';
 
   const addTestResult = (message: string) => {
@@ -44,29 +45,25 @@ const LiveClassRoom = () => {
     setTestResults(prev => [...prev, message]);
   };
 
-  // Check URL parameters for auto-join
   useEffect(() => {
     console.log('=== LiveClassRoom URL Analysis ===');
     console.log('Current path:', location.pathname);
     console.log('Search params:', Object.fromEntries(searchParams.entries()));
     console.log('Session ID from params:', sessionId);
+    console.log('Is Admin:', isAdmin);
     
     const channelFromUrl = searchParams.get('channel');
-    // Always join as teacher if admin
-    const teacherFromUrl = isAdmin || searchParams.get('teacher') === 'true';
+    const teacherFromUrl = searchParams.get('teacher') === 'true' || isAdmin;
     
     console.log('Channel from URL:', channelFromUrl);
-    console.log('Teacher from URL:', teacherFromUrl);
+    console.log('Teacher from URL (or admin):', teacherFromUrl);
     
-    // Test URL parameter handling
     if (channelFromUrl) {
       addTestResult('URL parameters detected and processed correctly');
     }
     
-    // If we have channel from URL, auto-join immediately
     if (channelFromUrl && channelFromUrl.trim()) {
       console.log('AUTO-JOINING: Setting up live class immediately');
-      // Always join as teacher if admin
       const role = teacherFromUrl ? 'teacher' : 'student';
       const userIdPart = user?.id?.split('-')[0] || Math.random().toString(36).slice(2, 8);
       const customUid = `${role}-${userIdPart}`;
@@ -78,12 +75,11 @@ const LiveClassRoom = () => {
       return;
     }
 
-    // Otherwise, check if we have a sessionId to load
     if (sessionId) {
       console.log('Loading session by ID:', sessionId);
       loadSessionById(sessionId);
     }
-  }, [searchParams, sessionId, location.pathname, user, isAdmin]); // react to isAdmin as well
+  }, [searchParams, sessionId, location.pathname, user, isAdmin]);
 
   const loadSessionById = async (id: string) => {
     try {
@@ -103,8 +99,6 @@ const LiveClassRoom = () => {
       console.log('Session data loaded:', data);
       if (data && data.agora_channel) {
         console.log('Setting up live class with channel:', data.agora_channel);
-        // Always assign teacher if admin
-        // users from session list are student unless admin
         const role = isAdmin ? 'teacher' : 'student';
         const userIdPart = user?.id?.split('-')[0] || Math.random().toString(36).slice(2, 8);
         const customUid = `${role}-${userIdPart}`;
@@ -127,7 +121,6 @@ const LiveClassRoom = () => {
     try {
       console.log('Fetching live sessions...');
       
-      // Check for expired classes before fetching
       await checkAndEndExpiredClasses();
       
       const { data, error } = await supabase
@@ -162,31 +155,27 @@ const LiveClassRoom = () => {
   useEffect(() => {
     fetchLiveSessions();
     
-    // Test authentication
     if (user) {
       addTestResult('User authentication working');
     } else {
       addTestResult('User not authenticated');
     }
     
-    // Test Agora App ID
     if (AGORA_APP_ID) {
       addTestResult('Agora App ID configured');
     } else {
       addTestResult('Agora App ID missing');
     }
 
-    // Set up periodic check for expired classes
     const interval = setInterval(async () => {
       await checkAndEndExpiredClasses();
       await fetchLiveSessions();
-    }, 60000); // Check every minute
+    }, 60000);
 
     return () => clearInterval(interval);
   }, []);
 
   const handleJoinClass = (channel: string, asTeacher: boolean = false) => {
-    // Teachers if admin or asTeacher provided
     const isTeacherRole = isAdmin || asTeacher;
     const role = isTeacherRole ? 'teacher' : 'student';
     const userIdPart = user?.id?.split('-')[0] || Math.random().toString(36).slice(2, 8);
@@ -202,7 +191,7 @@ const LiveClassRoom = () => {
   const joinLiveSession = (session: LiveSession) => {
     if (session.agora_channel) {
       console.log('Joining live session:', session);
-      handleJoinClass(session.agora_channel, false);
+      handleJoinClass(session.agora_channel, isAdmin);
       addTestResult('Live session join working');
     }
   };
@@ -214,19 +203,13 @@ const LiveClassRoom = () => {
     return now >= start && now <= end;
   };
 
-  // Test routing functionality
-  const testRouting = () => {
-    addTestResult('Navigation and routing working');
-  };
-
-  // IMPORTANT: Check if we should render LiveClass
   if (showLiveClass && channelName && channelName.trim() !== '' && uid) {
     console.log('✅ RENDERING LiveClass component with channel:', channelName, 'and UID:', uid);
     return (
       <LiveClass 
         channelName={channelName}
         appId={AGORA_APP_ID}
-        isTeacher={isTeacher} // always true if admin
+        isTeacher={isTeacher}
         uid={uid}
       />
     );
@@ -239,10 +222,7 @@ const LiveClassRoom = () => {
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <Button 
           variant="ghost" 
-          onClick={() => {
-            navigate('/dashboard');
-            testRouting();
-          }}
+          onClick={() => navigate('/dashboard')}
           className="mb-6"
         >
           <ArrowLeft className="h-4 w-4 mr-2" />
@@ -258,29 +238,22 @@ const LiveClassRoom = () => {
           </p>
         </div>
 
-        {/* Setup Instructions */}
-        <Card className="mb-8 border-blue-200 bg-blue-50 dark:bg-blue-900/20">
-          <CardHeader>
-            <CardTitle className="flex items-center text-blue-800 dark:text-blue-200">
-              <Video className="h-5 w-5 mr-2" />
-              Live Video Ready
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <p className="text-blue-700 dark:text-blue-300">
-                Your Agora video integration is configured and ready to use. Features available:
+        {/* Admin Status */}
+        {isAdmin && (
+          <Card className="mb-8 border-purple-200 bg-purple-50 dark:bg-purple-900/20">
+            <CardHeader>
+              <CardTitle className="flex items-center text-purple-800 dark:text-purple-200">
+                <CheckCircle className="h-5 w-5 mr-2" />
+                Admin Access Active
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-purple-700 dark:text-purple-300">
+                You have admin privileges. You will automatically join as a teacher in all live sessions.
               </p>
-              <ul className="list-disc list-inside space-y-2 text-sm text-blue-700 dark:text-blue-300">
-                <li>Real-time video and audio communication</li>
-                <li>Custom permission handling (no browser popups)</li>
-                <li>Teacher and student roles</li>
-                <li>Channel-based class management</li>
-                <li>Auto-join via URL parameters</li>
-              </ul>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Live Sessions */}
         <Card className="mb-8">
@@ -296,7 +269,9 @@ const LiveClassRoom = () => {
             ) : liveSessions.length === 0 ? (
               <div className="text-center py-8 text-gray-500">
                 <p>No live classes scheduled at the moment</p>
-                <p className="text-sm mt-2">Use the admin panel to schedule new classes</p>
+                {isAdmin && (
+                  <p className="text-sm mt-2">Use the admin panel to schedule new classes</p>
+                )}
               </div>
             ) : (
               <div className="space-y-4">
@@ -358,7 +333,7 @@ const LiveClassRoom = () => {
                 disabled={!channelName.trim()}
                 className="w-full"
               >
-                Join as Student
+                Join as {isAdmin ? 'Teacher (Admin)' : 'Student'}
               </Button>
             </CardContent>
           </Card>

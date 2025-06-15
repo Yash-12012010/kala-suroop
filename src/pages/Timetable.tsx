@@ -4,6 +4,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/contexts/AuthContext';
+import TimetableEditor from '@/components/TimetableEditor';
 
 interface TimetableEntry {
   id: string;
@@ -18,6 +20,7 @@ const Timetable = () => {
   const [schedule, setSchedule] = useState<Record<string, Record<string, TimetableEntry>>>({});
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
+  const { isAdmin } = useAuth();
 
   const timeSlots = [
     '09:00 AM', '10:00 AM', '11:00 AM', '12:00 PM', 
@@ -82,6 +85,7 @@ const Timetable = () => {
       'Doubt Session': 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200',
       'Test Series': 'bg-pink-100 text-pink-800 dark:bg-pink-900 dark:text-pink-200',
       'Revision Class': 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200',
+      'Live Session': 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200',
     };
     return colors[subject] || 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200';
   };
@@ -108,6 +112,11 @@ const Timetable = () => {
             Weekly schedule for live classes and sessions
           </p>
         </div>
+
+        {/* Admin Editor */}
+        {isAdmin && (
+          <TimetableEditor scheduleData={schedule} onRefresh={fetchTimetable} />
+        )}
 
         {/* Mobile View */}
         <div className="block lg:hidden mb-8">
@@ -230,6 +239,9 @@ const Timetable = () => {
               <p className="text-sm text-muted-foreground">
                 • Test series includes practice tests and mock exams
               </p>
+              <p className="text-sm text-muted-foreground">
+                • Live sessions from scheduled classes appear automatically
+              </p>
             </CardContent>
           </Card>
 
@@ -241,7 +253,8 @@ const Timetable = () => {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {Object.keys({
                   'Mathematics': '', 'Physics': '', 'Chemistry': '', 'Biology': '',
-                  'English': '', 'Doubt Session': '', 'Test Series': '', 'Revision Class': ''
+                  'English': '', 'Doubt Session': '', 'Test Series': '', 'Revision Class': '',
+                  'Live Session': ''
                 }).map(subject => (
                   <Badge key={subject} className={`${getSubjectColor(subject)} justify-center`}>
                     {subject}

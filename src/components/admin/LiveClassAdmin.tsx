@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -21,8 +22,15 @@ interface LiveClass {
   created_at: string;
 }
 
+interface Course {
+  id: string;
+  title: string;
+  instructor: string;
+}
+
 const LiveClassAdmin = () => {
   const [classes, setClasses] = useState<LiveClass[]>([]);
+  const [courses, setCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState(true);
   const [startingClass, setStartingClass] = useState<string | null>(null);
   const [endingClass, setEndingClass] = useState<string | null>(null);
@@ -36,12 +44,36 @@ const LiveClassAdmin = () => {
     course_id: '',
     scheduled_start: '',
     scheduled_end: '',
-    duration: '60' // minutes
+    duration: '60', // minutes
+    subject: '',
+    class_name: '',
+    teacher: ''
   });
+
+  const subjects = ['Mathematics', 'Physics', 'Chemistry', 'Biology', 'English', 'Doubt Session', 'Test Series', 'Revision Class'];
+  const classNames = ['Class 9', 'Class 10', 'Class 11', 'Class 12', 'All Classes'];
+  const teachers = ['Mr. Kumar', 'Dr. Sharma', 'Ms. Patel', 'Mrs. Singh', 'Dr. Verma', 'All Teachers', 'Academic Team'];
 
   const addStatusCheck = (message: string) => {
     console.log('🔍 ADMIN CHECK:', message);
     setSystemStatus(prev => [...prev, message]);
+  };
+
+  const fetchCourses = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('courses')
+        .select('id, title, instructor')
+        .eq('status', 'active')
+        .order('title');
+
+      if (error) throw error;
+      setCourses(data || []);
+      addStatusCheck(`✅ Found ${data?.length || 0} courses`);
+    } catch (error) {
+      console.error('Error fetching courses:', error);
+      addStatusCheck('❌ Course fetch failed');
+    }
   };
 
   const fetchLiveClasses = async () => {
@@ -74,7 +106,6 @@ const LiveClassAdmin = () => {
   };
 
   useEffect(() => {
-    // System checks
     addStatusCheck('Initializing admin panel...');
     
     if (user) {
@@ -87,13 +118,12 @@ const LiveClassAdmin = () => {
     addStatusCheck('✅ Live sessions table accessible');
     addStatusCheck('✅ Auto-end scheduler starting...');
     
-    // Start the auto-end scheduler
     const intervalId = startAutoEndScheduler();
     setAutoEndInterval(intervalId);
     
+    fetchCourses();
     fetchLiveClasses();
 
-    // Cleanup function
     return () => {
       if (intervalId) {
         stopAutoEndScheduler(intervalId);
@@ -139,6 +169,34 @@ const LiveClassAdmin = () => {
     }
   };
 
+  const addToTimetable = async (liveClass: any) => {
+    try {
+      const startDate = new Date(liveClass.scheduled_start);
+      const dayOfWeek = startDate.toLocaleDateString('en-US', { weekday: 'long' });
+      const timeSlot = startDate.toLocaleTimeString('en-US', { 
+        hour: '2-digit', 
+        minute: '2-digit',
+        hour12: true 
+      });
+
+      const { error } = await supabase
+        .from('timetable')
+        .insert({
+          day_of_week: dayOfWeek,
+          time_slot: timeSlot,
+          subject: newClass.subject || 'Live Session',
+          class_name: newClass.class_name || 'All Classes',
+          teacher: newClass.teacher || 'Academic Team'
+        });
+
+      if (error) throw error;
+      addStatusCheck('✅ Added to timetable successfully');
+    } catch (error) {
+      console.error('Error adding to timetable:', error);
+      addStatusCheck('⚠️ Timetable update failed');
+    }
+  };
+
   const startLiveClass = async (classId: string, title: string) => {
     setStartingClass(classId);
     try {
@@ -159,8 +217,6 @@ const LiveClassAdmin = () => {
       }
 
       addStatusCheck('✅ Live session updated with channel');
-
-      // Create announcement
       await createAnnouncement(title, channelName);
 
       toast({
@@ -170,7 +226,6 @@ const LiveClassAdmin = () => {
 
       fetchLiveClasses();
       
-      // Test the auto-join URL
       const teacherUrl = `/live-classroom?channel=${channelName}&teacher=true`;
       addStatusCheck(`✅ Opening teacher interface: ${teacherUrl}`);
       window.open(teacherUrl, '_blank');
@@ -228,7 +283,7 @@ const LiveClassAdmin = () => {
 
   const scheduleClass = async () => {
     try {
-      if (!newClass.title || !newClass.scheduled_start) {
+      if (!newClass.title || !newClass.scheduled_start || !newClass.course_id) {
         toast({
           title: "Error",
           description: "Please fill in all required fields",
@@ -241,14 +296,16 @@ const LiveClassAdmin = () => {
       const startTime = new Date(newClass.scheduled_start);
       const endTime = new Date(startTime.getTime() + parseInt(newClass.duration) * 60000);
 
+      const liveSessionData = {
+        title: newClass.title,
+        course_id: newClass.course_id,
+        scheduled_start: startTime.toISOString(),
+        scheduled_end: endTime.toISOString()
+      };
+
       const { error } = await supabase
         .from('live_sessions')
-        .insert({
-          title: newClass.title,
-          course_id: newClass.course_id || 'general',
-          scheduled_start: startTime.toISOString(),
-          scheduled_end: endTime.toISOString()
-        });
+        .insert(liveSessionData);
 
       if (error) {
         addStatusCheck('❌ Failed to create scheduled class');
@@ -256,9 +313,13 @@ const LiveClassAdmin = () => {
       }
 
       addStatusCheck('✅ Scheduled class created successfully');
+      
+      // Add to timetable
+      await addToTimetable(liveSessionData);
+
       toast({
         title: "Success",
-        description: "Live class scheduled successfully",
+        description: "Live class scheduled successfully and added to timetable",
       });
 
       setNewClass({
@@ -266,7 +327,10 @@ const LiveClassAdmin = () => {
         course_id: '',
         scheduled_start: '',
         scheduled_end: '',
-        duration: '60'
+        duration: '60',
+        subject: '',
+        class_name: '',
+        teacher: ''
       });
 
       fetchLiveClasses();
@@ -295,9 +359,9 @@ const LiveClassAdmin = () => {
     }
   };
 
-  const testUrl = (url: string, description: string) => {
-    addStatusCheck(`Testing ${description}: ${url}`);
-    window.open(url, '_blank');
+  const getCourseTitle = (courseId: string) => {
+    const course = courses.find(c => c.id === courseId);
+    return course ? course.title : 'Unknown Course';
   };
 
   const handleManualCheck = async () => {
@@ -314,7 +378,7 @@ const LiveClassAdmin = () => {
           Live Class Management
         </h3>
         <p className="text-gray-600 dark:text-gray-300">
-          Schedule and manage live classes with automatic announcements and auto-end functionality
+          Schedule and manage live classes with automatic announcements and timetable integration
         </p>
       </div>
 
@@ -349,48 +413,6 @@ const LiveClassAdmin = () => {
         </CardContent>
       </Card>
 
-      {/* Quick Test Actions */}
-      <Card className="border-blue-200 bg-blue-50 dark:bg-blue-900/20">
-        <CardHeader>
-          <CardTitle className="flex items-center text-blue-800 dark:text-blue-200">
-            <Video className="h-5 w-5 mr-2" />
-            Quick Test Actions
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 gap-4">
-            <Button
-              variant="outline"
-              onClick={() => testUrl('/live-classroom', 'Live Classroom Page')}
-              className="justify-start"
-            >
-              Test Live Classroom
-            </Button>
-            <Button
-              variant="outline"
-              onClick={() => testUrl('/live-classroom?channel=test-123&teacher=true', 'Teacher Auto-Join')}
-              className="justify-start"
-            >
-              Test Teacher Auto-Join
-            </Button>
-            <Button
-              variant="outline"
-              onClick={() => testUrl('/live-classroom?channel=test-123', 'Student Auto-Join')}
-              className="justify-start"
-            >
-              Test Student Auto-Join
-            </Button>
-            <Button
-              variant="outline"
-              onClick={() => testUrl('/dashboard', 'Dashboard Navigation')}
-              className="justify-start"
-            >
-              Test Dashboard
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-
       {/* Schedule New Class */}
       <Card>
         <CardHeader>
@@ -402,7 +424,7 @@ const LiveClassAdmin = () => {
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="title">Class Title</Label>
+              <Label htmlFor="title">Class Title *</Label>
               <Input
                 id="title"
                 value={newClass.title}
@@ -411,16 +433,61 @@ const LiveClassAdmin = () => {
               />
             </div>
             <div>
-              <Label htmlFor="course_id">Course ID (optional)</Label>
-              <Input
-                id="course_id"
-                value={newClass.course_id}
-                onChange={(e) => setNewClass({ ...newClass, course_id: e.target.value })}
-                placeholder="e.g., math-101"
-              />
+              <Label htmlFor="course_id">Course *</Label>
+              <Select value={newClass.course_id} onValueChange={(value) => setNewClass({ ...newClass, course_id: value })}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a course" />
+                </SelectTrigger>
+                <SelectContent>
+                  {courses.map((course) => (
+                    <SelectItem key={course.id} value={course.id}>
+                      {course.title}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             <div>
-              <Label htmlFor="scheduled_start">Start Time</Label>
+              <Label htmlFor="subject">Subject</Label>
+              <Select value={newClass.subject} onValueChange={(value) => setNewClass({ ...newClass, subject: value })}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select subject" />
+                </SelectTrigger>
+                <SelectContent>
+                  {subjects.map((subject) => (
+                    <SelectItem key={subject} value={subject}>{subject}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label htmlFor="class_name">Class</Label>
+              <Select value={newClass.class_name} onValueChange={(value) => setNewClass({ ...newClass, class_name: value })}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select class" />
+                </SelectTrigger>
+                <SelectContent>
+                  {classNames.map((className) => (
+                    <SelectItem key={className} value={className}>{className}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label htmlFor="teacher">Teacher</Label>
+              <Select value={newClass.teacher} onValueChange={(value) => setNewClass({ ...newClass, teacher: value })}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select teacher" />
+                </SelectTrigger>
+                <SelectContent>
+                  {teachers.map((teacher) => (
+                    <SelectItem key={teacher} value={teacher}>{teacher}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label htmlFor="scheduled_start">Start Time *</Label>
               <Input
                 id="scheduled_start"
                 type="datetime-local"
@@ -445,7 +512,7 @@ const LiveClassAdmin = () => {
             </div>
           </div>
           <Button onClick={scheduleClass} className="w-full">
-            Schedule Class
+            Schedule Class & Add to Timetable
           </Button>
         </CardContent>
       </Card>
@@ -473,6 +540,7 @@ const LiveClassAdmin = () => {
                   <div key={liveClass.id} className="flex items-center justify-between p-4 border rounded-lg">
                     <div className="flex-1">
                       <h4 className="font-semibold">{liveClass.title}</h4>
+                      <p className="text-sm text-blue-600 font-medium">Course: {getCourseTitle(liveClass.course_id)}</p>
                       <div className="text-sm text-gray-600 dark:text-gray-300 mt-1">
                         <p>Start: {new Date(liveClass.scheduled_start).toLocaleString()}</p>
                         <p>End: {new Date(liveClass.scheduled_end).toLocaleString()}</p>
