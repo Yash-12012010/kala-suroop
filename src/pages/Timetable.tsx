@@ -182,7 +182,7 @@ const Timetable = () => {
 
                     {/* Time slots and classes */}
                     {timeSlots.map(time => (
-                      <React.Fragment key={time}>
+                      <div key={time} className="contents">
                         <div className="text-sm font-medium text-center py-4 border-r flex items-center justify-center">
                           {time}
                         </div>
@@ -210,7 +210,7 @@ const Timetable = () => {
                             </div>
                           );
                         })}
-                      </React.Fragment>
+                      </div>
                     ))}
                   </div>
                 </div>
