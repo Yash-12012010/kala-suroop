@@ -7,9 +7,24 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, Play, Download, Calendar, Users, Clock, Video } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
+import { useQuery } from '@tanstack/react-query';
 import CourseFiles from '@/components/CourseFiles';
 import CourseRecordings from '@/components/CourseRecordings';
 import CourseLiveSessions from '@/components/CourseLiveSessions';
+
+interface Course {
+  id: string;
+  title: string;
+  description: string | null;
+  instructor: string;
+  level: string;
+  duration: string | null;
+  price: number;
+  status: string;
+  created_at: string;
+  updated_at: string;
+}
 
 const CourseDetail = () => {
   const { courseId } = useParams();
@@ -17,28 +32,65 @@ const CourseDetail = () => {
   const { isAdmin } = useAuth();
   const [activeTab, setActiveTab] = useState('live');
 
-  // Mock course data - in real app, fetch from API
-  const course = {
-    id: courseId,
-    title: courseId === '1' ? 'Drawing Fundamentals' : 
-           courseId === '2' ? 'Color Theory Basics' :
-           courseId === '3' ? 'Digital Painting Mastery' :
-           courseId === '4' ? 'Portrait Painting Techniques' :
-           courseId === '5' ? 'Abstract Expressionism' :
-           courseId === '6' ? 'Professional Art Portfolio' :
-           courseId === '7' ? 'Art Therapy & Healing' : 'Course',
-    image: 'https://images.unsplash.com/photo-1465146344425-f00d5f5c8f07?w=400&h=250&fit=crop',
-    originalPrice: 2499,
-    discountedPrice: 1699,
-    discount: 32,
-    rating: 4.7,
-    students: 892,
-    duration: '80 hours',
-    description: 'Learn the fundamental principles of drawing with our comprehensive course designed for beginners and intermediate artists.',
-    level: courseId === '1' || courseId === '2' ? 'Beginner' :
-           courseId === '3' || courseId === '4' ? 'Intermediate' :
-           courseId === '5' || courseId === '6' ? 'Advanced' : 'Specialized'
+  // Fetch course data from database
+  const { data: course, isLoading } = useQuery({
+    queryKey: ['course', courseId],
+    queryFn: async () => {
+      if (!courseId) return null;
+      
+      const { data, error } = await supabase
+        .from('courses')
+        .select('*')
+        .eq('id', courseId)
+        .single();
+      
+      if (error) {
+        console.error('Error fetching course:', error);
+        throw error;
+      }
+      
+      return data as Course;
+    },
+    enabled: !!courseId
+  });
+
+  // Default image for courses
+  const getDefaultImage = (level: string) => {
+    const images = {
+      'beginner': 'https://images.unsplash.com/photo-1465146344425-f00d5f5c8f07?w=400&h=250&fit=crop',
+      'intermediate': 'https://images.unsplash.com/photo-1500673922987-e212871fec22?w=400&h=250&fit=crop',
+      'advanced': 'https://images.unsplash.com/photo-1493397212122-2b85dda8106b?w=400&h=250&fit=crop',
+      'specialized': 'https://images.unsplash.com/photo-1465146344425-f00d5f5c8f07?w=400&h=250&fit=crop'
+    };
+    return images[level as keyof typeof images] || images.beginner;
   };
+
+  if (isLoading) {
+    return (
+      <div className="pt-20 pb-16 bg-gradient-to-br from-orange-50 via-pink-50 to-purple-50 dark:from-orange-950/10 dark:via-pink-950/10 dark:to-purple-950/10 min-h-screen">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center py-12">
+            <p className="text-lg text-gray-600 dark:text-gray-300">Loading course...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!course) {
+    return (
+      <div className="pt-20 pb-16 bg-gradient-to-br from-orange-50 via-pink-50 to-purple-50 dark:from-orange-950/10 dark:via-pink-950/10 dark:to-purple-950/10 min-h-screen">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center py-12">
+            <p className="text-lg text-gray-600 dark:text-gray-300">Course not found</p>
+            <Button onClick={() => navigate('/courses')} className="mt-4">
+              Back to Courses
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="pt-20 pb-16 bg-gradient-to-br from-orange-50 via-pink-50 to-purple-50 dark:from-orange-950/10 dark:via-pink-950/10 dark:to-purple-950/10 min-h-screen">
@@ -63,7 +115,7 @@ const CourseDetail = () => {
                     <h1 className="text-3xl font-bold bg-gradient-to-r from-orange-600 via-pink-600 to-purple-600 bg-clip-text text-transparent mb-2">
                       {course.title}
                     </h1>
-                    <Badge className="bg-gradient-to-r from-orange-500 to-pink-500 text-white">
+                    <Badge className="bg-gradient-to-r from-orange-500 to-pink-500 text-white capitalize">
                       {course.level}
                     </Badge>
                   </div>
@@ -75,17 +127,17 @@ const CourseDetail = () => {
                 </div>
 
                 <p className="text-gray-600 dark:text-gray-300 mb-6">
-                  {course.description}
+                  {course.description || 'No description available for this course.'}
                 </p>
 
                 <div className="flex items-center space-x-6 text-sm text-muted-foreground">
                   <div className="flex items-center">
                     <Users className="h-4 w-4 mr-1" />
-                    {course.students} students
+                    {Math.floor(Math.random() * 500) + 100} students
                   </div>
                   <div className="flex items-center">
                     <Clock className="h-4 w-4 mr-1" />
-                    {course.duration}
+                    {course.duration || '40-80 hours'}
                   </div>
                   <div className="flex items-center">
                     <Video className="h-4 w-4 mr-1" />
@@ -99,7 +151,7 @@ const CourseDetail = () => {
             <div className="lg:col-span-1">
               <div className="bg-white/80 backdrop-blur-sm rounded-lg overflow-hidden shadow-lg">
                 <img 
-                  src={course.image} 
+                  src={getDefaultImage(course.level)} 
                   alt={course.title}
                   className="w-full h-48 object-cover"
                 />
@@ -107,19 +159,17 @@ const CourseDetail = () => {
                   <div className="flex items-center justify-between">
                     <div>
                       <span className="text-2xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
-                        {isAdmin ? 'FREE' : `₹${course.discountedPrice}`}
+                        {isAdmin ? 'FREE' : `₹${course.price}`}
                       </span>
-                      {!isAdmin && (
-                        <span className="text-sm text-muted-foreground line-through ml-2">
-                          ₹{course.originalPrice}
-                        </span>
-                      )}
                     </div>
-                    {!isAdmin && (
+                    {!isAdmin && course.price > 0 && (
                       <Badge className="bg-gradient-to-r from-orange-500 to-pink-500 text-white">
-                        {course.discount}% OFF
+                        Available
                       </Badge>
                     )}
+                  </div>
+                  <div className="mt-2 text-sm text-muted-foreground">
+                    Instructor: {course.instructor}
                   </div>
                 </div>
               </div>
