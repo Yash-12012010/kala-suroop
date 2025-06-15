@@ -50,44 +50,31 @@ const Home = () => {
   // Get featured courses
   const featuredCourses = courses.filter(course => course.featured).slice(0, 6);
 
-  // Count courses by level
-  const coursesByLevel = {
-    beginner: courses.filter(course => course.level === 'beginner').length,
-    intermediate: courses.filter(course => course.level === 'intermediate').length,
-    advanced: courses.filter(course => course.level === 'advanced').length,
-    specialized: courses.filter(course => course.level === 'specialized').length
-  };
+  // Get unique levels from actual courses and count them
+  const uniqueLevels = [...new Set(courses.map(course => course.level))];
+  const coursesByLevel = uniqueLevels.reduce((acc, level) => {
+    acc[level] = courses.filter(course => course.level === level).length;
+    return acc;
+  }, {} as Record<string, number>);
 
-  const categories = [
-    { 
-      name: 'Beginner', 
-      description: 'Foundation art courses for beginners', 
-      courses: coursesByLevel.beginner, 
-      color: 'bg-gradient-to-br from-pink-500 to-rose-500', 
-      level: 'beginner' 
-    },
-    { 
-      name: 'Intermediate', 
-      description: 'Advanced techniques and skills', 
-      courses: coursesByLevel.intermediate, 
-      color: 'bg-gradient-to-br from-purple-500 to-indigo-500', 
-      level: 'intermediate' 
-    },
-    { 
-      name: 'Advanced', 
-      description: 'Master-level artistic expression', 
-      courses: coursesByLevel.advanced, 
-      color: 'bg-gradient-to-br from-indigo-500 to-blue-500', 
-      level: 'advanced' 
-    },
-    { 
-      name: 'Specialized', 
-      description: 'Expert-level specialized courses', 
-      courses: coursesByLevel.specialized, 
-      color: 'bg-gradient-to-br from-blue-500 to-cyan-500', 
-      level: 'specialized' 
-    }
-  ];
+  // Create categories based on actual course levels
+  const categories = uniqueLevels.map(level => ({
+    name: level.charAt(0).toUpperCase() + level.slice(1),
+    description: `${level.charAt(0).toUpperCase() + level.slice(1)} level courses`,
+    courses: coursesByLevel[level],
+    color: getColorForLevel(level),
+    level: level
+  }));
+
+  function getColorForLevel(level: string) {
+    const colors = {
+      'beginner': 'bg-gradient-to-br from-pink-500 to-rose-500',
+      'intermediate': 'bg-gradient-to-br from-purple-500 to-indigo-500',
+      'advanced': 'bg-gradient-to-br from-indigo-500 to-blue-500',
+      'specialized': 'bg-gradient-to-br from-blue-500 to-cyan-500'
+    };
+    return colors[level as keyof typeof colors] || 'bg-gradient-to-br from-gray-500 to-gray-600';
+  }
 
   const getDefaultImage = (level: string) => {
     const images = {
@@ -140,56 +127,58 @@ const Home = () => {
         }
       />
 
-      {/* Course Categories */}
-      <section className="py-12 sm:py-16 lg:py-20 bg-gradient-to-b from-white to-orange-50 dark:from-gray-900 dark:to-orange-950/10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <DynamicContent
-            pageSlug="home"
-            sectionKey="categories_header"
-            renderAs="text"
-            className="text-center mb-8 sm:mb-12"
-            fallback={
-              <div className="text-center mb-8 sm:mb-12">
-                <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white mb-3 sm:mb-4">
-                  Choose Your Art Level
-                </h2>
-                <p className="text-base sm:text-lg lg:text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
-                  Select your skill level to access courses designed for your artistic journey
-                </p>
-              </div>
-            }
-          />
+      {/* Course Categories - Only show if categories exist */}
+      {categories.length > 0 && (
+        <section className="py-12 sm:py-16 lg:py-20 bg-gradient-to-b from-white to-orange-50 dark:from-gray-900 dark:to-orange-950/10">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <DynamicContent
+              pageSlug="home"
+              sectionKey="categories_header"
+              renderAs="text"
+              className="text-center mb-8 sm:mb-12"
+              fallback={
+                <div className="text-center mb-8 sm:mb-12">
+                  <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white mb-3 sm:mb-4">
+                    Choose Your Art Level
+                  </h2>
+                  <p className="text-base sm:text-lg lg:text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+                    Select your skill level to access courses designed for your artistic journey
+                  </p>
+                </div>
+              }
+            />
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
-            {categories.map((category, index) => (
-              <Card 
-                key={index} 
-                className="group hover:shadow-2xl transition-all duration-500 cursor-pointer border-0 bg-white/80 backdrop-blur-sm hover:bg-white/95 transform hover:scale-105 hover:-translate-y-2"
-                onClick={() => handleCategoryClick(category.level)}
-              >
-                <CardHeader className="text-center pb-3">
-                  <div className={`w-16 h-16 sm:w-20 sm:h-20 ${category.color} rounded-2xl flex items-center justify-center mb-3 sm:mb-4 mx-auto shadow-xl group-hover:shadow-2xl transform group-hover:scale-110 transition-all duration-300`}>
-                    <span className="text-white font-bold text-xl sm:text-2xl">🎨</span>
-                  </div>
-                  <CardTitle className="text-lg sm:text-xl font-bold">{category.name}</CardTitle>
-                  <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">{category.description}</p>
-                </CardHeader>
-                <CardContent className="pt-0">
-                  <div className="flex items-center justify-between">
-                    <div className="text-center w-full">
-                      <span className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                        {category.courses}
-                      </span>
-                      <p className="text-xs sm:text-sm text-muted-foreground">courses available</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
+              {categories.map((category, index) => (
+                <Card 
+                  key={index} 
+                  className="group hover:shadow-2xl transition-all duration-500 cursor-pointer border-0 bg-white/80 backdrop-blur-sm hover:bg-white/95 transform hover:scale-105 hover:-translate-y-2"
+                  onClick={() => handleCategoryClick(category.level)}
+                >
+                  <CardHeader className="text-center pb-3">
+                    <div className={`w-16 h-16 sm:w-20 sm:h-20 ${category.color} rounded-2xl flex items-center justify-center mb-3 sm:mb-4 mx-auto shadow-xl group-hover:shadow-2xl transform group-hover:scale-110 transition-all duration-300`}>
+                      <span className="text-white font-bold text-xl sm:text-2xl">🎨</span>
                     </div>
-                    <ArrowRight className="h-5 w-5 text-muted-foreground group-hover:text-pink-600 transform group-hover:translate-x-2 transition-all duration-300" />
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+                    <CardTitle className="text-lg sm:text-xl font-bold">{category.name}</CardTitle>
+                    <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">{category.description}</p>
+                  </CardHeader>
+                  <CardContent className="pt-0">
+                    <div className="flex items-center justify-between">
+                      <div className="text-center w-full">
+                        <span className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                          {category.courses}
+                        </span>
+                        <p className="text-xs sm:text-sm text-muted-foreground">courses available</p>
+                      </div>
+                      <ArrowRight className="h-5 w-5 text-muted-foreground group-hover:text-pink-600 transform group-hover:translate-x-2 transition-all duration-300" />
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* Featured Courses */}
       <section className="py-12 sm:py-16 lg:py-20 bg-gradient-to-b from-pink-50 to-purple-50 dark:from-pink-950/10 dark:to-purple-950/10">

@@ -54,6 +54,9 @@ const Courses = () => {
     }
   });
 
+  // Get unique levels from actual courses
+  const uniqueLevels = [...new Set(courses.map(course => course.level))];
+
   // Filter and sort courses
   const filteredCourses = courses
     .filter(course => {
@@ -143,10 +146,11 @@ const Courses = () => {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Levels</SelectItem>
-                  <SelectItem value="beginner">Beginner</SelectItem>
-                  <SelectItem value="intermediate">Intermediate</SelectItem>
-                  <SelectItem value="advanced">Advanced</SelectItem>
-                  <SelectItem value="specialized">Specialized</SelectItem>
+                  {uniqueLevels.map(level => (
+                    <SelectItem key={level} value={level}>
+                      {level.charAt(0).toUpperCase() + level.slice(1)}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
