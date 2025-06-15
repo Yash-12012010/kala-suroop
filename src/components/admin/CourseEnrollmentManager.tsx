@@ -29,11 +29,6 @@ interface Course {
   title: string;
 }
 
-interface UserProfile {
-  id: string;
-  email?: string;
-}
-
 const CourseEnrollmentManager = () => {
   const { isAdmin } = useAuth();
   const { toast } = useToast();
@@ -66,25 +61,18 @@ const CourseEnrollmentManager = () => {
         return;
       }
 
-      // Fetch additional data for each enrollment
+      // Process enrollments sequentially to avoid complex type issues
       const enrichedEnrollments: CourseEnrollment[] = [];
       
       for (const enrollment of enrollmentData) {
         let userEmail = 'Unknown';
         let courseTitle = 'Unknown Course';
 
-        // Get user email from profiles table
+        // Get user email
         try {
-          const { data: profileData } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('id', enrollment.user_id)
-            .single();
-          
-          if (profileData) {
-            // Get email from auth.users via admin API
-            const { data: userData } = await supabase.auth.admin.getUserById(enrollment.user_id);
-            userEmail = userData?.user?.email || 'Unknown';
+          const { data: userData } = await supabase.auth.admin.getUserById(enrollment.user_id);
+          if (userData?.user?.email) {
+            userEmail = userData.user.email;
           }
         } catch (error) {
           console.error('Error fetching user data:', error);
@@ -98,7 +86,7 @@ const CourseEnrollmentManager = () => {
             .eq('id', enrollment.course_id)
             .single();
           
-          if (courseData) {
+          if (courseData?.title) {
             courseTitle = courseData.title;
           }
         } catch (error) {
@@ -153,14 +141,14 @@ const CourseEnrollmentManager = () => {
     const expiresAt = formData.get('expiresAt') as string;
 
     try {
-      // Get user ID from profiles table by checking auth users
-      const { data: { users }, error: usersError } = await supabase.auth.admin.listUsers();
+      // Get user ID from auth users
+      const { data: usersData, error: usersError } = await supabase.auth.admin.listUsers();
       
       if (usersError) {
         throw usersError;
       }
 
-      const targetUser = users.find(user => user.email === userEmail);
+      const targetUser = usersData.users.find(user => user.email === userEmail);
       
       if (!targetUser) {
         toast({

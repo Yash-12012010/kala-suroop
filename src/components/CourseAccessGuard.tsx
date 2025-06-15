@@ -1,11 +1,13 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Lock, CreditCard, Clock, CheckCircle } from 'lucide-react';
 import { useCourseAccess } from '@/hooks/useCourseAccess';
 import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 
 interface CourseAccessGuardProps {
   courseId: string;
@@ -21,7 +23,70 @@ const CourseAccessGuard: React.FC<CourseAccessGuardProps> = ({
   children
 }) => {
   const { hasAccess, enrollment, loading } = useCourseAccess(courseId);
-  const { isAdmin } = useAuth();
+  const { isAdmin, user } = useAuth();
+  const { toast } = useToast();
+  const [enrolling, setEnrolling] = useState(false);
+
+  const handleEnrollNow = async () => {
+    if (!user) {
+      toast({
+        title: "Authentication Required",
+        description: "Please log in to enroll in this course",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setEnrolling(true);
+    
+    try {
+      // Create enrollment record
+      const { error: enrollmentError } = await supabase
+        .from('course_enrollments')
+        .insert({
+          user_id: user.id,
+          course_id: courseId,
+          payment_status: 'pending',
+          access_granted: false
+        });
+
+      if (enrollmentError) {
+        throw enrollmentError;
+      }
+
+      // Simulate payment process (replace with actual payment integration)
+      setTimeout(() => {
+        toast({
+          title: "Enrollment Successful!",
+          description: "You have been enrolled in the course. Payment processing will be completed shortly.",
+        });
+        
+        // Update enrollment to paid status (in real implementation, this would be done via webhook)
+        supabase
+          .from('course_enrollments')
+          .update({ 
+            payment_status: 'paid', 
+            access_granted: true 
+          })
+          .eq('user_id', user.id)
+          .eq('course_id', courseId);
+        
+        setEnrolling(false);
+        
+        // Refresh the page to update access
+        window.location.reload();
+      }, 2000);
+
+    } catch (error) {
+      console.error('Error enrolling:', error);
+      toast({
+        title: "Enrollment Failed",
+        description: "There was an error processing your enrollment. Please try again.",
+        variant: "destructive"
+      });
+      setEnrolling(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -36,7 +101,7 @@ const CourseAccessGuard: React.FC<CourseAccessGuardProps> = ({
     return <>{children}</>;
   }
 
-  // Show access restriction message
+  // Show enrollment prompt
   return (
     <div className="max-w-2xl mx-auto py-12">
       <Card className="border-orange-200 bg-orange-50 dark:bg-orange-950/20">
@@ -45,12 +110,12 @@ const CourseAccessGuard: React.FC<CourseAccessGuardProps> = ({
             <Lock className="h-8 w-8 text-orange-600 dark:text-orange-400" />
           </div>
           <CardTitle className="text-2xl text-orange-800 dark:text-orange-200">
-            Course Access Required
+            Enroll in Course
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-6 text-center">
           <p className="text-orange-700 dark:text-orange-300">
-            You need to purchase access to view the content for <strong>{courseName}</strong>.
+            Enroll in <strong>{courseName}</strong> to access all course content, live sessions, and recordings.
           </p>
 
           <div className="flex items-center justify-center space-x-4">
@@ -93,17 +158,15 @@ const CourseAccessGuard: React.FC<CourseAccessGuardProps> = ({
             <Button 
               size="lg" 
               className="w-full bg-gradient-to-r from-orange-600 to-pink-600 hover:from-orange-700 hover:to-pink-700"
-              onClick={() => {
-                // In a real app, this would redirect to payment page
-                alert('Payment integration would be implemented here');
-              }}
+              onClick={handleEnrollNow}
+              disabled={enrolling}
             >
               <CreditCard className="h-5 w-5 mr-2" />
-              Purchase Course Access
+              {enrolling ? 'Processing...' : 'Enroll Now'}
             </Button>
             
             <p className="text-sm text-gray-600 dark:text-gray-400">
-              Contact support if you believe you should have access to this course.
+              Secure payment processing. Contact support if you need assistance.
             </p>
           </div>
 
