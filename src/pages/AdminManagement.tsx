@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -6,7 +7,6 @@ import ClassManager from '@/components/admin/ClassManager';
 import SubjectManager from '@/components/admin/SubjectManager';
 import TopicManager from '@/components/admin/TopicManager';
 import WebsiteManager from '@/components/admin/WebsiteManager';
-import SystemTestPanel from '@/components/SystemTestPanel';
 
 const AdminManagement = () => {
   const { isAdmin } = useAuth();
@@ -35,11 +35,6 @@ const AdminManagement = () => {
           <p className="text-lg text-gray-600 dark:text-gray-300">
             Comprehensive administration panel for website management
           </p>
-        </div>
-
-        {/* Add System Test Panel at the top */}
-        <div className="mb-8">
-          <SystemTestPanel />
         </div>
 
         <Tabs defaultValue="website" className="w-full">
