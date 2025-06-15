@@ -37,6 +37,7 @@ const CourseDetail = () => {
   // Add debug logging
   useEffect(() => {
     console.log('CourseDetail mounted with courseId:', courseId);
+    console.log('courseId type:', typeof courseId);
   }, [courseId]);
 
   // Fetch course data from database
@@ -49,6 +50,18 @@ const CourseDetail = () => {
       }
       
       console.log('Fetching course with ID:', courseId);
+      console.log('Attempting to query courses table...');
+      
+      // First, let's check if there are any courses at all
+      const { data: allCourses, error: listError } = await supabase
+        .from('courses')
+        .select('id, title')
+        .limit(5);
+      
+      console.log('Sample courses in database:', allCourses);
+      if (listError) {
+        console.error('Error listing courses:', listError);
+      }
       
       const { data, error } = await supabase
         .from('courses')
@@ -86,6 +99,9 @@ const CourseDetail = () => {
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
             <p className="text-lg text-gray-600 dark:text-gray-300">Loading course...</p>
             <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">Course ID: {courseId}</p>
+            <div className="mt-4 text-xs text-gray-400">
+              <p>Checking database connection and course existence...</p>
+            </div>
           </div>
         </div>
       </div>
@@ -99,12 +115,15 @@ const CourseDetail = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center py-12">
             <div className="bg-white/80 backdrop-blur-sm rounded-lg p-8 shadow-lg max-w-md mx-auto">
-              <h2 className="text-2xl font-bold text-red-600 mb-4">Error Loading Course</h2>
+              <h2 className="text-2xl font-bold text-red-600 mb-4">Database Connection Error</h2>
               <p className="text-gray-600 dark:text-gray-300 mb-4">
-                Failed to load course data. There was a connection error or the course might not exist.
+                Failed to connect to the database or retrieve course data.
               </p>
-              <p className="text-sm text-gray-500 dark:text-gray-400 mb-6 font-mono bg-gray-100 dark:bg-gray-800 p-2 rounded">
+              <p className="text-sm text-gray-500 dark:text-gray-400 mb-4 font-mono bg-gray-100 dark:bg-gray-800 p-2 rounded">
                 Course ID: {courseId}
+              </p>
+              <p className="text-xs text-red-500 mb-6 font-mono bg-red-50 dark:bg-red-900/20 p-2 rounded">
+                Error: {error?.message || 'Unknown error'}
               </p>
               <div className="space-y-3">
                 <Button onClick={() => navigate('/courses')} className="w-full">
@@ -133,10 +152,13 @@ const CourseDetail = () => {
             <div className="bg-white/80 backdrop-blur-sm rounded-lg p-8 shadow-lg max-w-md mx-auto">
               <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-200 mb-4">Course Not Found</h2>
               <p className="text-gray-600 dark:text-gray-300 mb-4">
-                The course you're looking for doesn't exist or has been removed.
+                The course you're looking for doesn't exist in the database.
               </p>
-              <p className="text-sm text-gray-500 dark:text-gray-400 mb-6 font-mono bg-gray-100 dark:bg-gray-800 p-2 rounded">
-                Course ID: {courseId}
+              <p className="text-sm text-gray-500 dark:text-gray-400 mb-4 font-mono bg-gray-100 dark:bg-gray-800 p-2 rounded">
+                Requested Course ID: {courseId}
+              </p>
+              <p className="text-xs text-gray-500 mb-6">
+                This could mean the course was deleted, the ID is incorrect, or it was never created.
               </p>
               <div className="space-y-3">
                 <Button onClick={() => navigate('/courses')} className="w-full">
@@ -148,7 +170,7 @@ const CourseDetail = () => {
                     onClick={() => navigate('/admin')}
                     className="w-full"
                   >
-                    Go to Admin Panel
+                    Create New Course
                   </Button>
                 )}
               </div>
