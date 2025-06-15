@@ -4,8 +4,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { useAuth } from '@/contexts/AuthContext';
-import TimetableEditor from '@/components/TimetableEditor';
 
 interface TimetableEntry {
   id: string;
@@ -20,7 +18,6 @@ const Timetable = () => {
   const [schedule, setSchedule] = useState<Record<string, Record<string, TimetableEntry>>>({});
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
-  const { isAdmin } = useAuth();
 
   const timeSlots = [
     '09:00 AM', '10:00 AM', '11:00 AM', '12:00 PM', 
@@ -112,11 +109,6 @@ const Timetable = () => {
             Weekly schedule for live classes and sessions
           </p>
         </div>
-
-        {/* Admin Editor */}
-        {isAdmin && (
-          <TimetableEditor scheduleData={schedule} onRefresh={fetchTimetable} />
-        )}
 
         {/* Mobile View */}
         <div className="block lg:hidden mb-8">
