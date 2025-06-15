@@ -99,6 +99,53 @@ export type Database = {
         }
         Relationships: []
       }
+      class_recordings: {
+        Row: {
+          course_id: string
+          created_at: string
+          duration: number | null
+          id: string
+          live_session_id: string | null
+          recorded_at: string
+          recorded_by: string | null
+          recording_url: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          course_id: string
+          created_at?: string
+          duration?: number | null
+          id?: string
+          live_session_id?: string | null
+          recorded_at?: string
+          recorded_by?: string | null
+          recording_url: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          course_id?: string
+          created_at?: string
+          duration?: number | null
+          id?: string
+          live_session_id?: string | null
+          recorded_at?: string
+          recorded_by?: string | null
+          recording_url?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "class_recordings_live_session_id_fkey"
+            columns: ["live_session_id"]
+            isOneToOne: false
+            referencedRelation: "live_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       classes: {
         Row: {
           created_at: string | null
@@ -120,6 +167,42 @@ export type Database = {
           id?: string
           name?: string
           updated_at?: string | null
+        }
+        Relationships: []
+      }
+      course_files: {
+        Row: {
+          course_id: string
+          created_at: string
+          file_size: number | null
+          file_type: string
+          file_url: string
+          id: string
+          title: string
+          updated_at: string
+          uploaded_by: string | null
+        }
+        Insert: {
+          course_id: string
+          created_at?: string
+          file_size?: number | null
+          file_type: string
+          file_url: string
+          id?: string
+          title: string
+          updated_at?: string
+          uploaded_by?: string | null
+        }
+        Update: {
+          course_id?: string
+          created_at?: string
+          file_size?: number | null
+          file_type?: string
+          file_url?: string
+          id?: string
+          title?: string
+          updated_at?: string
+          uploaded_by?: string | null
         }
         Relationships: []
       }

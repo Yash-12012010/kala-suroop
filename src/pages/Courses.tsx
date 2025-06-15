@@ -5,7 +5,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/componen
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Star, Users, Clock, Settings, Eye } from 'lucide-react';
+import { Star, Users, Clock, Settings, Eye, ArrowRight } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 
 const Courses = () => {
@@ -109,12 +109,15 @@ const Courses = () => {
     ]
   };
 
+  const handleViewCourse = (course: any) => {
+    navigate(`/course/${course.id}`);
+  };
+
   const handleEnrollClick = (course: any) => {
     if (isAdmin) {
       // Admins get direct access without going through checkout
-      navigate('/live-classroom', { 
+      navigate(`/course/${course.id}`, { 
         state: { 
-          course,
           adminAccess: true,
           message: 'Admin access granted - you have full access to this course'
         }
@@ -122,17 +125,6 @@ const Courses = () => {
     } else {
       navigate('/checkout', { state: { course } });
     }
-  };
-
-  const handleAdminPreview = (course: any) => {
-    navigate('/live-classroom', { 
-      state: { 
-        course,
-        previewMode: true,
-        adminAccess: true,
-        message: 'Admin preview mode - viewing course content'
-      }
-    });
   };
 
   const handleAdminManage = (course: any) => {
@@ -228,10 +220,11 @@ const Courses = () => {
                           )}
                         </div>
                         <Button 
-                          onClick={() => handleEnrollClick(course)}
+                          onClick={() => handleViewCourse(course)}
                           className="bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700 shadow-lg hover:shadow-xl transition-all duration-300"
                         >
-                          {isAdmin ? 'Access Course' : 'Enroll Now'}
+                          <ArrowRight className="h-4 w-4 mr-2" />
+                          View Course
                         </Button>
                       </div>
                       
@@ -240,11 +233,11 @@ const Courses = () => {
                           <Button 
                             variant="outline" 
                             size="sm"
-                            onClick={() => handleAdminPreview(course)}
+                            onClick={() => handleViewCourse(course)}
                             className="flex-1 border-blue-200 hover:bg-blue-50"
                           >
                             <Eye className="h-4 w-4 mr-1" />
-                            Preview
+                            Access
                           </Button>
                           <Button 
                             variant="outline" 
