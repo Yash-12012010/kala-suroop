@@ -24,6 +24,13 @@ interface Course {
   updated_at: string;
 }
 
+interface Class {
+  id: string;
+  name: string;
+  description: string | null;
+  created_at: string;
+}
+
 const Home = () => {
   const navigate = useNavigate();
   const { getSetting } = useWebsiteSettings();
@@ -47,30 +54,48 @@ const Home = () => {
     }
   });
 
+  // Fetch classes from database
+  const { data: classes = [] } = useQuery({
+    queryKey: ['classes'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('classes')
+        .select('*')
+        .order('name');
+      
+      if (error) {
+        console.error('Error fetching classes:', error);
+        throw error;
+      }
+      
+      return data as Class[];
+    }
+  });
+
   // Get featured courses
   const featuredCourses = courses.filter(course => course.featured).slice(0, 6);
 
-  // Get unique levels from actual courses and count them
-  const uniqueLevels = [...new Set(courses.map(course => course.level))];
-  const coursesByLevel = uniqueLevels.reduce((acc, level) => {
-    acc[level] = courses.filter(course => course.level === level).length;
-    return acc;
-  }, {} as Record<string, number>);
-
-  // Create categories based on actual course levels
-  const categories = uniqueLevels.map(level => ({
-    name: level.charAt(0).toUpperCase() + level.slice(1),
-    description: `${level.charAt(0).toUpperCase() + level.slice(1)} level courses`,
-    courses: coursesByLevel[level],
-    color: getColorForLevel(level),
-    level: level
-  }));
+  // Create categories based on actual classes from admin panel
+  const categories = classes.map(cls => {
+    const coursesInClass = courses.filter(course => 
+      course.level.toLowerCase() === cls.name.toLowerCase()
+    ).length;
+    
+    return {
+      name: cls.name,
+      description: cls.description || `${cls.name} level courses`,
+      courses: coursesInClass,
+      color: getColorForLevel(cls.name.toLowerCase()),
+      level: cls.name.toLowerCase()
+    };
+  });
 
   function getColorForLevel(level: string) {
     const colors = {
       'beginner': 'bg-gradient-to-br from-pink-500 to-rose-500',
       'intermediate': 'bg-gradient-to-br from-purple-500 to-indigo-500',
       'advanced': 'bg-gradient-to-br from-indigo-500 to-blue-500',
+      'advance': 'bg-gradient-to-br from-indigo-500 to-blue-500',
       'specialized': 'bg-gradient-to-br from-blue-500 to-cyan-500'
     };
     return colors[level as keyof typeof colors] || 'bg-gradient-to-br from-gray-500 to-gray-600';
@@ -81,6 +106,7 @@ const Home = () => {
       'beginner': 'https://images.unsplash.com/photo-1465146344425-f00d5f5c8f07?w=400&h=250&fit=crop',
       'intermediate': 'https://images.unsplash.com/photo-1500673922987-e212871fec22?w=400&h=250&fit=crop',
       'advanced': 'https://images.unsplash.com/photo-1493397212122-2b85dda8106b?w=400&h=250&fit=crop',
+      'advance': 'https://images.unsplash.com/photo-1493397212122-2b85dda8106b?w=400&h=250&fit=crop',
       'specialized': 'https://images.unsplash.com/photo-1470813740244-df37b8c1edcb?w=400&h=250&fit=crop'
     };
     return images[level as keyof typeof images] || images.beginner;
@@ -95,7 +121,6 @@ const Home = () => {
   };
 
   const siteTitle = getSetting('site_title', 'Kala Suroop');
-  const siteSubtitle = getSetting('site_subtitle', 'Art Academy');
 
   return (
     <div className="pt-16 min-h-screen">

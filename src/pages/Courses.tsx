@@ -26,6 +26,13 @@ interface Course {
   updated_at: string;
 }
 
+interface Class {
+  id: string;
+  name: string;
+  description: string | null;
+  created_at: string;
+}
+
 const Courses = () => {
   const navigate = useNavigate();
   const { isAdmin } = useAuth();
@@ -54,15 +61,30 @@ const Courses = () => {
     }
   });
 
-  // Get unique levels from actual courses
-  const uniqueLevels = [...new Set(courses.map(course => course.level))];
+  // Fetch classes from database for dynamic filtering
+  const { data: classes = [] } = useQuery({
+    queryKey: ['classes'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('classes')
+        .select('*')
+        .order('name');
+      
+      if (error) {
+        console.error('Error fetching classes:', error);
+        throw error;
+      }
+      
+      return data as Class[];
+    }
+  });
 
   // Filter and sort courses
   const filteredCourses = courses
     .filter(course => {
       const matchesSearch = course.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                           course.instructor.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesLevel = selectedLevel === 'all' || course.level === selectedLevel;
+      const matchesLevel = selectedLevel === 'all' || course.level.toLowerCase() === selectedLevel.toLowerCase();
       return matchesSearch && matchesLevel;
     })
     .sort((a, b) => {
@@ -85,9 +107,10 @@ const Courses = () => {
       'beginner': 'https://images.unsplash.com/photo-1465146344425-f00d5f5c8f07?w=400&h=250&fit=crop',
       'intermediate': 'https://images.unsplash.com/photo-1500673922987-e212871fec22?w=400&h=250&fit=crop',
       'advanced': 'https://images.unsplash.com/photo-1493397212122-2b85dda8106b?w=400&h=250&fit=crop',
+      'advance': 'https://images.unsplash.com/photo-1493397212122-2b85dda8106b?w=400&h=250&fit=crop',
       'specialized': 'https://images.unsplash.com/photo-1465146344425-f00d5f5c8f07?w=400&h=250&fit=crop'
     };
-    return images[level as keyof typeof images] || images.beginner;
+    return images[level.toLowerCase() as keyof typeof images] || images.beginner;
   };
 
   const handleCourseClick = (courseId: string) => {
@@ -146,9 +169,9 @@ const Courses = () => {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Levels</SelectItem>
-                  {uniqueLevels.map(level => (
-                    <SelectItem key={level} value={level}>
-                      {level.charAt(0).toUpperCase() + level.slice(1)}
+                  {classes.map(cls => (
+                    <SelectItem key={cls.id} value={cls.name.toLowerCase()}>
+                      {cls.name}
                     </SelectItem>
                   ))}
                 </SelectContent>
