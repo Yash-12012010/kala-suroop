@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -73,8 +74,6 @@ const Courses = () => {
       }
     });
 
-  const featuredCourses = courses.filter(course => course.featured);
-
   const getDefaultImage = (level: string) => {
     const images = {
       'beginner': 'https://images.unsplash.com/photo-1465146344425-f00d5f5c8f07?w=400&h=250&fit=crop',
@@ -119,78 +118,6 @@ const Courses = () => {
             </Button>
           )}
         </div>
-
-        {/* Featured Courses */}
-        {featuredCourses.length > 0 && (
-          <div className="mb-12">
-            <div className="flex items-center mb-6">
-              <Star className="h-6 w-6 text-yellow-500 mr-2" />
-              <h2 className="text-2xl font-bold bg-gradient-to-r from-yellow-600 to-orange-600 bg-clip-text text-transparent">
-                Featured Courses
-              </h2>
-            </div>
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {featuredCourses.map((course) => (
-                <Card key={course.id} className="group hover:shadow-2xl transition-all duration-300 cursor-pointer border-2 border-yellow-200 bg-gradient-to-br from-yellow-50 to-orange-50">
-                  <div className="relative">
-                    <img 
-                      src={getDefaultImage(course.level)} 
-                      alt={course.title}
-                      className="w-full h-48 object-cover rounded-t-lg"
-                    />
-                    <Badge className="absolute top-3 right-3 bg-yellow-500 text-white">
-                      <Star className="h-3 w-3 mr-1" />
-                      Featured
-                    </Badge>
-                  </div>
-                  <CardContent className="p-6">
-                    <div className="flex items-start justify-between mb-3">
-                      <Badge className="bg-gradient-to-r from-orange-500 to-pink-500 text-white capitalize">
-                        {course.level}
-                      </Badge>
-                      <span className="text-2xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
-                        {isAdmin ? 'FREE' : `₹${course.price}`}
-                      </span>
-                    </div>
-                    
-                    <h3 className="text-xl font-bold mb-2 group-hover:text-orange-600 transition-colors">
-                      {course.title}
-                    </h3>
-                    
-                    <p className="text-gray-600 text-sm mb-4 line-clamp-2">
-                      {course.description?.substring(0, 100)}...
-                    </p>
-                    
-                    <div className="flex items-center justify-between text-sm text-gray-500 mb-4">
-                      <div className="flex items-center">
-                        <Users className="h-4 w-4 mr-1" />
-                        {course.enrolled_students || 0} students
-                      </div>
-                      <div className="flex items-center">
-                        <Clock className="h-4 w-4 mr-1" />
-                        {course.duration || '40-80h'}
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium text-gray-700">
-                        By {course.instructor}
-                      </span>
-                      <Button 
-                        onClick={() => handleCourseClick(course.id)}
-                        size="sm"
-                        className="bg-gradient-to-r from-orange-600 to-pink-600 hover:from-orange-700 hover:to-pink-700"
-                      >
-                        <Play className="h-4 w-4 mr-1" />
-                        View Course
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </div>
-        )}
 
         <div className="mb-8 p-4 sm:p-6 bg-white/70 backdrop-blur-sm rounded-lg shadow-md">
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
