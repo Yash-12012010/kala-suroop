@@ -1,6 +1,5 @@
 
 import React from 'react';
-import { usePageContent } from '@/hooks/usePageContent';
 
 interface DynamicContentProps {
   pageSlug: string;
@@ -8,6 +7,7 @@ interface DynamicContentProps {
   renderAs?: 'text' | 'hero' | 'card' | 'list' | 'custom';
   className?: string;
   fallback?: React.ReactNode;
+  content?: any;
 }
 
 const DynamicContent: React.FC<DynamicContentProps> = ({
@@ -15,16 +15,9 @@ const DynamicContent: React.FC<DynamicContentProps> = ({
   sectionKey,
   renderAs = 'custom',
   className = '',
-  fallback = null
+  fallback = null,
+  content
 }) => {
-  const { getContentBySection, loading } = usePageContent(pageSlug, sectionKey);
-  
-  if (loading) {
-    return <div className={className}>Loading...</div>;
-  }
-
-  const content = getContentBySection(sectionKey);
-  
   if (!content) {
     return fallback ? <div className={className}>{fallback}</div> : null;
   }
