@@ -148,14 +148,14 @@ const ContentEditor: React.FC<ContentEditorProps> = ({
 
   return (
     <Card>
-      <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle>Content Editor</CardTitle>
-        <div className="space-x-2">
-          <Button onClick={addField} variant="outline" size="sm">
+      <CardHeader>
+        <CardTitle className="text-lg sm:text-xl">Content Editor</CardTitle>
+        <div className="flex flex-col sm:flex-row gap-2 sm:gap-0 sm:space-x-2 pt-2">
+          <Button onClick={addField} variant="outline" size="sm" className="w-full sm:w-auto">
             <Plus className="h-4 w-4 mr-2" />
             Add Field
           </Button>
-          <Button onClick={handleSave}>
+          <Button onClick={handleSave} className="w-full sm:w-auto">
             <Save className="h-4 w-4 mr-2" />
             Save Content
           </Button>
@@ -163,29 +163,30 @@ const ContentEditor: React.FC<ContentEditorProps> = ({
       </CardHeader>
       <CardContent>
         <Tabs defaultValue="editor" className="w-full">
-          <TabsList>
+          <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="editor">Visual Editor</TabsTrigger>
             <TabsTrigger value="json">JSON Editor</TabsTrigger>
           </TabsList>
           
           <TabsContent value="editor" className="space-y-4">
             {fields.map((field, index) => (
-              <div key={index} className="grid grid-cols-12 gap-4 items-end">
-                <div className="col-span-3">
-                  <Label>Field Name</Label>
+              <div key={index} className="space-y-3 sm:space-y-0 sm:grid sm:grid-cols-12 sm:gap-4 sm:items-end p-4 border rounded-lg">
+                <div className="sm:col-span-3">
+                  <Label className="text-sm font-medium">Field Name</Label>
                   <Input
                     value={field.name}
                     onChange={(e) => updateField(index, { name: e.target.value })}
                     placeholder="field_name"
+                    className="mt-1"
                   />
                 </div>
-                <div className="col-span-2">
-                  <Label>Type</Label>
+                <div className="sm:col-span-2">
+                  <Label className="text-sm font-medium">Type</Label>
                   <Select
                     value={field.type}
                     onValueChange={(type: any) => updateField(index, { type })}
                   >
-                    <SelectTrigger>
+                    <SelectTrigger className="mt-1">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -199,26 +200,35 @@ const ContentEditor: React.FC<ContentEditorProps> = ({
                     </SelectContent>
                   </Select>
                 </div>
-                <div className="col-span-6">
-                  <Label>Value</Label>
-                  {renderFieldInput(field, index)}
+                <div className="sm:col-span-6">
+                  <Label className="text-sm font-medium">Value</Label>
+                  <div className="mt-1">
+                    {renderFieldInput(field, index)}
+                  </div>
                 </div>
-                <div className="col-span-1">
+                <div className="sm:col-span-1 flex justify-end">
                   <Button
                     variant="destructive"
                     size="sm"
                     onClick={() => removeField(index)}
+                    className="w-full sm:w-auto"
                   >
                     <Trash2 className="h-4 w-4" />
                   </Button>
                 </div>
               </div>
             ))}
+            
+            {fields.length === 0 && (
+              <div className="text-center py-8 text-gray-500">
+                <p>No fields added yet. Click "Add Field" to get started.</p>
+              </div>
+            )}
           </TabsContent>
           
-          <TabsContent value="json">
+          <TabsContent value="json" className="space-y-4">
             <div>
-              <Label>JSON Content</Label>
+              <Label className="text-sm font-medium">JSON Content</Label>
               <Textarea
                 value={JSON.stringify(
                   fields.reduce((acc, field) => {
@@ -243,7 +253,7 @@ const ContentEditor: React.FC<ContentEditorProps> = ({
                   }
                 }}
                 rows={10}
-                className="font-mono"
+                className="font-mono mt-1"
               />
             </div>
           </TabsContent>
