@@ -245,31 +245,6 @@ const LiveClassRoom = () => {
           </p>
         </div>
 
-        {/* System Status Check */}
-        <Card className="mb-8 border-green-200 bg-green-50 dark:bg-green-900/20">
-          <CardHeader>
-            <CardTitle className="flex items-center text-green-800 dark:text-green-200">
-              <CheckCircle className="h-5 w-5 mr-2" />
-              System Status Check
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-2 text-sm">
-              {testResults.map((result, index) => (
-                <p key={index} className="flex items-center">
-                  <CheckCircle className="h-4 w-4 mr-2 text-green-600" />
-                  {result}
-                </p>
-              ))}
-              {testResults.length === 0 && (
-                <p className="text-green-700 dark:text-green-300">
-                  Running system checks...
-                </p>
-              )}
-            </div>
-          </CardContent>
-        </Card>
-
         {/* Setup Instructions */}
         <Card className="mb-8 border-blue-200 bg-blue-50 dark:bg-blue-900/20">
           <CardHeader>
