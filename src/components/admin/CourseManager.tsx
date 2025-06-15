@@ -16,9 +16,9 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 interface Course {
   id: string;
   title: string;
-  description: string;
+  description: string | null;
   price: number;
-  duration: string;
+  duration: string | null;
   level: string;
   status: string;
   instructor: string;
@@ -54,7 +54,7 @@ const CourseManager = () => {
         throw error;
       }
       
-      return data || [];
+      return data as Course[];
     }
   });
 
@@ -138,9 +138,9 @@ const CourseManager = () => {
       setEditingCourse(course);
       setFormData({
         title: course.title,
-        description: course.description,
+        description: course.description || '',
         price: course.price,
-        duration: course.duration,
+        duration: course.duration || '',
         level: course.level,
         status: course.status,
         instructor: course.instructor
