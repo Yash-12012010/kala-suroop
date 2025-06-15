@@ -1,16 +1,16 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Badge } from '@/components/ui/badge';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Plus, Edit, Trash2, Users, Search } from 'lucide-react';
+import { Calendar, User, CreditCard, Clock, Plus, Search } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 interface CourseEnrollment {
   id: string;
@@ -20,217 +20,222 @@ interface CourseEnrollment {
   access_granted: boolean;
   enrolled_at: string;
   expires_at: string | null;
-  profiles?: {
-    full_name: string;
-  };
-  courses?: {
-    title: string;
-  };
+  user_email?: string;
+  course_title?: string;
 }
 
 const CourseEnrollmentManager = () => {
-  const [selectedEnrollment, setSelectedEnrollment] = useState<CourseEnrollment | null>(null);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [formData, setFormData] = useState({
-    user_email: '',
-    course_id: '',
-    payment_status: 'paid',
-    access_granted: true,
-    expires_at: ''
-  });
-  
+  const { isAdmin } = useAuth();
   const { toast } = useToast();
-  const queryClient = useQueryClient();
+  const [enrollments, setEnrollments] = useState<CourseEnrollment[]>([]);
+  const [courses, setCourses] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [enrollmentDialogOpen, setEnrollmentDialogOpen] = useState(false);
 
-  const { data: enrollments = [], isLoading } = useQuery({
-    queryKey: ['course-enrollments'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('course_enrollments')
-        .select(`
-          *,
-          profiles(full_name),
-          courses(title)
-        `)
-        .order('enrolled_at', { ascending: false });
-      
-      if (error) throw error;
-      return data as CourseEnrollment[];
+  useEffect(() => {
+    if (isAdmin) {
+      fetchEnrollments();
+      fetchCourses();
     }
-  });
+  }, [isAdmin]);
 
-  const { data: courses = [] } = useQuery({
-    queryKey: ['admin-courses-for-enrollment'],
-    queryFn: async () => {
+  const fetchEnrollments = async () => {
+    try {
+      // First get enrollments
+      const { data: enrollmentData, error: enrollmentError } = await supabase
+        .from('course_enrollments')
+        .select('*')
+        .order('enrolled_at', { ascending: false });
+
+      if (enrollmentError) {
+        throw enrollmentError;
+      }
+
+      // Then get user emails and course titles separately
+      const enrichedEnrollments = await Promise.all(
+        (enrollmentData || []).map(async (enrollment) => {
+          // Get user email
+          const { data: userData } = await supabase.auth.admin.getUserById(enrollment.user_id);
+          
+          // Get course title
+          const { data: courseData } = await supabase
+            .from('courses')
+            .select('title')
+            .eq('id', enrollment.course_id)
+            .single();
+
+          return {
+            ...enrollment,
+            user_email: userData?.user?.email || 'Unknown',
+            course_title: courseData?.title || 'Unknown Course'
+          };
+        })
+      );
+
+      setEnrollments(enrichedEnrollments);
+    } catch (error) {
+      console.error('Error fetching enrollments:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load enrollments",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchCourses = async () => {
+    try {
       const { data, error } = await supabase
         .from('courses')
         .select('id, title')
-        .eq('status', 'active')
         .order('title');
-      
-      if (error) throw error;
-      return data;
-    }
-  });
 
-  const resetForm = () => {
-    setFormData({
-      user_email: '',
-      course_id: '',
-      payment_status: 'paid',
-      access_granted: true,
-      expires_at: ''
-    });
-    setSelectedEnrollment(null);
+      if (error) {
+        throw error;
+      }
+
+      setCourses(data || []);
+    } catch (error) {
+      console.error('Error fetching courses:', error);
+    }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleCreateEnrollment = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const formData = new FormData(event.currentTarget);
     
+    const userEmail = formData.get('userEmail') as string;
+    const courseId = formData.get('courseId') as string;
+    const paymentStatus = formData.get('paymentStatus') as string;
+    const accessGranted = formData.get('accessGranted') === 'true';
+    const expiresAt = formData.get('expiresAt') as string;
+
     try {
-      if (selectedEnrollment) {
-        // Update existing enrollment
-        const { error } = await supabase
-          .from('course_enrollments')
-          .update({
-            payment_status: formData.payment_status,
-            access_granted: formData.access_granted,
-            expires_at: formData.expires_at || null,
-            updated_at: new Date().toISOString()
-          })
-          .eq('id', selectedEnrollment.id);
-        
-        if (error) throw error;
-        
+      // Get user ID from email
+      const { data: userData, error: userError } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('email', userEmail)
+        .single();
+
+      if (userError || !userData) {
         toast({
-          title: "Success",
-          description: "Enrollment updated successfully"
-        });
-      } else {
-        // Create new enrollment - would need to look up user by email first
-        toast({
-          title: "Info",
-          description: "New enrollment creation requires user lookup by email",
+          title: "Error",
+          description: "User not found with that email",
           variant: "destructive"
         });
+        return;
       }
-      
-      queryClient.invalidateQueries({ queryKey: ['course-enrollments'] });
-      setIsDialogOpen(false);
-      resetForm();
+
+      const { error } = await supabase
+        .from('course_enrollments')
+        .insert({
+          user_id: userData.id,
+          course_id: courseId,
+          payment_status: paymentStatus,
+          access_granted: accessGranted,
+          expires_at: expiresAt || null
+        });
+
+      if (error) {
+        throw error;
+      }
+
+      toast({
+        title: "Success",
+        description: "Enrollment created successfully",
+      });
+
+      setEnrollmentDialogOpen(false);
+      fetchEnrollments();
     } catch (error) {
-      console.error('Error saving enrollment:', error);
+      console.error('Error creating enrollment:', error);
       toast({
         title: "Error",
-        description: "Failed to save enrollment",
+        description: "Failed to create enrollment",
         variant: "destructive"
       });
     }
   };
 
-  const handleEdit = (enrollment: CourseEnrollment) => {
-    setSelectedEnrollment(enrollment);
-    setFormData({
-      user_email: '', // Would need to fetch email from auth.users
-      course_id: enrollment.course_id,
-      payment_status: enrollment.payment_status,
-      access_granted: enrollment.access_granted,
-      expires_at: enrollment.expires_at ? enrollment.expires_at.split('T')[0] : ''
-    });
-    setIsDialogOpen(true);
-  };
-
-  const handleDelete = async (enrollmentId: string) => {
-    if (!confirm('Are you sure you want to delete this enrollment?')) return;
-    
+  const updateEnrollmentStatus = async (enrollmentId: string, updates: Partial<CourseEnrollment>) => {
     try {
       const { error } = await supabase
         .from('course_enrollments')
-        .delete()
+        .update(updates)
         .eq('id', enrollmentId);
-      
-      if (error) throw error;
-      
+
+      if (error) {
+        throw error;
+      }
+
       toast({
         title: "Success",
-        description: "Enrollment deleted successfully"
+        description: "Enrollment updated successfully",
       });
-      
-      queryClient.invalidateQueries({ queryKey: ['course-enrollments'] });
+
+      fetchEnrollments();
     } catch (error) {
-      console.error('Error deleting enrollment:', error);
+      console.error('Error updating enrollment:', error);
       toast({
         title: "Error",
-        description: "Failed to delete enrollment",
+        description: "Failed to update enrollment",
         variant: "destructive"
       });
     }
   };
 
   const filteredEnrollments = enrollments.filter(enrollment =>
-    enrollment.profiles?.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    enrollment.courses?.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    enrollment.payment_status.toLowerCase().includes(searchTerm.toLowerCase())
+    enrollment.user_email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    enrollment.course_title?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  if (isLoading) {
+  if (!isAdmin) {
+    return <div>Access denied</div>;
+  }
+
+  if (loading) {
     return (
-      <div className="flex items-center justify-center py-8">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      <div className="space-y-6">
+        <div className="animate-pulse">
+          <div className="h-8 bg-gray-200 rounded w-1/4 mb-4"></div>
+          <div className="space-y-3">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="h-16 bg-gray-200 rounded"></div>
+            ))}
+          </div>
+        </div>
       </div>
     );
   }
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-            Course Enrollments
-          </h2>
-          <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-            Manage student course access and payments
-          </p>
-        </div>
-        
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+      <div className="flex items-center justify-between">
+        <h2 className="text-2xl font-bold">Course Enrollments</h2>
+        <Dialog open={enrollmentDialogOpen} onOpenChange={setEnrollmentDialogOpen}>
           <DialogTrigger asChild>
-            <Button 
-              onClick={resetForm}
-              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
-            >
+            <Button>
               <Plus className="h-4 w-4 mr-2" />
               Add Enrollment
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-md">
+          <DialogContent>
             <DialogHeader>
-              <DialogTitle>
-                {selectedEnrollment ? 'Edit Enrollment' : 'Add New Enrollment'}
-              </DialogTitle>
+              <DialogTitle>Create New Enrollment</DialogTitle>
             </DialogHeader>
-            
-            <form onSubmit={handleSubmit} className="space-y-4">
-              {!selectedEnrollment && (
-                <div>
-                  <Label htmlFor="user_email">User Email</Label>
-                  <Input
-                    id="user_email"
-                    type="email"
-                    value={formData.user_email}
-                    onChange={(e) => setFormData(prev => ({ ...prev, user_email: e.target.value }))}
-                    required
-                    className="mt-1"
-                  />
-                </div>
-              )}
-              
+            <form onSubmit={handleCreateEnrollment} className="space-y-4">
               <div>
-                <Label htmlFor="course_id">Course</Label>
-                <Select value={formData.course_id} onValueChange={(value) => setFormData(prev => ({ ...prev, course_id: value }))}>
-                  <SelectTrigger className="mt-1">
+                <Label htmlFor="userEmail">User Email</Label>
+                <Input id="userEmail" name="userEmail" type="email" required />
+              </div>
+              <div>
+                <Label htmlFor="courseId">Course</Label>
+                <Select name="courseId" required>
+                  <SelectTrigger>
                     <SelectValue placeholder="Select a course" />
                   </SelectTrigger>
                   <SelectContent>
@@ -242,11 +247,10 @@ const CourseEnrollmentManager = () => {
                   </SelectContent>
                 </Select>
               </div>
-              
               <div>
-                <Label htmlFor="payment_status">Payment Status</Label>
-                <Select value={formData.payment_status} onValueChange={(value) => setFormData(prev => ({ ...prev, payment_status: value }))}>
-                  <SelectTrigger className="mt-1">
+                <Label htmlFor="paymentStatus">Payment Status</Label>
+                <Select name="paymentStatus" defaultValue="pending">
+                  <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -257,129 +261,104 @@ const CourseEnrollmentManager = () => {
                   </SelectContent>
                 </Select>
               </div>
-              
               <div>
-                <div className="flex items-center space-x-2">
-                  <input
-                    type="checkbox"
-                    id="access_granted"
-                    checked={formData.access_granted}
-                    onChange={(e) => setFormData(prev => ({ ...prev, access_granted: e.target.checked }))}
-                    className="rounded border-gray-300"
-                  />
-                  <Label htmlFor="access_granted">Grant Access</Label>
-                </div>
+                <Label htmlFor="accessGranted">Access Granted</Label>
+                <Select name="accessGranted" defaultValue="false">
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="true">Yes</SelectItem>
+                    <SelectItem value="false">No</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
-              
               <div>
-                <Label htmlFor="expires_at">Expires At (Optional)</Label>
-                <Input
-                  id="expires_at"
-                  type="date"
-                  value={formData.expires_at}
-                  onChange={(e) => setFormData(prev => ({ ...prev, expires_at: e.target.value }))}
-                  className="mt-1"
-                />
+                <Label htmlFor="expiresAt">Expires At (Optional)</Label>
+                <Input id="expiresAt" name="expiresAt" type="datetime-local" />
               </div>
-              
-              <div className="flex flex-col-reverse sm:flex-row gap-2 pt-4">
-                <Button 
-                  type="button" 
-                  variant="outline" 
-                  onClick={() => setIsDialogOpen(false)}
-                  className="w-full sm:w-auto"
-                >
-                  Cancel
-                </Button>
-                <Button 
-                  type="submit" 
-                  className="w-full sm:w-auto bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
-                >
-                  {selectedEnrollment ? 'Update' : 'Create'} Enrollment
-                </Button>
-              </div>
+              <Button type="submit" className="w-full">Create Enrollment</Button>
             </form>
           </DialogContent>
         </Dialog>
       </div>
 
-      {/* Search */}
-      <div className="relative max-w-md">
-        <Search className="absolute h-4 w-4 top-1/2 left-3 -translate-y-1/2 text-gray-500" />
+      <div className="flex items-center space-x-2">
+        <Search className="h-4 w-4 text-muted-foreground" />
         <Input
-          type="search"
-          placeholder="Search enrollments..."
-          className="pl-10"
+          placeholder="Search by user email or course title..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
+          className="max-w-sm"
         />
       </div>
 
-      {/* Enrollments List */}
-      <div className="space-y-4">
-        {filteredEnrollments.map((enrollment) => (
-          <Card key={enrollment.id} className="hover:shadow-md transition-shadow">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div className="space-y-2">
-                  <div className="flex items-center space-x-3">
-                    <h3 className="font-semibold">
-                      {enrollment.profiles?.full_name || 'Unknown User'}
-                    </h3>
-                    <Badge className="bg-blue-100 text-blue-800">
-                      {enrollment.courses?.title || 'Unknown Course'}
-                    </Badge>
-                  </div>
-                  
-                  <div className="flex items-center space-x-4 text-sm text-gray-600">
-                    <Badge className={
-                      enrollment.payment_status === 'paid' ? 'bg-green-100 text-green-800' :
-                      enrollment.payment_status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-                      'bg-red-100 text-red-800'
-                    }>
-                      {enrollment.payment_status}
-                    </Badge>
-                    
-                    <Badge className={enrollment.access_granted ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}>
-                      {enrollment.access_granted ? 'Access Granted' : 'Access Denied'}
-                    </Badge>
-                    
-                    <span>Enrolled: {new Date(enrollment.enrolled_at).toLocaleDateString()}</span>
-                    
-                    {enrollment.expires_at && (
-                      <span>Expires: {new Date(enrollment.expires_at).toLocaleDateString()}</span>
-                    )}
-                  </div>
-                </div>
-                
-                <div className="flex space-x-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleEdit(enrollment)}
-                  >
-                    <Edit className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="destructive"
-                    size="sm"
-                    onClick={() => handleDelete(enrollment.id)}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
+      <div className="grid gap-4">
+        {filteredEnrollments.length === 0 ? (
+          <Card>
+            <CardContent className="text-center py-8">
+              <User className="h-12 w-12 mx-auto text-gray-400 mb-4" />
+              <h3 className="text-lg font-semibold mb-2">No Enrollments Found</h3>
+              <p className="text-gray-600">
+                {searchTerm ? 'No enrollments match your search.' : 'No course enrollments have been created yet.'}
+              </p>
             </CardContent>
           </Card>
-        ))}
+        ) : (
+          filteredEnrollments.map((enrollment) => (
+            <Card key={enrollment.id}>
+              <CardHeader>
+                <div className="flex items-start justify-between">
+                  <div>
+                    <CardTitle className="text-lg">{enrollment.course_title}</CardTitle>
+                    <p className="text-sm text-muted-foreground">{enrollment.user_email}</p>
+                  </div>
+                  <div className="flex space-x-2">
+                    <Badge className={enrollment.payment_status === 'paid' ? 'bg-green-500' : 'bg-yellow-500'}>
+                      {enrollment.payment_status}
+                    </Badge>
+                    <Badge className={enrollment.access_granted ? 'bg-green-500' : 'bg-red-500'}>
+                      {enrollment.access_granted ? 'Access Granted' : 'No Access'}
+                    </Badge>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div className="flex items-center">
+                    <Calendar className="h-4 w-4 mr-2" />
+                    Enrolled: {new Date(enrollment.enrolled_at).toLocaleDateString()}
+                  </div>
+                  {enrollment.expires_at && (
+                    <div className="flex items-center">
+                      <Clock className="h-4 w-4 mr-2" />
+                      Expires: {new Date(enrollment.expires_at).toLocaleDateString()}
+                    </div>
+                  )}
+                </div>
+                <div className="flex space-x-2 mt-4">
+                  <Button 
+                    size="sm" 
+                    variant="outline"
+                    onClick={() => updateEnrollmentStatus(enrollment.id, { access_granted: !enrollment.access_granted })}
+                  >
+                    {enrollment.access_granted ? 'Revoke Access' : 'Grant Access'}
+                  </Button>
+                  <Button 
+                    size="sm" 
+                    variant="outline"
+                    onClick={() => updateEnrollmentStatus(enrollment.id, { 
+                      payment_status: enrollment.payment_status === 'paid' ? 'pending' : 'paid' 
+                    })}
+                  >
+                    Mark as {enrollment.payment_status === 'paid' ? 'Pending' : 'Paid'}
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          ))
+        )}
       </div>
-
-      {filteredEnrollments.length === 0 && (
-        <div className="text-center py-12">
-          <Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-          <p className="text-gray-500 dark:text-gray-400">No enrollments found</p>
-        </div>
-      )}
     </div>
   );
 };
