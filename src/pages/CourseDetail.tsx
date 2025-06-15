@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -25,6 +24,7 @@ interface Course {
   created_at: string;
   updated_at: string;
   enrolled_students: number | null;
+  featured: boolean;
 }
 
 const CourseDetail = () => {

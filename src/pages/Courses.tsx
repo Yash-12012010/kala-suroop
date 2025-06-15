@@ -21,6 +21,8 @@ interface Course {
   status: string;
   featured: boolean;
   enrolled_students: number | null;
+  created_at: string;
+  updated_at: string;
 }
 
 const Courses = () => {
