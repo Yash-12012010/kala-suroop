@@ -11,6 +11,7 @@ import {
   DropdownMenuTrigger,
   DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
+import { Input } from '@/components/ui/input';
 import { useNavigationItems } from '@/hooks/useNavigationItems';
 import { useWebsiteSettings } from '@/hooks/useWebsiteSettings';
 
@@ -19,6 +20,8 @@ const Navbar = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   const [scrolled, setScrolled] = useState(false);
   const [activeItem, setActiveItem] = useState('');
   const { navItems } = useNavigationItems();
@@ -43,6 +46,16 @@ const Navbar = () => {
   const handleLogout = async () => {
     await logout();
     navigate('/');
+  };
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      // Navigate to courses with search query
+      navigate(`/courses?search=${encodeURIComponent(searchQuery.trim())}`);
+      setIsSearchOpen(false);
+      setSearchQuery('');
+    }
   };
 
   // Get dynamic site settings
@@ -117,15 +130,49 @@ const Navbar = () => {
             <div className="hidden md:flex items-center space-x-3">
               {user ? (
                 <div className="flex items-center space-x-3">
-                  {/* Notification Bell */}
-                  <Button variant="ghost" size="sm" className="relative p-2 text-purple-200 hover:text-white hover:bg-white/10 rounded-xl transition-all duration-300">
+                  {/* Enhanced Search */}
+                  <div className="relative">
+                    {isSearchOpen ? (
+                      <form onSubmit={handleSearch} className="flex items-center">
+                        <Input
+                          type="text"
+                          placeholder="Search courses..."
+                          value={searchQuery}
+                          onChange={(e) => setSearchQuery(e.target.value)}
+                          className="w-48 bg-white/10 border-purple-300/30 text-white placeholder-purple-200 focus:bg-white/20 transition-all duration-300"
+                          autoFocus
+                        />
+                        <Button 
+                          type="button"
+                          variant="ghost" 
+                          size="sm" 
+                          className="ml-2 p-2 text-purple-200 hover:text-white"
+                          onClick={() => setIsSearchOpen(false)}
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </form>
+                    ) : (
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className="p-2 text-purple-200 hover:text-white hover:bg-white/10 rounded-xl transition-all duration-300"
+                        onClick={() => setIsSearchOpen(true)}
+                      >
+                        <Search className="h-4 w-4" />
+                      </Button>
+                    )}
+                  </div>
+                  
+                  {/* Enhanced Notification Bell - Now links to Announcements */}
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="relative p-2 text-purple-200 hover:text-white hover:bg-white/10 rounded-xl transition-all duration-300"
+                    onClick={() => navigate('/announcements')}
+                  >
                     <Bell className="h-4 w-4" />
                     <div className="absolute -top-1 -right-1 w-3 h-3 bg-gradient-to-r from-pink-500 to-red-500 rounded-full animate-pulse" />
-                  </Button>
-                  
-                  {/* Search Button */}
-                  <Button variant="ghost" size="sm" className="p-2 text-purple-200 hover:text-white hover:bg-white/10 rounded-xl transition-all duration-300">
-                    <Search className="h-4 w-4" />
                   </Button>
 
                   {/* User Dropdown */}
@@ -176,32 +223,42 @@ const Navbar = () => {
             {/* Enhanced Mobile menu button */}
             <div className="flex items-center md:hidden space-x-2">
               {user && (
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="sm" className="p-2 hover:bg-white/10 rounded-xl">
-                      <div className="w-6 h-6 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center text-white font-semibold text-xs">
-                        {displayName.charAt(0).toUpperCase()}
-                      </div>
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-48 bg-slate-900/95 backdrop-blur-2xl border border-purple-500/20 shadow-2xl rounded-2xl">
-                    <DropdownMenuItem onClick={() => navigate('/dashboard')} className="hover:bg-purple-600/20 text-white rounded-xl m-1">
-                      <User className="mr-2 h-4 w-4 text-purple-400" />
-                      Profile
-                    </DropdownMenuItem>
-                    {isAdmin && (
-                      <DropdownMenuItem onClick={() => navigate('/admin')} className="hover:bg-purple-600/20 text-white rounded-xl m-1">
-                        <Settings className="mr-2 h-4 w-4 text-purple-400" />
-                        Admin
+                <>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="p-2 text-purple-200 hover:text-white hover:bg-white/10 rounded-xl"
+                    onClick={() => navigate('/announcements')}
+                  >
+                    <Bell className="h-4 w-4" />
+                  </Button>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="sm" className="p-2 hover:bg-white/10 rounded-xl">
+                        <div className="w-6 h-6 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center text-white font-semibold text-xs">
+                          {displayName.charAt(0).toUpperCase()}
+                        </div>
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-48 bg-slate-900/95 backdrop-blur-2xl border border-purple-500/20 shadow-2xl rounded-2xl">
+                      <DropdownMenuItem onClick={() => navigate('/dashboard')} className="hover:bg-purple-600/20 text-white rounded-xl m-1">
+                        <User className="mr-2 h-4 w-4 text-purple-400" />
+                        Profile
                       </DropdownMenuItem>
-                    )}
-                    <DropdownMenuSeparator className="bg-purple-500/20" />
-                    <DropdownMenuItem onClick={handleLogout} className="hover:bg-red-600/20 text-red-300 rounded-xl m-1">
-                      <LogOut className="mr-2 h-4 w-4" />
-                      Logout
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                      {isAdmin && (
+                        <DropdownMenuItem onClick={() => navigate('/admin')} className="hover:bg-purple-600/20 text-white rounded-xl m-1">
+                          <Settings className="mr-2 h-4 w-4 text-purple-400" />
+                          Admin
+                        </DropdownMenuItem>
+                      )}
+                      <DropdownMenuSeparator className="bg-purple-500/20" />
+                      <DropdownMenuItem onClick={handleLogout} className="hover:bg-red-600/20 text-red-300 rounded-xl m-1">
+                        <LogOut className="mr-2 h-4 w-4" />
+                        Logout
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </>
               )}
               <button
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -219,6 +276,22 @@ const Navbar = () => {
           {isMenuOpen && (
             <div className="md:hidden border-t border-white/10 backdrop-blur-2xl">
               <div className="px-4 pt-4 pb-6 space-y-2 bg-gradient-to-b from-slate-900/90 to-purple-900/90 rounded-b-3xl">
+                {/* Mobile Search */}
+                <div className="mb-4">
+                  <form onSubmit={handleSearch} className="flex">
+                    <Input
+                      type="text"
+                      placeholder="Search courses..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="flex-1 bg-white/10 border-purple-300/30 text-white placeholder-purple-200"
+                    />
+                    <Button type="submit" variant="ghost" size="sm" className="ml-2 text-purple-200">
+                      <Search className="h-4 w-4" />
+                    </Button>
+                  </form>
+                </div>
+
                 {navItems.map((item, index) => (
                   <Link
                     key={item.id}

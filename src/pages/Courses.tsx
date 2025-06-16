@@ -1,162 +1,146 @@
 
-import React, { useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Search, Filter, Users, Clock, Star, Play, Zap, Award, BookOpen, TrendingUp, Heart, Eye } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
+import { Clock, Users, Star, BookOpen, Search, Filter, ArrowRight, Play, Award, Sparkles } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
-import { useQuery } from '@tanstack/react-query';
+import { useAuth } from '@/contexts/AuthContext';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
 interface Course {
   id: string;
   title: string;
-  description: string | null;
-  instructor: string;
-  level: string;
-  duration: string | null;
+  description: string;
   price: number;
-  status: string;
-  featured: boolean;
-  enrolled_students: number | null;
-  created_at: string;
-  updated_at: string;
-}
-
-interface Class {
-  id: string;
-  name: string;
-  description: string | null;
+  duration: string;
+  level: string;
+  category: string;
+  instructor: string;
+  image_url: string | null;
+  is_active: boolean;
   created_at: string;
 }
 
 const Courses = () => {
+  const [courses, setCourses] = useState<Course[]>([]);
+  const [filteredCourses, setFilteredCourses] = useState<Course[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [levelFilter, setLevelFilter] = useState('all');
+  const [categoryFilter, setCategoryFilter] = useState('all');
+  const [priceFilter, setPriceFilter] = useState('all');
+  const { user } = useAuth();
   const navigate = useNavigate();
-  const location = useLocation();
-  const { isAdmin } = useAuth();
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedLevel, setSelectedLevel] = useState(location.state?.selectedLevel || 'all');
-  const [sortBy, setSortBy] = useState('newest');
-  const [hoveredCard, setHoveredCard] = useState<string | null>(null);
+  const [searchParams] = useSearchParams();
 
-  const { data: courses = [], isLoading } = useQuery({
-    queryKey: ['courses'],
-    queryFn: async () => {
-      console.log('Fetching courses from database...');
-      
+  useEffect(() => {
+    fetchCourses();
+    
+    // Set initial search query from URL params
+    const urlSearch = searchParams.get('search');
+    if (urlSearch) {
+      setSearchQuery(urlSearch);
+    }
+  }, []);
+
+  useEffect(() => {
+    filterCourses();
+  }, [courses, searchQuery, levelFilter, categoryFilter, priceFilter]);
+
+  const fetchCourses = async () => {
+    try {
       const { data, error } = await supabase
         .from('courses')
         .select('*')
-        .eq('status', 'active')
+        .eq('is_active', true)
         .order('created_at', { ascending: false });
-      
-      if (error) {
-        console.error('Error fetching courses:', error);
-        throw error;
-      }
-      
-      console.log('Courses fetched successfully:', data);
-      return data as Course[];
+
+      if (error) throw error;
+      setCourses(data || []);
+    } catch (error) {
+      console.error('Error fetching courses:', error);
+    } finally {
+      setLoading(false);
     }
-  });
+  };
 
-  const { data: classes = [] } = useQuery({
-    queryKey: ['classes'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('classes')
-        .select('*')
-        .order('name');
-      
-      if (error) {
-        console.error('Error fetching classes:', error);
-        throw error;
-      }
-      
-      return data as Class[];
+  const filterCourses = () => {
+    let filtered = [...courses];
+
+    // Search filter
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter(course =>
+        course.title.toLowerCase().includes(query) ||
+        course.description.toLowerCase().includes(query) ||
+        course.category.toLowerCase().includes(query) ||
+        course.instructor.toLowerCase().includes(query)
+      );
     }
-  });
 
-  const filteredCourses = courses
-    .filter(course => {
-      const matchesSearch = course.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          course.instructor.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesLevel = selectedLevel === 'all' || course.level.toLowerCase() === selectedLevel.toLowerCase();
-      return matchesSearch && matchesLevel;
-    })
-    .sort((a, b) => {
-      switch (sortBy) {
-        case 'price-low':
-          return a.price - b.price;
-        case 'price-high':
-          return b.price - a.price;
-        case 'students':
-          return (b.enrolled_students || 0) - (a.enrolled_students || 0);
-        case 'alphabetical':
-          return a.title.localeCompare(b.title);
-        default:
-          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+    // Level filter
+    if (levelFilter !== 'all') {
+      filtered = filtered.filter(course => course.level.toLowerCase() === levelFilter);
+    }
+
+    // Category filter
+    if (categoryFilter !== 'all') {
+      filtered = filtered.filter(course => course.category.toLowerCase() === categoryFilter);
+    }
+
+    // Price filter
+    if (priceFilter !== 'all') {
+      if (priceFilter === 'free') {
+        filtered = filtered.filter(course => course.price === 0);
+      } else if (priceFilter === 'paid') {
+        filtered = filtered.filter(course => course.price > 0);
       }
-    });
+    }
 
-  const getDefaultImage = (level: string) => {
-    const images = {
-      'beginner': 'https://images.unsplash.com/photo-1465146344425-f00d5f5c8f07?w=400&h=250&fit=crop',
-      'intermediate': 'https://images.unsplash.com/photo-1500673922987-e212871fec22?w=400&h=250&fit=crop',
-      'advanced': 'https://images.unsplash.com/photo-1493397212122-2b85dda8106b?w=400&h=250&fit=crop',
-      'advance': 'https://images.unsplash.com/photo-1493397212122-2b85dda8106b?w=400&h=250&fit=crop',
-      'specialized': 'https://images.unsplash.com/photo-1465146344425-f00d5f5c8f07?w=400&h=250&fit=crop'
-    };
-    return images[level.toLowerCase() as keyof typeof images] || images.beginner;
+    setFilteredCourses(filtered);
+  };
+
+  const handleEnroll = (courseId: string) => {
+    if (!user) {
+      navigate('/login');
+      return;
+    }
+    navigate(`/checkout?course=${courseId}`);
   };
 
   const getLevelColor = (level: string) => {
-    const colors = {
-      'beginner': 'from-emerald-500 to-teal-500',
-      'intermediate': 'from-blue-500 to-purple-500',
-      'advanced': 'from-purple-500 to-pink-500',
-      'advance': 'from-purple-500 to-pink-500',
-      'specialized': 'from-orange-500 to-red-500'
-    };
-    return colors[level.toLowerCase() as keyof typeof colors] || colors.beginner;
+    switch (level.toLowerCase()) {
+      case 'beginner': return 'bg-gradient-to-r from-green-500 to-emerald-500';
+      case 'intermediate': return 'bg-gradient-to-r from-yellow-500 to-orange-500';
+      case 'advanced': return 'bg-gradient-to-r from-red-500 to-pink-500';
+      default: return 'bg-gradient-to-r from-purple-500 to-blue-500';
+    }
   };
 
-  const handleEnrollClick = (course: Course) => {
-    const checkoutCourseData = {
-      id: course.id,
-      title: course.title,
-      description: course.description,
-      instructor: course.instructor,
-      level: course.level,
-      duration: course.duration,
-      price: course.price,
-      discountedPrice: course.price,
-      originalPrice: course.price + 1000,
-      students: course.enrolled_students || Math.floor(Math.random() * 500) + 100,
-      rating: 4.8,
-      image: getDefaultImage(course.level)
-    };
-    
-    navigate('/checkout', { state: { course: checkoutCourseData } });
+  const getPriceDisplay = (price: number) => {
+    return price === 0 ? 'Free' : `₹${price.toLocaleString('en-IN')}`;
   };
 
-  const handleCourseClick = (courseId: string) => {
-    navigate(`/courses/${courseId}`);
-  };
-
-  if (isLoading) {
+  if (loading) {
     return (
-      <div className="pt-20 pb-16 bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 min-h-screen">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center py-20">
-            <div className="relative inline-block">
-              <div className="w-16 h-16 border-4 border-purple-400 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-              <div className="absolute inset-0 w-16 h-16 border-4 border-pink-400 border-b-transparent rounded-full animate-spin mx-auto" style={{ animationDirection: 'reverse', animationDuration: '1.5s' }}></div>
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 relative overflow-hidden">
+        {/* Premium Background Effects */}
+        <div className="fixed inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse" />
+          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-pink-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse" />
+        </div>
+        
+        <div className="relative z-10 pt-32 pb-16">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex items-center justify-center min-h-[400px]">
+              <div className="text-center">
+                <div className="loading-spinner mx-auto mb-4" />
+                <p className="text-white/80 text-lg">Loading premium courses...</p>
+              </div>
             </div>
-            <p className="text-xl text-purple-300 font-medium">Loading extraordinary courses...</p>
           </div>
         </div>
       </div>
@@ -164,199 +148,257 @@ const Courses = () => {
   }
 
   return (
-    <div className="pt-20 pb-16 bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 min-h-screen relative overflow-hidden">
-      {/* Animated Background Elements */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-pink-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse" style={{ animationDelay: '2s' }}></div>
-        <div className="absolute top-1/2 left-1/2 w-60 h-60 bg-blue-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse" style={{ animationDelay: '4s' }}></div>
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 relative overflow-hidden">
+      {/* Premium Background Effects */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse float" />
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-pink-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse float-delayed" />
+        <div className="absolute top-1/3 left-1/4 w-60 h-60 bg-blue-500 rounded-full mix-blend-multiply filter blur-xl opacity-15 animate-pulse" style={{ animationDelay: '2s' }} />
+        <div className="absolute bottom-1/3 right-1/4 w-60 h-60 bg-indigo-500 rounded-full mix-blend-multiply filter blur-xl opacity-15 animate-pulse" style={{ animationDelay: '3s' }} />
+        
+        {/* Grid overlay */}
+        <div className="absolute inset-0 bg-gradient-to-br from-transparent via-purple-900/5 to-transparent" 
+             style={{ 
+               backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(255,255,255,0.05) 1px, transparent 0)',
+               backgroundSize: '50px 50px'
+             }} />
+        
+        {/* Shimmer effect */}
+        <div className="absolute inset-0 shimmer opacity-30" />
       </div>
       
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div className="mb-12 flex items-center justify-between">
-          <div className="mb-4 sm:mb-6">
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 bg-clip-text text-transparent mb-4 leading-tight">
-              <span className="inline-block animate-fade-in">Explore</span>{' '}
-              <span className="inline-block animate-fade-in" style={{ animationDelay: '0.2s' }}>Our</span>{' '}
-              <span className="inline-block animate-fade-in" style={{ animationDelay: '0.4s' }}>Masterful</span>{' '}
-              <span className="inline-block animate-fade-in" style={{ animationDelay: '0.6s' }}>Courses</span>
+      <div className="relative z-10 pt-32 pb-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Premium Header */}
+          <div className="text-center mb-16 animate-fade-in">
+            <div className="inline-flex items-center space-x-2 bg-white/10 backdrop-blur-md rounded-full px-6 py-2 mb-6 border border-white/20">
+              <BookOpen className="h-5 w-5 text-purple-400" />
+              <span className="text-purple-200 font-medium">Premium Learning</span>
+            </div>
+            
+            <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold mb-6">
+              <span className="bg-gradient-to-r from-white via-purple-200 to-pink-200 bg-clip-text text-transparent">
+                Master
+              </span>
+              <br />
+              <span className="bg-gradient-to-r from-purple-400 via-pink-400 to-orange-400 bg-clip-text text-transparent">
+                Art Courses
+              </span>
             </h1>
-            <p className="text-lg sm:text-xl text-purple-200 max-w-3xl leading-relaxed">
-              Unleash your creative potential with our world-class educational experiences. 
-              <span className="text-pink-300 font-semibold"> Transform your passion into mastery.</span>
+            
+            <p className="text-xl text-purple-200/80 max-w-3xl mx-auto leading-relaxed mb-8">
+              Unlock your artistic potential with our world-class courses designed by industry experts
             </p>
           </div>
-          {isAdmin && (
-            <Button 
-              onClick={() => navigate('/admin')} 
-              className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 shadow-2xl transform hover:scale-105 transition-all duration-300 border border-purple-400/30"
-            >
-              <Award className="h-4 w-4 mr-2" />
-              Manage Courses
-            </Button>
-          )}
-        </div>
 
-        {/* Enhanced Search and Filter Section */}
-        <div className="mb-12 p-8 bg-white/10 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20">
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-            <div className="sm:col-span-2">
-              <div className="relative group">
-                <Search className="absolute h-5 w-5 top-1/2 left-4 -translate-y-1/2 text-purple-300 group-hover:text-pink-300 transition-colors" />
-                <Input
-                  type="search"
-                  placeholder="Search for your next masterpiece..."
-                  className="pl-12 bg-white/5 border-white/20 text-white placeholder:text-purple-200 focus:border-pink-400 focus:ring-pink-400 rounded-2xl h-14 text-lg"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
-              </div>
-            </div>
-            <div>
-              <Select value={selectedLevel} onValueChange={setSelectedLevel}>
-                <SelectTrigger className="w-full bg-white/5 border-white/20 text-white rounded-2xl h-14 text-lg">
-                  <Filter className="h-5 w-5 mr-2 text-purple-300" />
-                  <SelectValue placeholder="Filter by Level" />
-                </SelectTrigger>
-                <SelectContent className="bg-slate-800 border-purple-400/30">
-                  <SelectItem value="all" className="text-white hover:bg-purple-600/20">All Levels</SelectItem>
-                  {classes.map(cls => (
-                    <SelectItem key={cls.id} value={cls.name.toLowerCase()} className="text-white hover:bg-purple-600/20">
-                      {cls.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="md:col-span-3 flex justify-end">
-              <Select value={sortBy} onValueChange={setSortBy}>
-                <SelectTrigger className="bg-white/5 border-white/20 text-white rounded-2xl h-12 min-w-[200px]">
-                  <TrendingUp className="h-4 w-4 mr-2 text-purple-300" />
-                  <SelectValue placeholder="Sort by" />
-                </SelectTrigger>
-                <SelectContent className="bg-slate-800 border-purple-400/30">
-                  <SelectItem value="newest" className="text-white hover:bg-purple-600/20">Latest Releases</SelectItem>
-                  <SelectItem value="price-low" className="text-white hover:bg-purple-600/20">Price: Low to High</SelectItem>
-                  <SelectItem value="price-high" className="text-white hover:bg-purple-600/20">Price: High to Low</SelectItem>
-                  <SelectItem value="students" className="text-white hover:bg-purple-600/20">Most Popular</SelectItem>
-                  <SelectItem value="alphabetical" className="text-white hover:bg-purple-600/20">Alphabetical</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-        </div>
+          {/* Premium Search and Filters */}
+          <div className="mb-12 animate-slide-in-bottom">
+            <Card className="card-premium bg-white/5 backdrop-blur-2xl border border-white/20">
+              <CardContent className="p-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                  {/* Search */}
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-purple-400" />
+                    <Input
+                      type="text"
+                      placeholder="Search courses..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="pl-10 bg-white/10 border-purple-300/30 text-white placeholder-purple-300 focus:bg-white/20 transition-all duration-300"
+                    />
+                  </div>
 
-        {/* Enhanced Course Grid */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {filteredCourses.map((course, index) => (
-            <Card 
-              key={course.id} 
-              className="group hover:shadow-2xl transition-all duration-700 cursor-pointer bg-white/5 backdrop-blur-xl border border-white/10 hover:border-purple-400/30 rounded-3xl overflow-hidden transform hover:scale-105 hover:-translate-y-4"
-              style={{ animationDelay: `${index * 100}ms` }}
-              onMouseEnter={() => setHoveredCard(course.id)}
-              onMouseLeave={() => setHoveredCard(null)}
-            >
-              <div className="relative overflow-hidden">
-                <img 
-                  src={getDefaultImage(course.level)} 
-                  alt={course.title}
-                  className="w-full h-56 object-cover group-hover:scale-125 transition-transform duration-700"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-                <div className="absolute inset-0 bg-gradient-to-br from-purple-600/20 to-pink-600/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                
-                {course.featured && (
-                  <Badge className="absolute top-4 left-4 bg-gradient-to-r from-yellow-400 to-orange-500 text-black font-bold shadow-xl">
-                    <Star className="h-3 w-3 mr-1 fill-current" />
-                    Featured
-                  </Badge>
-                )}
-                
-                <Badge className={`absolute top-4 right-4 bg-gradient-to-r ${getLevelColor(course.level)} text-white font-semibold shadow-xl border-0`}>
-                  {course.level}
-                </Badge>
+                  {/* Level Filter */}
+                  <Select value={levelFilter} onValueChange={setLevelFilter}>
+                    <SelectTrigger className="bg-white/10 border-purple-300/30 text-white">
+                      <SelectValue placeholder="All Levels" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-slate-900 border-purple-500/30">
+                      <SelectItem value="all">All Levels</SelectItem>
+                      <SelectItem value="beginner">Beginner</SelectItem>
+                      <SelectItem value="intermediate">Intermediate</SelectItem>
+                      <SelectItem value="advanced">Advanced</SelectItem>
+                    </SelectContent>
+                  </Select>
 
-                {hoveredCard === course.id && (
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="bg-white/90 backdrop-blur-sm rounded-full p-4 transform scale-110 animate-pulse">
-                      <Eye className="h-8 w-8 text-purple-600" />
-                    </div>
-                  </div>
-                )}
-              </div>
-              
-              <CardContent className="p-6 space-y-4">
-                <h3 className="text-xl font-bold text-white group-hover:text-purple-300 transition-colors duration-300 line-clamp-2">
-                  {course.title}
-                </h3>
-                
-                <div className="flex items-center flex-wrap gap-4 text-sm text-purple-200">
-                  <div className="flex items-center bg-white/5 rounded-full px-3 py-1">
-                    <Star className="h-4 w-4 text-yellow-400 mr-1 fill-current" />
-                    4.8
-                  </div>
-                  <div className="flex items-center bg-white/5 rounded-full px-3 py-1">
-                    <Users className="h-4 w-4 mr-1" />
-                    {course.enrolled_students || 0}
-                  </div>
-                  {course.duration && (
-                    <div className="flex items-center bg-white/5 rounded-full px-3 py-1">
-                      <Clock className="h-4 w-4 mr-1" />
-                      {course.duration}
-                    </div>
-                  )}
-                </div>
-                
-                {course.description && (
-                  <p className="text-purple-100 text-sm line-clamp-3 leading-relaxed opacity-80">
-                    {course.description?.substring(0, 120)}...
-                  </p>
-                )}
-                
-                <div className="flex items-center justify-between pt-4 border-t border-white/10">
-                  <div className="flex flex-col">
-                    <span className="text-2xl font-bold bg-gradient-to-r from-green-400 to-emerald-400 bg-clip-text text-transparent">
-                      {isAdmin ? 'FREE' : `₹${course.price}`}
-                    </span>
-                    <span className="text-xs text-purple-300">
-                      by <span className="font-semibold text-pink-300">{course.instructor}</span>
-                    </span>
-                  </div>
-                  
-                  <div className="flex gap-2">
-                    <Button 
-                      onClick={() => handleCourseClick(course.id)}
-                      size="sm"
-                      variant="outline"
-                      className="border-purple-400/50 text-purple-200 hover:bg-purple-600/20 hover:text-white transition-all duration-300"
-                    >
-                      <BookOpen className="h-4 w-4 mr-1" />
-                      View
-                    </Button>
-                    <Button 
-                      onClick={() => handleEnrollClick(course)}
-                      size="sm"
-                      className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
-                    >
-                      <Zap className="h-4 w-4 mr-1" />
-                      Enroll
-                    </Button>
-                  </div>
+                  {/* Category Filter */}
+                  <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+                    <SelectTrigger className="bg-white/10 border-purple-300/30 text-white">
+                      <SelectValue placeholder="All Categories" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-slate-900 border-purple-500/30">
+                      <SelectItem value="all">All Categories</SelectItem>
+                      <SelectItem value="digital art">Digital Art</SelectItem>
+                      <SelectItem value="painting">Painting</SelectItem>
+                      <SelectItem value="drawing">Drawing</SelectItem>
+                      <SelectItem value="sculpture">Sculpture</SelectItem>
+                    </SelectContent>
+                  </Select>
+
+                  {/* Price Filter */}
+                  <Select value={priceFilter} onValueChange={setPriceFilter}>
+                    <SelectTrigger className="bg-white/10 border-purple-300/30 text-white">
+                      <SelectValue placeholder="All Prices" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-slate-900 border-purple-500/30">
+                      <SelectItem value="all">All Prices</SelectItem>
+                      <SelectItem value="free">Free</SelectItem>
+                      <SelectItem value="paid">Paid</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
               </CardContent>
             </Card>
-          ))}
-        </div>
-
-        {filteredCourses.length === 0 && (
-          <div className="text-center py-20">
-            <div className="bg-white/5 backdrop-blur-xl rounded-3xl p-12 border border-white/10">
-              <BookOpen className="h-16 w-16 text-purple-400 mx-auto mb-4" />
-              <p className="text-purple-200 text-xl mb-2">No courses found matching your criteria.</p>
-              <p className="text-purple-300 text-lg">Try adjusting your search or filters to discover amazing courses!</p>
-            </div>
           </div>
-        )}
+
+          {/* Results Count */}
+          <div className="mb-8 animate-slide-in-left">
+            <p className="text-purple-200/80 text-lg">
+              Found <span className="text-white font-semibold">{filteredCourses.length}</span> premium courses
+            </p>
+          </div>
+
+          {/* Premium Courses Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {filteredCourses.map((course, index) => (
+              <Card 
+                key={course.id} 
+                className="card-premium group hover:scale-[1.02] transition-all duration-500 animate-slide-in-bottom overflow-hidden"
+                style={{ animationDelay: `${index * 100}ms` }}
+              >
+                {/* Course Image */}
+                <div className="relative h-48 overflow-hidden">
+                  {course.image_url ? (
+                    <img 
+                      src={course.image_url} 
+                      alt={course.title}
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-gradient-to-br from-purple-500 via-pink-500 to-orange-500 flex items-center justify-center group-hover:scale-110 transition-transform duration-500">
+                      <BookOpen className="h-16 w-16 text-white opacity-80" />
+                    </div>
+                  )}
+                  
+                  {/* Overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                  
+                  {/* Price Badge */}
+                  <div className="absolute top-4 right-4">
+                    <Badge className={`${course.price === 0 ? 'bg-green-500' : 'bg-gradient-to-r from-purple-600 to-pink-600'} text-white font-semibold px-3 py-1 rounded-full shadow-lg`}>
+                      {getPriceDisplay(course.price)}
+                    </Badge>
+                  </div>
+                  
+                  {/* Play Button Overlay */}
+                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    <div className="w-16 h-16 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center border border-white/30">
+                      <Play className="h-8 w-8 text-white ml-1" />
+                    </div>
+                  </div>
+                </div>
+
+                <CardHeader className="pb-3">
+                  <div className="flex items-start justify-between mb-2">
+                    <Badge className={`${getLevelColor(course.level)} text-white border-0 px-3 py-1 rounded-full font-medium`}>
+                      {course.level}
+                    </Badge>
+                    <div className="flex items-center space-x-1 text-purple-300">
+                      <Star className="h-4 w-4 fill-current" />
+                      <span className="text-sm font-medium">4.9</span>
+                    </div>
+                  </div>
+                  
+                  <CardTitle className="text-xl text-white group-hover:text-purple-300 transition-colors duration-300 line-clamp-2">
+                    {course.title}
+                  </CardTitle>
+                  
+                  <p className="text-purple-200/80 text-sm leading-relaxed line-clamp-2">
+                    {course.description}
+                  </p>
+                </CardHeader>
+
+                <CardContent className="pt-0">
+                  {/* Course Meta */}
+                  <div className="flex items-center justify-between text-sm text-purple-300 mb-4">
+                    <div className="flex items-center space-x-1">
+                      <Clock className="h-4 w-4" />
+                      <span>{course.duration}</span>
+                    </div>
+                    <div className="flex items-center space-x-1">
+                      <Users className="h-4 w-4" />
+                      <span>1.2k students</span>
+                    </div>
+                    <div className="flex items-center space-x-1">
+                      <Award className="h-4 w-4" />
+                      <span>Certificate</span>
+                    </div>
+                  </div>
+                  
+                  {/* Instructor */}
+                  <div className="flex items-center space-x-2 mb-4 p-3 bg-white/5 rounded-lg border border-white/10">
+                    <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
+                      <span className="text-white font-semibold text-sm">
+                        {course.instructor.charAt(0).toUpperCase()}
+                      </span>
+                    </div>
+                    <div>
+                      <p className="text-white text-sm font-medium">{course.instructor}</p>
+                      <p className="text-purple-300 text-xs">Expert Instructor</p>
+                    </div>
+                  </div>
+
+                  {/* Action Buttons */}
+                  <div className="space-y-2">
+                    <Button 
+                      onClick={() => handleEnroll(course.id)}
+                      className="w-full btn-premium bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold py-3 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
+                    >
+                      <span>Enroll Now</span>
+                      <ArrowRight className="h-4 w-4 ml-2" />
+                    </Button>
+                    
+                    <Button 
+                      variant="ghost"
+                      onClick={() => navigate(`/courses/${course.id}`)}
+                      className="w-full text-purple-300 hover:text-white hover:bg-white/10 transition-all duration-300"
+                    >
+                      View Details
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+
+          {/* No Results */}
+          {filteredCourses.length === 0 && (
+            <Card className="card-premium text-center py-16 animate-fade-in">
+              <CardContent>
+                <div className="flex flex-col items-center space-y-4">
+                  <div className="w-16 h-16 bg-purple-500/20 rounded-full flex items-center justify-center">
+                    <Search className="h-8 w-8 text-purple-400" />
+                  </div>
+                  <h3 className="text-2xl font-semibold text-white">No Courses Found</h3>
+                  <p className="text-purple-300 max-w-md">
+                    We couldn't find any courses matching your search criteria. Try adjusting your filters or search terms.
+                  </p>
+                  <Button 
+                    onClick={() => {
+                      setSearchQuery('');
+                      setLevelFilter('all');
+                      setCategoryFilter('all');
+                      setPriceFilter('all');
+                    }}
+                    className="btn-premium"
+                  >
+                    Clear Filters
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+        </div>
       </div>
     </div>
   );
