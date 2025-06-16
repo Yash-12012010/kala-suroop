@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -19,6 +20,7 @@ interface Course {
   price: number;
   status: string;
   featured: boolean;
+  enrolled_students: number | null;
   created_at: string;
   updated_at: string;
 }
