@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -17,11 +16,12 @@ interface Course {
   price: number;
   duration: string;
   level: string;
-  category: string;
   instructor: string;
-  image_url: string | null;
-  is_active: boolean;
   created_at: string;
+  updated_at: string;
+  status: string;
+  enrolled_students: number;
+  featured: boolean;
 }
 
 const Courses = () => {
@@ -54,8 +54,8 @@ const Courses = () => {
     try {
       const { data, error } = await supabase
         .from('courses')
-        .select('*')
-        .eq('is_active', true)
+        .select('id, title, description, price, duration, level, instructor, created_at, updated_at, status, enrolled_students, featured')
+        .eq('status', 'active')
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -76,7 +76,6 @@ const Courses = () => {
       filtered = filtered.filter(course =>
         course.title.toLowerCase().includes(query) ||
         course.description.toLowerCase().includes(query) ||
-        course.category.toLowerCase().includes(query) ||
         course.instructor.toLowerCase().includes(query)
       );
     }
@@ -84,11 +83,6 @@ const Courses = () => {
     // Level filter
     if (levelFilter !== 'all') {
       filtered = filtered.filter(course => course.level.toLowerCase() === levelFilter);
-    }
-
-    // Category filter
-    if (categoryFilter !== 'all') {
-      filtered = filtered.filter(course => course.category.toLowerCase() === categoryFilter);
     }
 
     // Price filter
