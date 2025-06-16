@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -113,7 +112,23 @@ const Home = () => {
   };
 
   const handleEnrollClick = (course: Course) => {
-    navigate('/checkout', { state: { course } });
+    // Map the course data to match what the checkout page expects
+    const checkoutCourseData = {
+      id: course.id,
+      title: course.title,
+      description: course.description,
+      instructor: course.instructor,
+      level: course.level,
+      duration: course.duration,
+      price: course.price,
+      discountedPrice: course.price, // Using same price as discounted price
+      originalPrice: course.price + 1000, // Adding some markup for original price display
+      students: course.enrolled_students || Math.floor(Math.random() * 500) + 100,
+      rating: 4.8, // Default rating
+      image: getDefaultImage(course.level)
+    };
+    
+    navigate('/checkout', { state: { course: checkoutCourseData } });
   };
 
   const handleCategoryClick = (level: string) => {
@@ -269,7 +284,7 @@ const Home = () => {
                         </div>
                         <div className="flex items-center">
                           <Users className="h-4 w-4 mr-1" />
-                          {Math.floor(Math.random() * 500) + 100}
+                          {course.enrolled_students || Math.floor(Math.random() * 500) + 100}
                         </div>
                         {course.duration && (
                           <div className="flex items-center">
