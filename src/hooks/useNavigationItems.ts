@@ -34,6 +34,11 @@ export const useNavigationItems = () => {
 
       // Filter items based on user role and authentication status
       const filteredItems = (data || []).filter(item => {
+        // Hide "Updates" page from navigation
+        if (item.name === 'Updates') {
+          return false;
+        }
+        
         if (!user && item.required_role !== 'user') {
           return false;
         }

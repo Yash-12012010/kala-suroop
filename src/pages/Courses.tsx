@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -30,7 +31,6 @@ const Courses = () => {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [levelFilter, setLevelFilter] = useState('all');
-  const [categoryFilter, setCategoryFilter] = useState('all');
   const [priceFilter, setPriceFilter] = useState('all');
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -48,7 +48,7 @@ const Courses = () => {
 
   useEffect(() => {
     filterCourses();
-  }, [courses, searchQuery, levelFilter, categoryFilter, priceFilter]);
+  }, [courses, searchQuery, levelFilter, priceFilter]);
 
   const fetchCourses = async () => {
     try {
@@ -189,7 +189,7 @@ const Courses = () => {
           <div className="mb-12 animate-slide-in-bottom">
             <Card className="card-premium bg-white/5 backdrop-blur-2xl border border-white/20">
               <CardContent className="p-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {/* Search */}
                   <div className="relative">
                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-purple-400" />
@@ -212,20 +212,6 @@ const Courses = () => {
                       <SelectItem value="beginner">Beginner</SelectItem>
                       <SelectItem value="intermediate">Intermediate</SelectItem>
                       <SelectItem value="advanced">Advanced</SelectItem>
-                    </SelectContent>
-                  </Select>
-
-                  {/* Category Filter */}
-                  <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-                    <SelectTrigger className="bg-white/10 border-purple-300/30 text-white">
-                      <SelectValue placeholder="All Categories" />
-                    </SelectTrigger>
-                    <SelectContent className="bg-slate-900 border-purple-500/30">
-                      <SelectItem value="all">All Categories</SelectItem>
-                      <SelectItem value="digital art">Digital Art</SelectItem>
-                      <SelectItem value="painting">Painting</SelectItem>
-                      <SelectItem value="drawing">Drawing</SelectItem>
-                      <SelectItem value="sculpture">Sculpture</SelectItem>
                     </SelectContent>
                   </Select>
 
@@ -262,17 +248,9 @@ const Courses = () => {
               >
                 {/* Course Image */}
                 <div className="relative h-48 overflow-hidden">
-                  {course.image_url ? (
-                    <img 
-                      src={course.image_url} 
-                      alt={course.title}
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                    />
-                  ) : (
-                    <div className="w-full h-full bg-gradient-to-br from-purple-500 via-pink-500 to-orange-500 flex items-center justify-center group-hover:scale-110 transition-transform duration-500">
-                      <BookOpen className="h-16 w-16 text-white opacity-80" />
-                    </div>
-                  )}
+                  <div className="w-full h-full bg-gradient-to-br from-purple-500 via-pink-500 to-orange-500 flex items-center justify-center group-hover:scale-110 transition-transform duration-500">
+                    <BookOpen className="h-16 w-16 text-white opacity-80" />
+                  </div>
                   
                   {/* Overlay */}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
@@ -321,7 +299,7 @@ const Courses = () => {
                     </div>
                     <div className="flex items-center space-x-1">
                       <Users className="h-4 w-4" />
-                      <span>1.2k students</span>
+                      <span>{course.enrolled_students} students</span>
                     </div>
                     <div className="flex items-center space-x-1">
                       <Award className="h-4 w-4" />
@@ -381,7 +359,6 @@ const Courses = () => {
                     onClick={() => {
                       setSearchQuery('');
                       setLevelFilter('all');
-                      setCategoryFilter('all');
                       setPriceFilter('all');
                     }}
                     className="btn-premium"
