@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -107,10 +106,10 @@ const Courses = () => {
 
   const getLevelColor = (level: string) => {
     switch (level.toLowerCase()) {
-      case 'beginner': return 'bg-gradient-to-r from-green-500 to-emerald-500';
-      case 'intermediate': return 'bg-gradient-to-r from-yellow-500 to-orange-500';
-      case 'advanced': return 'bg-gradient-to-r from-red-500 to-pink-500';
-      default: return 'bg-gradient-to-r from-purple-500 to-blue-500';
+      case 'beginner': return 'bg-[#7FC29B] text-white';
+      case 'intermediate': return 'bg-[#F19A3E] text-white';
+      case 'advanced': return 'bg-[#726E75] text-white';
+      default: return 'bg-[#B5EF8A] text-[#726E75]';
     }
   };
 
@@ -120,19 +119,13 @@ const Courses = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 relative overflow-hidden">
-        {/* Premium Background Effects */}
-        <div className="fixed inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse" />
-          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-pink-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse" />
-        </div>
-        
+      <div className="min-h-screen bg-gradient-to-br from-[#726E75] via-[#7FC29B] to-[#B5EF8A] relative overflow-hidden">
         <div className="relative z-10 pt-32 pb-16">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex items-center justify-center min-h-[400px]">
               <div className="text-center">
                 <div className="loading-spinner mx-auto mb-4" />
-                <p className="text-white/80 text-lg">Loading premium courses...</p>
+                <p className="text-white text-lg font-semibold">Loading premium courses...</p>
               </div>
             </div>
           </div>
@@ -142,88 +135,78 @@ const Courses = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-[#726E75] via-[#7FC29B] to-[#B5EF8A] relative overflow-hidden">
       {/* Premium Background Effects */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse float" />
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-pink-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse float-delayed" />
-        <div className="absolute top-1/3 left-1/4 w-60 h-60 bg-blue-500 rounded-full mix-blend-multiply filter blur-xl opacity-15 animate-pulse" style={{ animationDelay: '2s' }} />
-        <div className="absolute bottom-1/3 right-1/4 w-60 h-60 bg-indigo-500 rounded-full mix-blend-multiply filter blur-xl opacity-15 animate-pulse" style={{ animationDelay: '3s' }} />
-        
-        {/* Grid overlay */}
-        <div className="absolute inset-0 bg-gradient-to-br from-transparent via-purple-900/5 to-transparent" 
-             style={{ 
-               backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(255,255,255,0.05) 1px, transparent 0)',
-               backgroundSize: '50px 50px'
-             }} />
-        
-        {/* Shimmer effect */}
-        <div className="absolute inset-0 shimmer opacity-30" />
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-[#D7F171] rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-pulse float" />
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-[#F19A3E] rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-pulse float-delayed" />
+        <div className="absolute top-1/3 left-1/4 w-60 h-60 bg-[#7FC29B] rounded-full mix-blend-multiply filter blur-xl opacity-25 animate-pulse" style={{ animationDelay: '2s' }} />
+        <div className="absolute bottom-1/3 right-1/4 w-60 h-60 bg-[#B5EF8A] rounded-full mix-blend-multiply filter blur-xl opacity-25 animate-pulse" style={{ animationDelay: '3s' }} />
       </div>
       
       <div className="relative z-10 pt-32 pb-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Premium Header */}
           <div className="text-center mb-16 animate-fade-in">
-            <div className="inline-flex items-center space-x-2 bg-white/10 backdrop-blur-md rounded-full px-6 py-2 mb-6 border border-white/20">
-              <BookOpen className="h-5 w-5 text-purple-400" />
-              <span className="text-purple-200 font-medium">Premium Learning</span>
+            <div className="inline-flex items-center space-x-2 bg-white/20 backdrop-blur-md rounded-full px-6 py-2 mb-6 border border-white/30">
+              <BookOpen className="h-5 w-5 text-[#726E75]" />
+              <span className="text-[#726E75] font-medium">Premium Learning</span>
             </div>
             
             <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold mb-6">
-              <span className="bg-gradient-to-r from-white via-purple-200 to-pink-200 bg-clip-text text-transparent">
+              <span className="text-white drop-shadow-lg">
                 Master
               </span>
               <br />
-              <span className="bg-gradient-to-r from-purple-400 via-pink-400 to-orange-400 bg-clip-text text-transparent">
+              <span className="text-[#726E75] drop-shadow-lg">
                 Art Courses
               </span>
             </h1>
             
-            <p className="text-xl text-purple-200/80 max-w-3xl mx-auto leading-relaxed mb-8">
+            <p className="text-xl text-white/90 max-w-3xl mx-auto leading-relaxed mb-8 drop-shadow-md">
               Unlock your artistic potential with our world-class courses designed by industry experts
             </p>
           </div>
 
           {/* Premium Search and Filters */}
           <div className="mb-12 animate-slide-in-bottom">
-            <Card className="card-premium bg-white/5 backdrop-blur-2xl border border-white/20">
+            <Card className="bg-white/20 backdrop-blur-xl border border-white/30 shadow-2xl">
               <CardContent className="p-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {/* Search */}
                   <div className="relative">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-purple-400" />
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-[#726E75]" />
                     <Input
                       type="text"
                       placeholder="Search courses..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className="pl-10 bg-white/10 border-purple-300/30 text-white placeholder-purple-300 focus:bg-white/20 transition-all duration-300"
+                      className="pl-10 bg-white/80 border-[#7FC29B]/50 text-[#726E75] placeholder-[#726E75]/70 focus:bg-white focus:border-[#7FC29B] transition-all duration-300"
                     />
                   </div>
 
                   {/* Level Filter */}
                   <Select value={levelFilter} onValueChange={setLevelFilter}>
-                    <SelectTrigger className="bg-white/10 border-purple-300/30 text-white">
+                    <SelectTrigger className="bg-white/80 border-[#7FC29B]/50 text-[#726E75] focus:border-[#7FC29B]">
                       <SelectValue placeholder="All Levels" />
                     </SelectTrigger>
-                    <SelectContent className="bg-slate-900 border-purple-500/30">
-                      <SelectItem value="all">All Levels</SelectItem>
-                      <SelectItem value="beginner">Beginner</SelectItem>
-                      <SelectItem value="intermediate">Intermediate</SelectItem>
-                      <SelectItem value="advanced">Advanced</SelectItem>
+                    <SelectContent className="bg-white border-[#7FC29B]/50">
+                      <SelectItem value="all" className="text-[#726E75]">All Levels</SelectItem>
+                      <SelectItem value="beginner" className="text-[#726E75]">Beginner</SelectItem>
+                      <SelectItem value="intermediate" className="text-[#726E75]">Intermediate</SelectItem>
+                      <SelectItem value="advanced" className="text-[#726E75]">Advanced</SelectItem>
                     </SelectContent>
                   </Select>
 
                   {/* Price Filter */}
                   <Select value={priceFilter} onValueChange={setPriceFilter}>
-                    <SelectTrigger className="bg-white/10 border-purple-300/30 text-white">
+                    <SelectTrigger className="bg-white/80 border-[#7FC29B]/50 text-[#726E75] focus:border-[#7FC29B]">
                       <SelectValue placeholder="All Prices" />
                     </SelectTrigger>
-                    <SelectContent className="bg-slate-900 border-purple-500/30">
-                      <SelectItem value="all">All Prices</SelectItem>
-                      <SelectItem value="free">Free</SelectItem>
-                      <SelectItem value="paid">Paid</SelectItem>
+                    <SelectContent className="bg-white border-[#7FC29B]/50">
+                      <SelectItem value="all" className="text-[#726E75]">All Prices</SelectItem>
+                      <SelectItem value="free" className="text-[#726E75]">Free</SelectItem>
+                      <SelectItem value="paid" className="text-[#726E75]">Paid</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -233,8 +216,8 @@ const Courses = () => {
 
           {/* Results Count */}
           <div className="mb-8 animate-slide-in-left">
-            <p className="text-purple-200/80 text-lg">
-              Found <span className="text-white font-semibold">{filteredCourses.length}</span> premium courses
+            <p className="text-white/90 text-lg drop-shadow-md">
+              Found <span className="text-white font-bold">{filteredCourses.length}</span> premium courses
             </p>
           </div>
 
@@ -243,28 +226,25 @@ const Courses = () => {
             {filteredCourses.map((course, index) => (
               <Card 
                 key={course.id} 
-                className="card-premium group hover:scale-[1.02] transition-all duration-500 animate-slide-in-bottom overflow-hidden"
+                className="bg-white/95 backdrop-blur-md border border-white/40 shadow-2xl group hover:scale-[1.02] hover:shadow-3xl transition-all duration-500 animate-slide-in-bottom overflow-hidden"
                 style={{ animationDelay: `${index * 100}ms` }}
               >
                 {/* Course Image */}
                 <div className="relative h-48 overflow-hidden">
-                  <div className="w-full h-full bg-gradient-to-br from-purple-500 via-pink-500 to-orange-500 flex items-center justify-center group-hover:scale-110 transition-transform duration-500">
-                    <BookOpen className="h-16 w-16 text-white opacity-80" />
+                  <div className="w-full h-full bg-gradient-to-br from-[#7FC29B] via-[#B5EF8A] to-[#D7F171] flex items-center justify-center group-hover:scale-110 transition-transform duration-500">
+                    <BookOpen className="h-16 w-16 text-white opacity-80 drop-shadow-lg" />
                   </div>
-                  
-                  {/* Overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
                   
                   {/* Price Badge */}
                   <div className="absolute top-4 right-4">
-                    <Badge className={`${course.price === 0 ? 'bg-green-500' : 'bg-gradient-to-r from-purple-600 to-pink-600'} text-white font-semibold px-3 py-1 rounded-full shadow-lg`}>
+                    <Badge className={`${course.price === 0 ? 'bg-[#7FC29B]' : 'bg-[#F19A3E]'} text-white font-semibold px-3 py-1 rounded-full shadow-lg`}>
                       {getPriceDisplay(course.price)}
                     </Badge>
                   </div>
                   
                   {/* Play Button Overlay */}
                   <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    <div className="w-16 h-16 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center border border-white/30">
+                    <div className="w-16 h-16 bg-white/30 backdrop-blur-md rounded-full flex items-center justify-center border border-white/50">
                       <Play className="h-8 w-8 text-white ml-1" />
                     </div>
                   </div>
@@ -272,27 +252,27 @@ const Courses = () => {
 
                 <CardHeader className="pb-3">
                   <div className="flex items-start justify-between mb-2">
-                    <Badge className={`${getLevelColor(course.level)} text-white border-0 px-3 py-1 rounded-full font-medium`}>
+                    <Badge className={`${getLevelColor(course.level)} border-0 px-3 py-1 rounded-full font-medium shadow-md`}>
                       {course.level}
                     </Badge>
-                    <div className="flex items-center space-x-1 text-purple-300">
+                    <div className="flex items-center space-x-1 text-[#F19A3E]">
                       <Star className="h-4 w-4 fill-current" />
                       <span className="text-sm font-medium">4.9</span>
                     </div>
                   </div>
                   
-                  <CardTitle className="text-xl text-white group-hover:text-purple-300 transition-colors duration-300 line-clamp-2">
+                  <CardTitle className="text-xl text-[#726E75] font-bold leading-tight mb-2">
                     {course.title}
                   </CardTitle>
                   
-                  <p className="text-purple-200/80 text-sm leading-relaxed line-clamp-2">
+                  <p className="text-[#726E75]/80 text-sm leading-relaxed">
                     {course.description}
                   </p>
                 </CardHeader>
 
                 <CardContent className="pt-0">
                   {/* Course Meta */}
-                  <div className="flex items-center justify-between text-sm text-purple-300 mb-4">
+                  <div className="flex items-center justify-between text-sm text-[#726E75]/70 mb-4">
                     <div className="flex items-center space-x-1">
                       <Clock className="h-4 w-4" />
                       <span>{course.duration}</span>
@@ -308,15 +288,15 @@ const Courses = () => {
                   </div>
                   
                   {/* Instructor */}
-                  <div className="flex items-center space-x-2 mb-4 p-3 bg-white/5 rounded-lg border border-white/10">
-                    <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
+                  <div className="flex items-center space-x-2 mb-4 p-3 bg-[#B5EF8A]/20 rounded-lg border border-[#7FC29B]/30">
+                    <div className="w-8 h-8 bg-gradient-to-r from-[#7FC29B] to-[#B5EF8A] rounded-full flex items-center justify-center">
                       <span className="text-white font-semibold text-sm">
                         {course.instructor.charAt(0).toUpperCase()}
                       </span>
                     </div>
                     <div>
-                      <p className="text-white text-sm font-medium">{course.instructor}</p>
-                      <p className="text-purple-300 text-xs">Expert Instructor</p>
+                      <p className="text-[#726E75] text-sm font-semibold">{course.instructor}</p>
+                      <p className="text-[#726E75]/70 text-xs">Expert Instructor</p>
                     </div>
                   </div>
 
@@ -324,7 +304,7 @@ const Courses = () => {
                   <div className="space-y-2">
                     <Button 
                       onClick={() => handleEnroll(course.id)}
-                      className="w-full btn-premium bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold py-3 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
+                      className="w-full bg-gradient-to-r from-[#7FC29B] to-[#B5EF8A] hover:from-[#726E75] hover:to-[#7FC29B] text-white font-semibold py-3 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
                     >
                       <span>Enroll Now</span>
                       <ArrowRight className="h-4 w-4 ml-2" />
@@ -333,7 +313,7 @@ const Courses = () => {
                     <Button 
                       variant="ghost"
                       onClick={() => navigate(`/courses/${course.id}`)}
-                      className="w-full text-purple-300 hover:text-white hover:bg-white/10 transition-all duration-300"
+                      className="w-full text-[#726E75] hover:text-white hover:bg-[#7FC29B]/20 transition-all duration-300"
                     >
                       View Details
                     </Button>
@@ -345,14 +325,14 @@ const Courses = () => {
 
           {/* No Results */}
           {filteredCourses.length === 0 && (
-            <Card className="card-premium text-center py-16 animate-fade-in">
+            <Card className="bg-white/95 backdrop-blur-md border border-white/40 shadow-2xl text-center py-16 animate-fade-in">
               <CardContent>
                 <div className="flex flex-col items-center space-y-4">
-                  <div className="w-16 h-16 bg-purple-500/20 rounded-full flex items-center justify-center">
-                    <Search className="h-8 w-8 text-purple-400" />
+                  <div className="w-16 h-16 bg-[#7FC29B]/20 rounded-full flex items-center justify-center">
+                    <Search className="h-8 w-8 text-[#7FC29B]" />
                   </div>
-                  <h3 className="text-2xl font-semibold text-white">No Courses Found</h3>
-                  <p className="text-purple-300 max-w-md">
+                  <h3 className="text-2xl font-semibold text-[#726E75]">No Courses Found</h3>
+                  <p className="text-[#726E75]/70 max-w-md">
                     We couldn't find any courses matching your search criteria. Try adjusting your filters or search terms.
                   </p>
                   <Button 
@@ -361,7 +341,7 @@ const Courses = () => {
                       setLevelFilter('all');
                       setPriceFilter('all');
                     }}
-                    className="btn-premium"
+                    className="bg-gradient-to-r from-[#7FC29B] to-[#B5EF8A] hover:from-[#726E75] hover:to-[#7FC29B] text-white"
                   >
                     Clear Filters
                   </Button>
