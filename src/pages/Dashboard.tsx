@@ -1,41 +1,66 @@
 
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { BookOpen, Clock, TrendingUp, Video, Play, Users, Trophy, Star, Calendar, Bell } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
-import { 
-  BookOpen, 
-  Clock, 
-  Users, 
-  Trophy, 
-  Calendar, 
-  Video, 
-  Star, 
-  TrendingUp,
-  Play,
-  Award,
-  Palette,
-  Sparkles,
-  ArrowRight
-} from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const Dashboard = () => {
-  const { user, profile } = useAuth();
+  const { user } = useAuth();
 
-  // Sample data - replace with real data from your backend
-  const enrolledCourses = [
-    { id: 1, title: "Digital Painting Mastery", progress: 75, instructor: "Sarah Chen", nextClass: "2024-06-17T10:00:00" },
-    { id: 2, title: "Character Design Fundamentals", progress: 45, instructor: "Alex Rivera", nextClass: "2024-06-18T14:00:00" },
-    { id: 3, title: "3D Modeling Essentials", progress: 30, instructor: "Maya Patel", nextClass: "2024-06-19T16:00:00" }
+  const mockData = {
+    activeCourses: 3,
+    hoursLearned: 24,
+    avgProgress: 78,
+    achievements: 5
+  };
+
+  const upcomingClasses = [
+    {
+      id: 1,
+      subject: 'Advanced Watercolor Techniques',
+      instructor: 'Sarah Chen',
+      time: 'Today at 10:00 AM',
+      duration: '2 hours',
+      type: 'live'
+    },
+    {
+      id: 2,
+      subject: 'Digital Art Fundamentals',
+      instructor: 'Alex Rivera',
+      time: 'Tomorrow at 2:00 PM',
+      duration: '1.5 hours',
+      type: 'recorded'
+    }
   ];
 
-  const achievements = [
-    { title: "First Course Completed", icon: Trophy, color: "text-yellow-400" },
-    { title: "10 Hours Learned", icon: Clock, color: "text-blue-400" },
-    { title: "Community Contributor", icon: Users, color: "text-green-400" },
-    { title: "Perfect Attendance", icon: Star, color: "text-purple-400" }
+  const recentActivity = [
+    {
+      id: 1,
+      type: 'course_completed',
+      title: 'Completed "Color Theory Basics"',
+      time: '2 hours ago',
+      icon: Trophy,
+      color: 'text-yellow-500'
+    },
+    {
+      id: 2,
+      type: 'live_session',
+      title: 'Attended live session with Maya Patel',
+      time: '1 day ago',
+      icon: Video,
+      color: 'text-red-500'
+    },
+    {
+      id: 3,
+      type: 'achievement',
+      title: 'Earned "First Course Completed" badge',
+      time: '2 days ago',
+      icon: Star,
+      color: 'text-purple-500'
+    }
   ];
 
   return (
@@ -60,10 +85,10 @@ const Dashboard = () => {
 
       <div className="relative z-10 pt-32 pb-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Welcome Header */}
-          <div className="text-center mb-12 animate-fade-in">
+          {/* Header */}
+          <div className="mb-12 animate-fade-in">
             <div className="inline-flex items-center space-x-2 bg-white/10 backdrop-blur-md rounded-full px-6 py-2 mb-6 border border-white/20">
-              <Palette className="h-5 w-5 text-purple-400" />
+              <BookOpen className="h-5 w-5 text-purple-400" />
               <span className="text-purple-200 font-medium">Artist Dashboard</span>
             </div>
             
@@ -73,97 +98,125 @@ const Dashboard = () => {
               </span>
               <br />
               <span className="bg-gradient-to-r from-purple-400 via-pink-400 to-orange-400 bg-clip-text text-transparent">
-                {profile?.full_name?.split(' ')[0] || user?.email?.split('@')[0] || 'Artist'}
+                {user?.email?.split('@')[0] || 'Artist'}
               </span>
             </h1>
             
-            <p className="text-xl text-purple-200/80 max-w-2xl mx-auto">
+            <p className="text-xl text-purple-200/80 max-w-3xl leading-relaxed">
               Continue your creative journey and master new artistic skills
             </p>
           </div>
 
-          {/* Stats Overview */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
-            <Card className="card-premium hover:scale-105 transition-all duration-300 animate-slide-in-bottom">
-              <CardContent className="p-6 text-center">
-                <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl flex items-center justify-center mx-auto mb-3">
-                  <BookOpen className="h-6 w-6 text-white" />
+          {/* Stats Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+            <Card className="card-premium hover:scale-105 transition-all duration-500 animate-slide-in-bottom">
+              <CardContent className="p-6">
+                <div className="flex items-center space-x-4">
+                  <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center">
+                    <BookOpen className="h-6 w-6 text-white" />
+                  </div>
+                  <div>
+                    <p className="text-3xl font-bold text-white">{mockData.activeCourses}</p>
+                    <p className="text-purple-300 text-sm">Active Courses</p>
+                  </div>
                 </div>
-                <div className="text-2xl font-bold text-white mb-1">3</div>
-                <div className="text-purple-300 text-sm">Active Courses</div>
               </CardContent>
             </Card>
 
-            <Card className="card-premium hover:scale-105 transition-all duration-300 animate-slide-in-bottom" style={{ animationDelay: '100ms' }}>
-              <CardContent className="p-6 text-center">
-                <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center mx-auto mb-3">
-                  <Clock className="h-6 w-6 text-white" />
+            <Card className="card-premium hover:scale-105 transition-all duration-500 animate-slide-in-bottom" style={{ animationDelay: '100ms' }}>
+              <CardContent className="p-6">
+                <div className="flex items-center space-x-4">
+                  <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-2xl flex items-center justify-center">
+                    <Clock className="h-6 w-6 text-white" />
+                  </div>
+                  <div>
+                    <p className="text-3xl font-bold text-white">{mockData.hoursLearned}</p>
+                    <p className="text-purple-300 text-sm">Hours Learned</p>
+                  </div>
                 </div>
-                <div className="text-2xl font-bold text-white mb-1">24</div>
-                <div className="text-purple-300 text-sm">Hours Learned</div>
               </CardContent>
             </Card>
 
-            <Card className="card-premium hover:scale-105 transition-all duration-300 animate-slide-in-bottom" style={{ animationDelay: '200ms' }}>
-              <CardContent className="p-6 text-center">
-                <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-emerald-500 rounded-xl flex items-center justify-center mx-auto mb-3">
-                  <TrendingUp className="h-6 w-6 text-white" />
+            <Card className="card-premium hover:scale-105 transition-all duration-500 animate-slide-in-bottom" style={{ animationDelay: '200ms' }}>
+              <CardContent className="p-6">
+                <div className="flex items-center space-x-4">
+                  <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-emerald-500 rounded-2xl flex items-center justify-center">
+                    <TrendingUp className="h-6 w-6 text-white" />
+                  </div>
+                  <div>
+                    <p className="text-3xl font-bold text-white">{mockData.avgProgress}%</p>
+                    <p className="text-purple-300 text-sm">Avg Progress</p>
+                  </div>
                 </div>
-                <div className="text-2xl font-bold text-white mb-1">85%</div>
-                <div className="text-purple-300 text-sm">Avg Progress</div>
               </CardContent>
             </Card>
 
-            <Card className="card-premium hover:scale-105 transition-all duration-300 animate-slide-in-bottom" style={{ animationDelay: '300ms' }}>
-              <CardContent className="p-6 text-center">
-                <div className="w-12 h-12 bg-gradient-to-r from-yellow-500 to-orange-500 rounded-xl flex items-center justify-center mx-auto mb-3">
-                  <Trophy className="h-6 w-6 text-white" />
+            <Card className="card-premium hover:scale-105 transition-all duration-500 animate-slide-in-bottom" style={{ animationDelay: '300ms' }}>
+              <CardContent className="p-6">
+                <div className="flex items-center space-x-4">
+                  <div className="w-12 h-12 bg-gradient-to-r from-yellow-500 to-orange-500 rounded-2xl flex items-center justify-center">
+                    <Trophy className="h-6 w-6 text-white" />
+                  </div>
+                  <div>
+                    <p className="text-3xl font-bold text-white">{mockData.achievements}</p>
+                    <p className="text-purple-300 text-sm">Achievements</p>
+                  </div>
                 </div>
-                <div className="text-2xl font-bold text-white mb-1">4</div>
-                <div className="text-purple-300 text-sm">Achievements</div>
               </CardContent>
             </Card>
           </div>
 
+          {/* Main Content Grid */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Enrolled Courses */}
+            {/* Current Courses */}
             <div className="lg:col-span-2">
-              <Card className="card-premium animate-slide-in-left">
+              <Card className="card-premium animate-slide-in-bottom" style={{ animationDelay: '400ms' }}>
                 <CardHeader>
-                  <CardTitle className="text-white text-xl flex items-center">
-                    <BookOpen className="h-5 w-5 mr-2 text-purple-400" />
-                    My Courses
-                  </CardTitle>
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-xl text-white flex items-center">
+                      <BookOpen className="h-5 w-5 mr-2" />
+                      Current Courses
+                    </CardTitle>
+                    <Badge className="bg-purple-500/20 text-purple-300 border-purple-500/30">
+                      {mockData.activeCourses} Active
+                    </Badge>
+                  </div>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  {enrolledCourses.map((course, index) => (
-                    <div 
-                      key={course.id} 
-                      className="p-4 bg-white/5 rounded-xl border border-white/10 hover:bg-white/10 transition-all duration-300 group"
-                      style={{ animationDelay: `${index * 100}ms` }}
-                    >
-                      <div className="flex items-center justify-between mb-3">
-                        <h3 className="text-white font-semibold group-hover:text-purple-300 transition-colors">
-                          {course.title}
-                        </h3>
-                        <Badge className="bg-purple-500/20 text-purple-300 border-purple-500/30">
-                          {course.progress}%
-                        </Badge>
-                      </div>
-                      
-                      <div className="w-full bg-white/10 rounded-full h-2 mb-3">
-                        <div 
-                          className="bg-gradient-to-r from-purple-500 to-pink-500 h-2 rounded-full transition-all duration-500"
-                          style={{ width: `${course.progress}%` }}
-                        />
-                      </div>
-                      
-                      <div className="flex items-center justify-between text-sm">
-                        <div className="flex items-center text-purple-300">
-                          <Users className="h-4 w-4 mr-1" />
-                          {course.instructor}
+                  {['Complete Web Development Course from Scratch', 'Advanced JavaScript Fundamentals', 'React & Node.js Full Stack'].map((course, index) => (
+                    <div key={index} className="flex items-center justify-between p-4 bg-white/5 backdrop-blur-md rounded-xl border border-white/10 hover:bg-white/10 transition-all duration-300">
+                      <div className="flex items-center space-x-4">
+                        <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg flex items-center justify-center">
+                          <BookOpen className="h-5 w-5 text-white" />
                         </div>
-                        <Button size="sm" variant="ghost" className="text-purple-300 hover:text-white hover:bg-white/10">
+                        <div>
+                          <h3 className="font-medium text-white">{course}</h3>
+                          <div className="flex items-center space-x-4 mt-1">
+                            <div className="flex items-center text-sm text-purple-300">
+                              <Clock className="h-4 w-4 mr-1" />
+                              60 hours
+                            </div>
+                            <div className="flex items-center text-sm text-purple-300">
+                              <Users className="h-4 w-4 mr-1" />
+                              25 students
+                            </div>
+                            <Badge className="bg-green-500/20 text-green-300 border-green-500/30 text-xs">
+                              Certificate
+                            </Badge>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <div className="text-right">
+                          <p className="text-sm font-medium text-white">{75 + index * 5}%</p>
+                          <div className="w-24 h-2 bg-white/10 rounded-full mt-1">
+                            <div 
+                              className="h-full bg-gradient-to-r from-purple-500 to-pink-500 rounded-full transition-all duration-300"
+                              style={{ width: `${75 + index * 5}%` }}
+                            />
+                          </div>
+                        </div>
+                        <Button size="sm" className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white">
                           <Play className="h-4 w-4 mr-1" />
                           Continue
                         </Button>
@@ -171,79 +224,82 @@ const Dashboard = () => {
                     </div>
                   ))}
                   
-                  <Button asChild className="w-full btn-premium bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300">
-                    <Link to="/courses">
-                      <Sparkles className="h-4 w-4 mr-2" />
-                      Explore More Courses
-                      <ArrowRight className="h-4 w-4 ml-2" />
-                    </Link>
-                  </Button>
+                  <div className="pt-4">
+                    <Button asChild className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold">
+                      <Link to="/courses">
+                        <BookOpen className="h-4 w-4 mr-2" />
+                        Explore More Courses
+                      </Link>
+                    </Button>
+                  </div>
                 </CardContent>
               </Card>
             </div>
 
             {/* Sidebar */}
             <div className="space-y-6">
-              {/* Next Class */}
-              <Card className="card-premium animate-slide-in-right">
+              {/* Upcoming Classes */}
+              <Card className="card-premium animate-slide-in-bottom" style={{ animationDelay: '500ms' }}>
                 <CardHeader>
-                  <CardTitle className="text-white text-lg flex items-center">
-                    <Calendar className="h-5 w-5 mr-2 text-purple-400" />
-                    Next Live Class
+                  <CardTitle className="text-lg text-white flex items-center">
+                    <Video className="h-5 w-5 mr-2" />
+                    Upcoming Classes
                   </CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <div className="text-center">
-                    <div className="w-16 h-16 bg-gradient-to-r from-red-500 to-pink-500 rounded-2xl flex items-center justify-center mx-auto mb-4 animate-pulse">
-                      <Video className="h-8 w-8 text-white" />
-                    </div>
-                    <h3 className="text-white font-semibold mb-2">Digital Painting Mastery</h3>
-                    <p className="text-purple-300 text-sm mb-1">with Sarah Chen</p>
-                    <p className="text-purple-200 text-sm mb-4">Today at 10:00 AM</p>
-                    <Button className="w-full bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 text-white font-semibold rounded-xl">
-                      <Video className="h-4 w-4 mr-2" />
-                      Join Live
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Achievements */}
-              <Card className="card-premium animate-slide-in-right" style={{ animationDelay: '200ms' }}>
-                <CardHeader>
-                  <CardTitle className="text-white text-lg flex items-center">
-                    <Award className="h-5 w-5 mr-2 text-purple-400" />
-                    Recent Achievements
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  {achievements.map((achievement, index) => (
-                    <div key={index} className="flex items-center space-x-3 p-2 bg-white/5 rounded-lg">
-                      <achievement.icon className={`h-5 w-5 ${achievement.color}`} />
-                      <span className="text-purple-200 text-sm">{achievement.title}</span>
+                <CardContent className="space-y-4">
+                  {upcomingClasses.map((classItem) => (
+                    <div key={classItem.id} className="p-4 bg-white/5 backdrop-blur-md rounded-xl border border-white/10">
+                      <div className="flex items-center justify-between mb-2">
+                        <Badge className={classItem.type === 'live' ? 'bg-red-500/20 text-red-300 border-red-500/30' : 'bg-blue-500/20 text-blue-300 border-blue-500/30'}>
+                          {classItem.type === 'live' ? 'Live' : 'Recorded'}
+                        </Badge>
+                      </div>
+                      <h3 className="font-medium text-white mb-2">{classItem.subject}</h3>
+                      <div className="space-y-1 text-sm text-purple-300">
+                        <div className="flex items-center">
+                          <Users className="h-4 w-4 mr-1" />
+                          with {classItem.instructor}
+                        </div>
+                        <div className="flex items-center">
+                          <Calendar className="h-4 w-4 mr-1" />
+                          {classItem.time}
+                        </div>
+                      </div>
+                      <Button 
+                        size="sm" 
+                        className={`w-full mt-3 ${classItem.type === 'live' ? 'bg-red-600 hover:bg-red-700' : 'bg-blue-600 hover:bg-blue-700'} text-white`}
+                      >
+                        <Video className="h-4 w-4 mr-1" />
+                        {classItem.type === 'live' ? 'Join Live' : 'Watch Recording'}
+                      </Button>
                     </div>
                   ))}
                 </CardContent>
               </Card>
 
-              {/* Quick Actions */}
-              <Card className="card-premium animate-slide-in-right" style={{ animationDelay: '400ms' }}>
+              {/* Recent Activity */}
+              <Card className="card-premium animate-slide-in-bottom" style={{ animationDelay: '600ms' }}>
                 <CardHeader>
-                  <CardTitle className="text-white text-lg">Quick Actions</CardTitle>
+                  <CardTitle className="text-lg text-white flex items-center">
+                    <Bell className="h-5 w-5 mr-2" />
+                    Recent Activity
+                  </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-3">
-                  <Button asChild variant="ghost" className="w-full justify-start text-purple-300 hover:text-white hover:bg-white/10">
-                    <Link to="/announcements">
-                      <Calendar className="h-4 w-4 mr-2" />
-                      View Schedule
-                    </Link>
-                  </Button>
-                  <Button asChild variant="ghost" className="w-full justify-start text-purple-300 hover:text-white hover:bg-white/10">
-                    <Link to="/store">
-                      <BookOpen className="h-4 w-4 mr-2" />
-                      Art Store
-                    </Link>
-                  </Button>
+                <CardContent className="space-y-4">
+                  {recentActivity.map((activity) => {
+                    const IconComponent = activity.icon;
+                    return (
+                      <div key={activity.id} className="flex items-start space-x-3 p-3 bg-white/5 backdrop-blur-md rounded-lg border border-white/10">
+                        <div className={`w-8 h-8 rounded-full bg-white/10 flex items-center justify-center flex-shrink-0`}>
+                          <IconComponent className={`h-4 w-4 ${activity.color}`} />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-white">{activity.title}</p>
+                          <p className="text-xs text-purple-300 mt-1">{activity.time}</p>
+                        </div>
+                      </div>
+                    );
+                  })}
                 </CardContent>
               </Card>
             </div>

@@ -1,9 +1,9 @@
 
 import React, { createContext, useContext, useState, ReactNode } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { AlertTriangle, CheckCircle, Info } from 'lucide-react';
 
 interface PopupContextType {
   showAlert: (message: string, title?: string) => Promise<void>;
@@ -21,133 +21,133 @@ export const usePopup = () => {
   return context;
 };
 
-interface PopupState {
-  type: 'alert' | 'confirm' | 'prompt' | null;
-  title: string;
-  message: string;
-  isOpen: boolean;
-  resolve?: (value: any) => void;
-  defaultValue?: string;
-  inputValue?: string;
+interface PopupProviderProps {
+  children: ReactNode;
 }
 
-export const PopupProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [popup, setPopup] = useState<PopupState>({
-    type: null,
-    title: '',
-    message: '',
-    isOpen: false,
-  });
+export const PopupProvider: React.FC<PopupProviderProps> = ({ children }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [popupType, setPopupType] = useState<'alert' | 'confirm' | 'prompt'>('alert');
+  const [title, setTitle] = useState('');
+  const [message, setMessage] = useState('');
+  const [inputValue, setInputValue] = useState('');
+  const [resolver, setResolver] = useState<((value: any) => void) | null>(null);
 
   const showAlert = (message: string, title: string = 'Alert'): Promise<void> => {
     return new Promise((resolve) => {
-      setPopup({
-        type: 'alert',
-        title,
-        message,
-        isOpen: true,
-        resolve,
-      });
+      setPopupType('alert');
+      setTitle(title);
+      setMessage(message);
+      setIsOpen(true);
+      setResolver(() => resolve);
     });
   };
 
   const showConfirm = (message: string, title: string = 'Confirm'): Promise<boolean> => {
     return new Promise((resolve) => {
-      setPopup({
-        type: 'confirm',
-        title,
-        message,
-        isOpen: true,
-        resolve,
-      });
+      setPopupType('confirm');
+      setTitle(title);
+      setMessage(message);
+      setIsOpen(true);
+      setResolver(() => resolve);
     });
   };
 
   const showPrompt = (message: string, title: string = 'Input', defaultValue: string = ''): Promise<string | null> => {
     return new Promise((resolve) => {
-      setPopup({
-        type: 'prompt',
-        title,
-        message,
-        isOpen: true,
-        resolve,
-        defaultValue,
-        inputValue: defaultValue,
-      });
+      setPopupType('prompt');
+      setTitle(title);
+      setMessage(message);
+      setInputValue(defaultValue);
+      setIsOpen(true);
+      setResolver(() => resolve);
     });
   };
 
-  const handleClose = () => {
-    if (popup.resolve) {
-      if (popup.type === 'confirm') {
-        popup.resolve(false);
-      } else if (popup.type === 'prompt') {
-        popup.resolve(null);
-      } else {
-        popup.resolve(undefined);
-      }
-    }
-    setPopup({ ...popup, isOpen: false });
-  };
-
   const handleConfirm = () => {
-    if (popup.resolve) {
-      if (popup.type === 'confirm') {
-        popup.resolve(true);
-      } else if (popup.type === 'prompt') {
-        popup.resolve(popup.inputValue || '');
-      } else {
-        popup.resolve(undefined);
+    if (resolver) {
+      if (popupType === 'alert') {
+        resolver(undefined);
+      } else if (popupType === 'confirm') {
+        resolver(true);
+      } else if (popupType === 'prompt') {
+        resolver(inputValue);
       }
     }
-    setPopup({ ...popup, isOpen: false });
+    setIsOpen(false);
+    setResolver(null);
+    setInputValue('');
   };
 
-  const handleInputChange = (value: string) => {
-    setPopup({ ...popup, inputValue: value });
+  const handleCancel = () => {
+    if (resolver) {
+      if (popupType === 'confirm') {
+        resolver(false);
+      } else if (popupType === 'prompt') {
+        resolver(null);
+      }
+    }
+    setIsOpen(false);
+    setResolver(null);
+    setInputValue('');
+  };
+
+  const getIcon = () => {
+    switch (popupType) {
+      case 'alert':
+        return <Info className="h-6 w-6 text-blue-500" />;
+      case 'confirm':
+        return <AlertTriangle className="h-6 w-6 text-yellow-500" />;
+      case 'prompt':
+        return <CheckCircle className="h-6 w-6 text-green-500" />;
+      default:
+        return <Info className="h-6 w-6 text-blue-500" />;
+    }
   };
 
   return (
     <PopupContext.Provider value={{ showAlert, showConfirm, showPrompt }}>
       {children}
-      
-      <Dialog open={popup.isOpen} onOpenChange={handleClose}>
-        <DialogContent className="sm:max-w-md">
+      <Dialog open={isOpen} onOpenChange={setIsOpen}>
+        <DialogContent className="sm:max-w-md bg-white/95 backdrop-blur-md border border-white/20">
           <DialogHeader>
-            <DialogTitle>{popup.title}</DialogTitle>
-            <DialogDescription>
-              {popup.message}
-            </DialogDescription>
+            <DialogTitle className="flex items-center space-x-2 text-gray-900">
+              {getIcon()}
+              <span>{title}</span>
+            </DialogTitle>
           </DialogHeader>
           
-          {popup.type === 'prompt' && (
-            <div className="grid gap-2">
-              <Label htmlFor="popup-input">Enter value:</Label>
+          <div className="py-4">
+            <p className="text-gray-700 mb-4">{message}</p>
+            {popupType === 'prompt' && (
               <Input
-                id="popup-input"
-                value={popup.inputValue || ''}
-                onChange={(e) => handleInputChange(e.target.value)}
-                placeholder={popup.defaultValue}
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    handleConfirm();
+                  } else if (e.key === 'Escape') {
+                    handleCancel();
+                  }
+                }}
+                className="w-full"
                 autoFocus
               />
-            </div>
-          )}
-          
-          <DialogFooter className="flex gap-2">
-            {popup.type === 'alert' ? (
-              <Button onClick={handleConfirm} className="w-full">
-                OK
-              </Button>
-            ) : (
-              <>
-                <Button variant="outline" onClick={handleClose}>
-                  Cancel
-                </Button>
-                <Button onClick={handleConfirm}>
-                  {popup.type === 'confirm' ? 'Confirm' : 'OK'}
-                </Button>
-              </>
             )}
+          </div>
+
+          <DialogFooter className="flex space-x-2">
+            {(popupType === 'confirm' || popupType === 'prompt') && (
+              <Button variant="outline" onClick={handleCancel}>
+                Cancel
+              </Button>
+            )}
+            <Button 
+              onClick={handleConfirm}
+              className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white"
+            >
+              {popupType === 'alert' ? 'OK' : 'Confirm'}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
