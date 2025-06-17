@@ -1,9 +1,10 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { BookOpen, Clock, TrendingUp, Palette, Video, Users, Award, Globe } from 'lucide-react';
+import { BookOpen, Clock, TrendingUp, Palette, Video, Users, Award, Globe, Star } from 'lucide-react';
 
 const Dashboard = () => {
   const { user, profile, logout } = useAuth();
@@ -160,7 +161,7 @@ const Dashboard = () => {
                   className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-8 py-4 text-lg font-medium shadow-lg transform hover:scale-105 transition-all duration-300"
                   onClick={() => navigate('/courses')}
                 >
-                  <star className="h-5 w-5 mr-2" />
+                  <Star className="h-5 w-5 mr-2" />
                   Start Your Journey
                 </Button>
                 <Button 
