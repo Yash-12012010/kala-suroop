@@ -81,9 +81,9 @@ const Navbar = () => {
         
         <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12">
           <div className="flex justify-between items-center h-16 sm:h-18 lg:h-20">
-            {/* Enhanced Logo */}
+            {/* Enhanced Logo - Now links to About page */}
             <div className="flex items-center flex-shrink-0 group">
-              <Link to="/" className="flex items-center space-x-3 transform hover:scale-105 transition-all duration-500">
+              <Link to="/about" className="flex items-center space-x-3 transform hover:scale-105 transition-all duration-500">
                 <div className="relative p-2 sm:p-2.5 bg-gradient-to-br from-orange-500 via-pink-500 to-purple-500 rounded-2xl group-hover:rotate-12 transition-all duration-500 shadow-xl group-hover:shadow-2xl">
                   <Palette className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 text-white" />
                   <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent rounded-2xl" />

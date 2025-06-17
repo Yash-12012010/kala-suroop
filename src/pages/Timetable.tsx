@@ -131,16 +131,16 @@ const Timetable = () => {
             </div>
           )}
 
-          {/* Schedule Info Cards */}
+          {/* Schedule Info Cards - Fixed readability */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
-            <Card className="card-premium animate-slide-in-bottom">
+            <Card className="bg-white/15 backdrop-blur-md border border-white/30 shadow-xl">
               <CardHeader>
                 <CardTitle className="text-xl text-white flex items-center">
-                  <Sparkles className="h-5 w-5 mr-2" />
+                  <Sparkles className="h-5 w-5 mr-2 text-purple-400" />
                   Schedule Features
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4 text-purple-200">
+              <CardContent className="space-y-4 text-white/90">
                 <div className="flex items-center space-x-3">
                   <Video className="h-5 w-5 text-purple-400" />
                   <span>Live classes are conducted via premium video conferencing</span>
@@ -164,17 +164,17 @@ const Timetable = () => {
               </CardContent>
             </Card>
 
-            <Card className="card-premium animate-slide-in-bottom" style={{ animationDelay: '100ms' }}>
+            <Card className="bg-white/15 backdrop-blur-md border border-white/30 shadow-xl">
               <CardHeader>
                 <CardTitle className="text-xl text-white flex items-center">
-                  <Calendar className="h-5 w-5 mr-2" />
+                  <Calendar className="h-5 w-5 mr-2 text-purple-400" />
                   Subject Legend
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-2 gap-3">
                   {Object.entries(subjectColors).map(([subject, colorClass]) => (
-                    <Badge key={subject} className={`${colorClass} justify-center py-2`}>
+                    <Badge key={subject} className={`${colorClass} justify-center py-2 text-sm font-medium`}>
                       {subject}
                     </Badge>
                   ))}
@@ -183,31 +183,31 @@ const Timetable = () => {
             </Card>
           </div>
 
-          {/* Weekly Timetable */}
+          {/* Weekly Timetable - Fixed readability */}
           {loading ? (
-            <Card className="card-premium">
+            <Card className="bg-white/15 backdrop-blur-md border border-white/30 shadow-xl">
               <CardContent className="p-12 text-center">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500 mx-auto mb-4"></div>
-                <p className="text-purple-200">Loading your schedule...</p>
+                <p className="text-white">Loading your schedule...</p>
               </CardContent>
             </Card>
           ) : (
-            <Card className="card-premium animate-slide-in-bottom" style={{ animationDelay: '200ms' }}>
+            <Card className="bg-white/15 backdrop-blur-md border border-white/30 shadow-xl">
               <CardHeader>
                 <CardTitle className="text-2xl text-white flex items-center">
-                  <Calendar className="h-6 w-6 mr-3" />
+                  <Calendar className="h-6 w-6 mr-3 text-purple-400" />
                   Weekly Timetable
                 </CardTitle>
               </CardHeader>
               <CardContent className="overflow-x-auto">
                 <div className="min-w-full">
                   <div className="grid grid-cols-8 gap-2 mb-4">
-                    <div className="p-3 text-center font-semibold text-purple-300 bg-white/5 rounded-lg">
-                      <Clock className="h-5 w-5 mx-auto mb-1" />
+                    <div className="p-3 text-center font-semibold text-white bg-white/10 rounded-lg border border-white/20">
+                      <Clock className="h-5 w-5 mx-auto mb-1 text-purple-400" />
                       Time
                     </div>
                     {days.map((day) => (
-                      <div key={day} className="p-3 text-center font-semibold text-white bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-lg border border-white/10">
+                      <div key={day} className="p-3 text-center font-semibold text-white bg-gradient-to-r from-purple-500/30 to-pink-500/30 rounded-lg border border-white/20">
                         {day}
                       </div>
                     ))}
@@ -215,29 +215,29 @@ const Timetable = () => {
 
                   {timeSlots.map((timeSlot) => (
                     <div key={timeSlot} className="grid grid-cols-8 gap-2 mb-2">
-                      <div className="p-3 text-center font-medium text-purple-300 bg-white/5 rounded-lg flex items-center justify-center">
+                      <div className="p-3 text-center font-medium text-white bg-white/10 rounded-lg border border-white/20 flex items-center justify-center">
                         {timeSlot}
                       </div>
                       {days.map((day) => {
                         const classInfo = scheduleData[day]?.[timeSlot];
                         return (
-                          <div key={`${day}-${timeSlot}`} className="min-h-[80px] p-2 bg-white/5 backdrop-blur-md rounded-lg border border-white/10 hover:bg-white/10 transition-all duration-300">
+                          <div key={`${day}-${timeSlot}`} className="min-h-[80px] p-2 bg-white/10 backdrop-blur-md rounded-lg border border-white/20 hover:bg-white/15 transition-all duration-300">
                             {classInfo ? (
                               <div className="h-full flex flex-col justify-between">
                                 <div>
-                                  <Badge className={`${subjectColors[classInfo.subject as keyof typeof subjectColors] || 'bg-gray-500/20 text-gray-300 border-gray-500/30'} text-xs mb-2 w-full justify-center`}>
+                                  <Badge className={`${subjectColors[classInfo.subject as keyof typeof subjectColors] || 'bg-gray-500/30 text-white border-gray-500/40'} text-xs mb-2 w-full justify-center font-medium`}>
                                     {classInfo.subject}
                                   </Badge>
                                   <p className="text-xs text-white font-medium mb-1">{classInfo.class_name}</p>
-                                  <p className="text-xs text-purple-300">{classInfo.teacher}</p>
+                                  <p className="text-xs text-white/80">{classInfo.teacher}</p>
                                 </div>
-                                <Button size="sm" className="w-full text-xs bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white mt-2">
+                                <Button size="sm" className="w-full text-xs bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white mt-2 font-medium">
                                   <Video className="h-3 w-3 mr-1" />
                                   Join
                                 </Button>
                               </div>
                             ) : (
-                              <div className="h-full flex items-center justify-center text-purple-400/50 text-xs">
+                              <div className="h-full flex items-center justify-center text-white/60 text-xs font-medium">
                                 No Class
                               </div>
                             )}

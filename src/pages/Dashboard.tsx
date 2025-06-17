@@ -1,67 +1,31 @@
-
-import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import React, { useState, useEffect } from 'react';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { BookOpen, Clock, TrendingUp, Video, Play, Users, Trophy, Star, Calendar, Bell } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import { BookOpen, Clock, TrendingUp, Palette, Video, Users, Award, Globe } from 'lucide-react';
 
 const Dashboard = () => {
-  const { user } = useAuth();
+  const { user, profile, logout } = useAuth();
+  const navigate = useNavigate();
+  const [greeting, setGreeting] = useState('');
 
-  const mockData = {
-    activeCourses: 3,
-    hoursLearned: 24,
-    avgProgress: 78,
-    achievements: 5
-  };
+  useEffect(() => {
+    const getGreeting = () => {
+      const now = new Date();
+      const hour = now.getHours();
 
-  const upcomingClasses = [
-    {
-      id: 1,
-      subject: 'Advanced Watercolor Techniques',
-      instructor: 'Sarah Chen',
-      time: 'Today at 10:00 AM',
-      duration: '2 hours',
-      type: 'live'
-    },
-    {
-      id: 2,
-      subject: 'Digital Art Fundamentals',
-      instructor: 'Alex Rivera',
-      time: 'Tomorrow at 2:00 PM',
-      duration: '1.5 hours',
-      type: 'recorded'
-    }
-  ];
+      if (hour < 12) {
+        return 'Good morning';
+      } else if (hour < 18) {
+        return 'Good afternoon';
+      } else {
+        return 'Good evening';
+      }
+    };
 
-  const recentActivity = [
-    {
-      id: 1,
-      type: 'course_completed',
-      title: 'Completed "Color Theory Basics"',
-      time: '2 hours ago',
-      icon: Trophy,
-      color: 'text-yellow-500'
-    },
-    {
-      id: 2,
-      type: 'live_session',
-      title: 'Attended live session with Maya Patel',
-      time: '1 day ago',
-      icon: Video,
-      color: 'text-red-500'
-    },
-    {
-      id: 3,
-      type: 'achievement',
-      title: 'Earned "First Course Completed" badge',
-      time: '2 days ago',
-      icon: Star,
-      color: 'text-purple-500'
-    }
-  ];
+    setGreeting(getGreeting());
+  }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 relative overflow-hidden">
@@ -86,224 +50,130 @@ const Dashboard = () => {
       <div className="relative z-10 pt-32 pb-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Header */}
-          <div className="mb-12 animate-fade-in">
-            <div className="inline-flex items-center space-x-2 bg-white/10 backdrop-blur-md rounded-full px-6 py-2 mb-6 border border-white/20">
-              <BookOpen className="h-5 w-5 text-purple-400" />
-              <span className="text-purple-200 font-medium">Artist Dashboard</span>
-            </div>
-            
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-4">
+          <div className="text-center mb-16 animate-fade-in">
+            <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold mb-6">
               <span className="bg-gradient-to-r from-white via-purple-200 to-pink-200 bg-clip-text text-transparent">
-                Welcome Back,
+                {greeting},
               </span>
               <br />
               <span className="bg-gradient-to-r from-purple-400 via-pink-400 to-orange-400 bg-clip-text text-transparent">
-                {user?.email?.split('@')[0] || 'Artist'}
+                {profile?.full_name || user?.email || 'User'}!
               </span>
             </h1>
             
-            <p className="text-xl text-purple-200/80 max-w-3xl leading-relaxed">
-              Continue your creative journey and master new artistic skills
+            <p className="text-xl text-purple-200/80 max-w-3xl mx-auto leading-relaxed">
+              Welcome to your personalized dashboard. Explore courses, track progress, and connect with fellow artists.
             </p>
           </div>
 
-          {/* Stats Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-            <Card className="card-premium hover:scale-105 transition-all duration-500 animate-slide-in-bottom">
-              <CardContent className="p-6">
-                <div className="flex items-center space-x-4">
-                  <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center">
-                    <BookOpen className="h-6 w-6 text-white" />
-                  </div>
-                  <div>
-                    <p className="text-3xl font-bold text-white">{mockData.activeCourses}</p>
-                    <p className="text-purple-300 text-sm">Active Courses</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="card-premium hover:scale-105 transition-all duration-500 animate-slide-in-bottom" style={{ animationDelay: '100ms' }}>
-              <CardContent className="p-6">
-                <div className="flex items-center space-x-4">
-                  <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-2xl flex items-center justify-center">
-                    <Clock className="h-6 w-6 text-white" />
-                  </div>
-                  <div>
-                    <p className="text-3xl font-bold text-white">{mockData.hoursLearned}</p>
-                    <p className="text-purple-300 text-sm">Hours Learned</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="card-premium hover:scale-105 transition-all duration-500 animate-slide-in-bottom" style={{ animationDelay: '200ms' }}>
-              <CardContent className="p-6">
-                <div className="flex items-center space-x-4">
-                  <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-emerald-500 rounded-2xl flex items-center justify-center">
-                    <TrendingUp className="h-6 w-6 text-white" />
-                  </div>
-                  <div>
-                    <p className="text-3xl font-bold text-white">{mockData.avgProgress}%</p>
-                    <p className="text-purple-300 text-sm">Avg Progress</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="card-premium hover:scale-105 transition-all duration-500 animate-slide-in-bottom" style={{ animationDelay: '300ms' }}>
-              <CardContent className="p-6">
-                <div className="flex items-center space-x-4">
-                  <div className="w-12 h-12 bg-gradient-to-r from-yellow-500 to-orange-500 rounded-2xl flex items-center justify-center">
-                    <Trophy className="h-6 w-6 text-white" />
-                  </div>
-                  <div>
-                    <p className="text-3xl font-bold text-white">{mockData.achievements}</p>
-                    <p className="text-purple-300 text-sm">Achievements</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Main Content Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Current Courses */}
-            <div className="lg:col-span-2">
-              <Card className="card-premium animate-slide-in-bottom" style={{ animationDelay: '400ms' }}>
-                <CardHeader>
+          {/* Stats Cards - Fixed readability */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+            {[
+              { icon: BookOpen, title: 'Active Courses', value: '3', color: 'from-purple-500 to-purple-600', bgColor: 'bg-purple-500/20' },
+              { icon: Clock, title: 'Hours Learned', value: '24', color: 'from-blue-500 to-blue-600', bgColor: 'bg-blue-500/20' },
+              { icon: TrendingUp, title: 'Avg Progress', value: '78%', color: 'from-green-500 to-green-600', bgColor: 'bg-green-500/20' }
+            ].map((stat, index) => (
+              <Card key={index} className="bg-white/15 backdrop-blur-md border border-white/30 hover:bg-white/20 transition-all duration-300 shadow-xl">
+                <CardContent className="p-6">
                   <div className="flex items-center justify-between">
-                    <CardTitle className="text-xl text-white flex items-center">
-                      <BookOpen className="h-5 w-5 mr-2" />
-                      Current Courses
-                    </CardTitle>
-                    <Badge className="bg-purple-500/20 text-purple-300 border-purple-500/30">
-                      {mockData.activeCourses} Active
-                    </Badge>
-                  </div>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  {['Complete Web Development Course from Scratch', 'Advanced JavaScript Fundamentals', 'React & Node.js Full Stack'].map((course, index) => (
-                    <div key={index} className="flex items-center justify-between p-4 bg-white/5 backdrop-blur-md rounded-xl border border-white/10 hover:bg-white/10 transition-all duration-300">
-                      <div className="flex items-center space-x-4">
-                        <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg flex items-center justify-center">
-                          <BookOpen className="h-5 w-5 text-white" />
-                        </div>
-                        <div>
-                          <h3 className="font-medium text-white">{course}</h3>
-                          <div className="flex items-center space-x-4 mt-1">
-                            <div className="flex items-center text-sm text-purple-300">
-                              <Clock className="h-4 w-4 mr-1" />
-                              60 hours
-                            </div>
-                            <div className="flex items-center text-sm text-purple-300">
-                              <Users className="h-4 w-4 mr-1" />
-                              25 students
-                            </div>
-                            <Badge className="bg-green-500/20 text-green-300 border-green-500/30 text-xs">
-                              Certificate
-                            </Badge>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <div className="text-right">
-                          <p className="text-sm font-medium text-white">{75 + index * 5}%</p>
-                          <div className="w-24 h-2 bg-white/10 rounded-full mt-1">
-                            <div 
-                              className="h-full bg-gradient-to-r from-purple-500 to-pink-500 rounded-full transition-all duration-300"
-                              style={{ width: `${75 + index * 5}%` }}
-                            />
-                          </div>
-                        </div>
-                        <Button size="sm" className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white">
-                          <Play className="h-4 w-4 mr-1" />
-                          Continue
-                        </Button>
-                      </div>
+                    <div>
+                      <p className="text-white/90 text-sm font-medium mb-1">{stat.title}</p>
+                      <p className="text-3xl font-bold text-white">{stat.value}</p>
                     </div>
-                  ))}
-                  
-                  <div className="pt-4">
-                    <Button asChild className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold">
-                      <Link to="/courses">
-                        <BookOpen className="h-4 w-4 mr-2" />
-                        Explore More Courses
-                      </Link>
-                    </Button>
+                    <div className={`p-3 rounded-xl ${stat.bgColor}`}>
+                      <stat.icon className="h-6 w-6 text-white" />
+                    </div>
                   </div>
                 </CardContent>
               </Card>
-            </div>
-
-            {/* Sidebar */}
-            <div className="space-y-6">
-              {/* Upcoming Classes */}
-              <Card className="card-premium animate-slide-in-bottom" style={{ animationDelay: '500ms' }}>
-                <CardHeader>
-                  <CardTitle className="text-lg text-white flex items-center">
-                    <Video className="h-5 w-5 mr-2" />
-                    Upcoming Classes
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  {upcomingClasses.map((classItem) => (
-                    <div key={classItem.id} className="p-4 bg-white/5 backdrop-blur-md rounded-xl border border-white/10">
-                      <div className="flex items-center justify-between mb-2">
-                        <Badge className={classItem.type === 'live' ? 'bg-red-500/20 text-red-300 border-red-500/30' : 'bg-blue-500/20 text-blue-300 border-blue-500/30'}>
-                          {classItem.type === 'live' ? 'Live' : 'Recorded'}
-                        </Badge>
-                      </div>
-                      <h3 className="font-medium text-white mb-2">{classItem.subject}</h3>
-                      <div className="space-y-1 text-sm text-purple-300">
-                        <div className="flex items-center">
-                          <Users className="h-4 w-4 mr-1" />
-                          with {classItem.instructor}
-                        </div>
-                        <div className="flex items-center">
-                          <Calendar className="h-4 w-4 mr-1" />
-                          {classItem.time}
-                        </div>
-                      </div>
-                      <Button 
-                        size="sm" 
-                        className={`w-full mt-3 ${classItem.type === 'live' ? 'bg-red-600 hover:bg-red-700' : 'bg-blue-600 hover:bg-blue-700'} text-white`}
-                      >
-                        <Video className="h-4 w-4 mr-1" />
-                        {classItem.type === 'live' ? 'Join Live' : 'Watch Recording'}
-                      </Button>
-                    </div>
-                  ))}
-                </CardContent>
-              </Card>
-
-              {/* Recent Activity */}
-              <Card className="card-premium animate-slide-in-bottom" style={{ animationDelay: '600ms' }}>
-                <CardHeader>
-                  <CardTitle className="text-lg text-white flex items-center">
-                    <Bell className="h-5 w-5 mr-2" />
-                    Recent Activity
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  {recentActivity.map((activity) => {
-                    const IconComponent = activity.icon;
-                    return (
-                      <div key={activity.id} className="flex items-start space-x-3 p-3 bg-white/5 backdrop-blur-md rounded-lg border border-white/10">
-                        <div className={`w-8 h-8 rounded-full bg-white/10 flex items-center justify-center flex-shrink-0`}>
-                          <IconComponent className={`h-4 w-4 ${activity.color}`} />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-white">{activity.title}</p>
-                          <p className="text-xs text-purple-300 mt-1">{activity.time}</p>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </CardContent>
-              </Card>
-            </div>
+            ))}
           </div>
+
+          {/* Features Grid - Fixed readability */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+            {[
+              {
+                icon: Palette,
+                title: 'Learn from Industry Legends',
+                description: 'Master artists who have shaped the creative world',
+                color: 'from-purple-500 to-purple-600',
+                bgColor: 'bg-purple-500/20'
+              },
+              {
+                icon: Video,
+                title: 'Join Real-time Sessions',
+                description: 'Direct feedback and personalized guidance',
+                color: 'from-blue-500 to-blue-600',
+                bgColor: 'bg-blue-500/20'
+              },
+              {
+                icon: Users,
+                title: 'Connect with Passionate Artists',
+                description: 'Build lifelong creative partnerships',
+                color: 'from-green-500 to-green-600',
+                bgColor: 'bg-green-500/20'
+              },
+              {
+                icon: Award,
+                title: 'Earn Recognized Certificates',
+                description: 'Open doors to professional opportunities',
+                color: 'from-orange-500 to-orange-600',
+                bgColor: 'bg-orange-500/20'
+              },
+              {
+                icon: Globe,
+                title: 'Access Premium Digital Tools',
+                description: 'Premium creative software included',
+                color: 'from-purple-500 to-purple-600',
+                bgColor: 'bg-purple-500/20'
+              },
+              {
+                icon: Globe,
+                title: 'Join a Worldwide Community',
+                description: 'Expand your creative horizons globally',
+                color: 'from-indigo-500 to-indigo-600',
+                bgColor: 'bg-indigo-500/20'
+              }
+            ].map((feature, index) => (
+              <Card key={index} className="bg-white/15 backdrop-blur-md border border-white/30 hover:bg-white/20 transition-all duration-300 shadow-xl group">
+                <CardContent className="p-6 text-center">
+                  <div className={`w-16 h-16 mx-auto mb-4 rounded-2xl ${feature.bgColor} flex items-center justify-center group-hover:scale-110 transition-transform duration-300`}>
+                    <feature.icon className="h-8 w-8 text-white" />
+                  </div>
+                  <h3 className="text-xl font-bold text-white mb-3">{feature.title}</h3>
+                  <p className="text-white/80 leading-relaxed">{feature.description}</p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+
+          {/* CTA Section - Fixed readability */}
+          <Card className="bg-gradient-to-r from-purple-600/30 to-pink-600/30 backdrop-blur-md border border-purple-500/40 shadow-2xl">
+            <CardContent className="p-12 text-center">
+              <h2 className="text-4xl font-bold text-white mb-4">Ready to Join the Elite?</h2>
+              <p className="text-white/90 mb-8 text-xl max-w-2xl mx-auto">
+                Transform your passion into mastery with our world-class art education
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <Button 
+                  size="lg" 
+                  className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-8 py-4 text-lg font-medium shadow-lg transform hover:scale-105 transition-all duration-300"
+                  onClick={() => navigate('/courses')}
+                >
+                  <star className="h-5 w-5 mr-2" />
+                  Start Your Journey
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="lg" 
+                  className="border-white/40 text-white hover:bg-white/20 px-8 py-4 text-lg font-medium backdrop-blur-md"
+                  onClick={() => navigate('/courses')}
+                >
+                  Explore Courses
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </div>
