@@ -3,8 +3,8 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Premium Design System with New Color Palette */
-/* Colors: #726E75 (dark gray), #7FC29B (green), #B5EF8A (light green), #D7F171 (yellow-green), #F19A3E (orange - main) */
+/* Premium Design System with Orange-Centered Color Palette */
+/* Colors: #726E75 (dark gray), #7FC29B (green), #B5EF8A (light green), #D7F171 (yellow-green), #F19A3E (orange - MAIN) */
 
 @layer base {
   :root {
@@ -17,7 +17,7 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
 
-    --primary: 24 95% 53%; /* #F19A3E - Orange */
+    --primary: 24 95% 53%; /* #F19A3E - Orange MAIN */
     --primary-foreground: 210 40% 98%;
 
     --secondary: 154 34% 66%; /* #7FC29B - Green */
@@ -122,24 +122,24 @@
 }
 
 @layer components {
-  /* Premium Glassmorphism Effect with new colors */
+  /* Premium Glassmorphism Effect with orange-centered colors */
   .glass-effect {
-    background: rgba(241, 154, 62, 0.1); /* Orange tint */
+    background: rgba(241, 154, 62, 0.15); /* Orange tint */
     backdrop-filter: blur(20px);
-    border: 1px solid rgba(241, 154, 62, 0.2);
-    box-shadow: 0 8px 32px rgba(241, 154, 62, 0.1);
+    border: 1px solid rgba(241, 154, 62, 0.3);
+    box-shadow: 0 8px 32px rgba(241, 154, 62, 0.15);
   }
 
   .glass-dark {
-    background: rgba(114, 110, 117, 0.8); /* #726E75 */
+    background: rgba(114, 110, 117, 0.85); /* #726E75 */
     backdrop-filter: blur(20px);
-    border: 1px solid rgba(127, 194, 155, 0.1); /* #7FC29B */
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(241, 154, 62, 0.2); /* Orange border */
+    box-shadow: 0 8px 32px rgba(241, 154, 62, 0.1);
   }
 
-  /* Premium Gradient Text with new palette */
+  /* Orange-centered Gradient Text */
   .gradient-text {
-    background: linear-gradient(135deg, #F19A3E 0%, #7FC29B 100%);
+    background: linear-gradient(135deg, #F19A3E 0%, #D7F171 50%, #7FC29B 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -154,7 +154,7 @@
     animation: gradient-shift 3s ease infinite;
   }
 
-  /* Premium Button Styles with orange theme */
+  /* Premium Button Styles with orange-centered theme */
   .btn-premium {
     background: linear-gradient(135deg, #F19A3E 0%, #D7F171 100%);
     border: none;
@@ -165,6 +165,7 @@
     transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
+    box-shadow: 0 4px 20px rgba(241, 154, 62, 0.3);
   }
 
   .btn-premium::before {
@@ -187,11 +188,11 @@
     box-shadow: 0 10px 25px rgba(241, 154, 62, 0.4);
   }
 
-  /* Premium Card Hover Effects */
+  /* Premium Card Hover Effects with orange accents */
   .card-premium {
-    background: rgba(255, 255, 255, 0.05);
+    background: rgba(255, 255, 255, 0.08);
     backdrop-filter: blur(20px);
-    border: 1px solid rgba(241, 154, 62, 0.1);
+    border: 1px solid rgba(241, 154, 62, 0.2);
     border-radius: 20px;
     transition: all 0.3s ease;
     position: relative;
@@ -205,7 +206,7 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: linear-gradient(135deg, rgba(241, 154, 62, 0.1) 0%, rgba(127, 194, 155, 0.1) 100%);
+    background: linear-gradient(135deg, rgba(241, 154, 62, 0.1) 0%, rgba(215, 241, 113, 0.05) 100%);
     opacity: 0;
     transition: opacity 0.3s ease;
   }
@@ -216,7 +217,7 @@
 
   .card-premium:hover {
     transform: translateY(-8px) scale(1.02);
-    border-color: rgba(241, 154, 62, 0.3);
+    border-color: rgba(241, 154, 62, 0.4);
     box-shadow: 0 20px 40px rgba(241, 154, 62, 0.2);
   }
 
@@ -232,7 +233,7 @@
 
   /* Shimmer Effect with orange */
   .shimmer {
-    background: linear-gradient(90deg, transparent, rgba(241, 154, 62, 0.1), transparent);
+    background: linear-gradient(90deg, transparent, rgba(241, 154, 62, 0.15), transparent);
     background-size: 200% 100%;
     animation: shimmer 2s infinite;
   }
@@ -245,7 +246,7 @@
   /* Premium Gradient Borders */
   .gradient-border {
     position: relative;
-    background: linear-gradient(45deg, #F19A3E, #7FC29B);
+    background: linear-gradient(45deg, #F19A3E, #D7F171, #7FC29B);
     padding: 2px;
     border-radius: 12px;
   }
@@ -265,6 +266,20 @@
   ::-moz-selection {
     background: rgba(241, 154, 62, 0.3);
     color: white;
+  }
+
+  /* Enhanced Card Readability */
+  .readable-card {
+    background: rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(241, 154, 62, 0.3);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  }
+
+  .readable-card:hover {
+    background: rgba(255, 255, 255, 0.18);
+    border-color: rgba(241, 154, 62, 0.5);
+    box-shadow: 0 12px 40px rgba(241, 154, 62, 0.2);
   }
 }
 
@@ -302,7 +317,7 @@
       box-shadow: 0 0 20px rgba(241, 154, 62, 0.4);
     }
     to {
-      box-shadow: 0 0 30px rgba(241, 154, 62, 0.8), 0 0 40px rgba(127, 194, 155, 0.6);
+      box-shadow: 0 0 30px rgba(241, 154, 62, 0.8), 0 0 40px rgba(215, 241, 113, 0.6);
     }
   }
 
@@ -436,7 +451,7 @@
     animation-delay: 700ms;
   }
 
-  /* Hover Effects */
+  /* Enhanced Hover Effects */
   .hover-lift:hover {
     transform: translateY(-4px);
     transition: transform 0.3s ease;
@@ -456,6 +471,22 @@
     transform: rotate(5deg);
     transition: transform 0.3s ease;
   }
+
+  /* Text Contrast Utilities */
+  .text-high-contrast {
+    color: white;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  }
+
+  .text-medium-contrast {
+    color: rgba(255, 255, 255, 0.9);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  }
+
+  .text-accent-contrast {
+    color: #D7F171;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  }
 }
 
 /* Premium Loading Spinner with orange */
@@ -470,15 +501,15 @@
 
 /* Premium Gradient Backgrounds */
 .bg-premium-gradient {
-  background: linear-gradient(135deg, #F19A3E 0%, #7FC29B 100%);
+  background: linear-gradient(135deg, #F19A3E 0%, #D7F171 50%, #7FC29B 100%);
 }
 
 .bg-premium-gradient-dark {
-  background: linear-gradient(135deg, #726E75 0%, #F19A3E 50%, #726E75 100%);
+  background: linear-gradient(135deg, #726E75 0%, #F19A3E 30%, #726E75 100%);
 }
 
 .bg-premium-radial {
-  background: radial-gradient(circle at 50% 50%, rgba(241, 154, 62, 0.1) 0%, transparent 50%);
+  background: radial-gradient(circle at 50% 50%, rgba(241, 154, 62, 0.15) 0%, transparent 50%);
 }
 
 /* Typography Enhancements */
@@ -488,6 +519,10 @@
 
 .text-shadow-lg {
   text-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.text-shadow-orange {
+  text-shadow: 0 2px 8px rgba(241, 154, 62, 0.3);
 }
 
 /* Interactive Elements */
