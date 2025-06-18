@@ -30,7 +30,7 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#726E75] via-[#F19A3E] to-[#7FC29B] relative overflow-hidden">
-      {/* Premium Background Effects with new color palette */}
+      {/* Premium Background Effects */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-[#F19A3E] rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse float" />
         <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-[#7FC29B] rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse float-delayed" />
@@ -62,27 +62,27 @@ const Dashboard = () => {
               </span>
             </h1>
             
-            <p className="text-xl text-white/90 max-w-3xl mx-auto leading-relaxed font-medium">
+            <p className="text-xl text-white max-w-3xl mx-auto leading-relaxed font-medium text-shadow">
               Welcome to your personalized dashboard. Explore courses, track progress, and connect with fellow artists.
             </p>
           </div>
 
-          {/* Stats Cards - Enhanced readability */}
+          {/* Stats Cards - Using different colors from palette */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
             {[
-              { icon: BookOpen, title: 'Active Courses', value: '3', color: 'from-[#F19A3E] to-[#D7F171]', bgColor: 'bg-[#F19A3E]/20' },
-              { icon: Clock, title: 'Hours Learned', value: '24', color: 'from-[#7FC29B] to-[#B5EF8A]', bgColor: 'bg-[#7FC29B]/20' },
-              { icon: TrendingUp, title: 'Avg Progress', value: '78%', color: 'from-[#B5EF8A] to-[#D7F171]', bgColor: 'bg-[#B5EF8A]/20' }
+              { icon: BookOpen, title: 'Active Courses', value: '3', bgGradient: 'from-[#F19A3E] to-[#D7F171]', borderColor: 'border-[#F19A3E]/40' },
+              { icon: Clock, title: 'Hours Learned', value: '24', bgGradient: 'from-[#7FC29B] to-[#B5EF8A]', borderColor: 'border-[#7FC29B]/40' },
+              { icon: TrendingUp, title: 'Avg Progress', value: '78%', bgGradient: 'from-[#B5EF8A] to-[#D7F171]', borderColor: 'border-[#B5EF8A]/40' }
             ].map((stat, index) => (
-              <Card key={index} className="bg-white/20 backdrop-blur-md border border-[#F19A3E]/30 hover:bg-white/25 transition-all duration-300 shadow-xl hover:shadow-2xl">
+              <Card key={index} className={`glass-effect hover:glass-dark transition-all duration-300 shadow-2xl hover:shadow-xl border-2 ${stat.borderColor} hover:scale-105 transform`}>
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-white font-semibold text-sm mb-1">{stat.title}</p>
-                      <p className="text-3xl font-bold text-white">{stat.value}</p>
+                      <p className="text-white font-bold text-sm mb-2 text-shadow">{stat.title}</p>
+                      <p className="text-4xl font-black text-white text-shadow-lg">{stat.value}</p>
                     </div>
-                    <div className={`p-3 rounded-xl ${stat.bgColor} border border-[#F19A3E]/20`}>
-                      <stat.icon className="h-6 w-6 text-white" />
+                    <div className={`p-4 rounded-2xl bg-gradient-to-br ${stat.bgGradient} shadow-xl border border-white/20`}>
+                      <stat.icon className="h-7 w-7 text-white" />
                     </div>
                   </div>
                 </CardContent>
@@ -90,88 +90,99 @@ const Dashboard = () => {
             ))}
           </div>
 
-          {/* Features Grid - Enhanced readability */}
+          {/* Features Grid - Enhanced with all template colors */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
             {[
               {
                 icon: Palette,
                 title: 'Learn from Industry Legends',
                 description: 'Master artists who have shaped the creative world',
-                color: 'from-[#F19A3E] to-[#D7F171]',
-                bgColor: 'bg-[#F19A3E]/20'
+                bgGradient: 'from-[#F19A3E] to-[#D7F171]',
+                borderColor: 'border-[#F19A3E]/50',
+                textAccent: 'text-[#F19A3E]'
               },
               {
                 icon: Video,
                 title: 'Join Real-time Sessions',
                 description: 'Direct feedback and personalized guidance',
-                color: 'from-[#7FC29B] to-[#B5EF8A]',
-                bgColor: 'bg-[#7FC29B]/20'
+                bgGradient: 'from-[#7FC29B] to-[#B5EF8A]',
+                borderColor: 'border-[#7FC29B]/50',
+                textAccent: 'text-[#7FC29B]'
               },
               {
                 icon: Users,
                 title: 'Connect with Passionate Artists',
                 description: 'Build lifelong creative partnerships',
-                color: 'from-[#B5EF8A] to-[#D7F171]',
-                bgColor: 'bg-[#B5EF8A]/20'
+                bgGradient: 'from-[#B5EF8A] to-[#D7F171]',
+                borderColor: 'border-[#B5EF8A]/50',
+                textAccent: 'text-[#B5EF8A]'
               },
               {
                 icon: Award,
                 title: 'Earn Recognized Certificates',
                 description: 'Open doors to professional opportunities',
-                color: 'from-[#F19A3E] to-[#7FC29B]',
-                bgColor: 'bg-[#F19A3E]/20'
+                bgGradient: 'from-[#D7F171] to-[#F19A3E]',
+                borderColor: 'border-[#D7F171]/50',
+                textAccent: 'text-[#D7F171]'
               },
               {
                 icon: Globe,
                 title: 'Access Premium Digital Tools',
                 description: 'Premium creative software included',
-                color: 'from-[#D7F171] to-[#7FC29B]',
-                bgColor: 'bg-[#D7F171]/20'
+                bgGradient: 'from-[#726E75] to-[#7FC29B]',
+                borderColor: 'border-[#726E75]/50',
+                textAccent: 'text-[#726E75]'
               },
               {
                 icon: Globe,
                 title: 'Join a Worldwide Community',
                 description: 'Expand your creative horizons globally',
-                color: 'from-[#726E75] to-[#F19A3E]',
-                bgColor: 'bg-[#726E75]/20'
+                bgGradient: 'from-[#F19A3E] to-[#726E75]',
+                borderColor: 'border-[#F19A3E]/50',
+                textAccent: 'text-[#F19A3E]'
               }
             ].map((feature, index) => (
-              <Card key={index} className="bg-white/20 backdrop-blur-md border border-[#F19A3E]/30 hover:bg-white/25 transition-all duration-300 shadow-xl group hover:shadow-2xl">
-                <CardContent className="p-6 text-center">
-                  <div className={`w-16 h-16 mx-auto mb-4 rounded-2xl ${feature.bgColor} border border-[#F19A3E]/20 flex items-center justify-center group-hover:scale-110 transition-transform duration-300`}>
-                    <feature.icon className="h-8 w-8 text-white" />
+              <Card key={index} className={`glass-effect hover:glass-dark transition-all duration-300 shadow-2xl group hover:shadow-xl border-2 ${feature.borderColor} hover:scale-105 transform cursor-pointer`}>
+                <CardContent className="p-8 text-center">
+                  <div className={`w-20 h-20 mx-auto mb-6 rounded-3xl bg-gradient-to-br ${feature.bgGradient} border-2 border-white/30 flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-xl`}>
+                    <feature.icon className="h-10 w-10 text-white" />
                   </div>
-                  <h3 className="text-xl font-bold text-white mb-3">{feature.title}</h3>
-                  <p className="text-white/90 leading-relaxed font-medium">{feature.description}</p>
+                  <h3 className="text-2xl font-black text-white mb-4 text-shadow">{feature.title}</h3>
+                  <p className="text-white/95 leading-relaxed font-semibold text-shadow">{feature.description}</p>
                 </CardContent>
               </Card>
             ))}
           </div>
 
-          {/* CTA Section - Enhanced readability */}
-          <Card className="bg-gradient-to-r from-[#F19A3E]/30 to-[#7FC29B]/30 backdrop-blur-md border border-[#F19A3E]/40 shadow-2xl">
-            <CardContent className="p-12 text-center">
-              <h2 className="text-4xl font-bold text-white mb-4">Ready to Join the Elite?</h2>
-              <p className="text-white/95 mb-8 text-xl max-w-2xl mx-auto font-medium">
-                Transform your passion into mastery with our world-class art education
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button 
-                  size="lg" 
-                  className="bg-gradient-to-r from-[#F19A3E] to-[#D7F171] hover:from-[#e8893a] hover:to-[#c9e961] text-white px-8 py-4 text-lg font-medium shadow-lg transform hover:scale-105 transition-all duration-300"
-                  onClick={() => navigate('/courses')}
-                >
-                  <Star className="h-5 w-5 mr-2" />
-                  Start Your Journey
-                </Button>
-                <Button 
-                  variant="outline" 
-                  size="lg" 
-                  className="border-white/40 text-white hover:bg-white/20 px-8 py-4 text-lg font-medium backdrop-blur-md"
-                  onClick={() => navigate('/courses')}
-                >
-                  Explore Courses
-                </Button>
+          {/* CTA Section - Enhanced visibility with all colors */}
+          <Card className="glass-dark border-4 border-[#F19A3E]/60 shadow-2xl hover:shadow-[#F19A3E]/20 transition-all duration-300 hover:scale-[1.02] transform">
+            <CardContent className="p-16 text-center relative overflow-hidden">
+              {/* Background gradient overlay */}
+              <div className="absolute inset-0 bg-gradient-to-r from-[#F19A3E]/20 via-[#D7F171]/10 to-[#7FC29B]/20 rounded-lg" />
+              
+              <div className="relative z-10">
+                <h2 className="text-5xl font-black text-white mb-6 text-shadow-lg">Ready to Join the Elite?</h2>
+                <p className="text-white text-2xl mb-10 max-w-3xl mx-auto font-bold text-shadow leading-relaxed">
+                  Transform your passion into mastery with our world-class art education
+                </p>
+                <div className="flex flex-col sm:flex-row gap-6 justify-center">
+                  <Button 
+                    size="lg" 
+                    className="bg-gradient-to-r from-[#F19A3E] to-[#D7F171] hover:from-[#e8893a] hover:to-[#c9e961] text-white px-12 py-6 text-xl font-black shadow-2xl transform hover:scale-110 transition-all duration-300 border-2 border-white/20"
+                    onClick={() => navigate('/courses')}
+                  >
+                    <Star className="h-6 w-6 mr-3" />
+                    Start Your Journey
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    size="lg" 
+                    className="border-4 border-[#7FC29B] text-white hover:bg-[#7FC29B]/20 px-12 py-6 text-xl font-black backdrop-blur-md bg-[#7FC29B]/10 shadow-2xl transform hover:scale-110 transition-all duration-300"
+                    onClick={() => navigate('/courses')}
+                  >
+                    Explore Courses
+                  </Button>
+                </div>
               </div>
             </CardContent>
           </Card>
