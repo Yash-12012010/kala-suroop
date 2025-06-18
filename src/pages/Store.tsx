@@ -49,11 +49,11 @@ const Store = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 relative overflow-hidden">
+      <div className="min-h-screen bg-gradient-to-br from-[#726E75] via-[#F19A3E] to-[#7FC29B] relative overflow-hidden">
         {/* Premium Background Effects */}
         <div className="fixed inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse" />
-          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-pink-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse" />
+          <div className="absolute -top-40 -right-40 w-80 h-80 bg-[#F19A3E] rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse" />
+          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-[#7FC29B] rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse" />
         </div>
         
         <div className="relative z-10 pt-32 pb-16">
@@ -61,7 +61,7 @@ const Store = () => {
             <div className="flex items-center justify-center min-h-[400px]">
               <div className="text-center">
                 <div className="loading-spinner mx-auto mb-4" />
-                <p className="text-white/80 text-lg">Loading premium art supplies...</p>
+                <p className="text-white/90 text-lg font-medium">Loading premium art supplies...</p>
               </div>
             </div>
           </div>
@@ -71,18 +71,18 @@ const Store = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-[#726E75] via-[#F19A3E] to-[#7FC29B] relative overflow-hidden">
       {/* Premium Background Effects */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse float" />
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-pink-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse float-delayed" />
-        <div className="absolute top-1/3 left-1/4 w-60 h-60 bg-blue-500 rounded-full mix-blend-multiply filter blur-xl opacity-15 animate-pulse" style={{ animationDelay: '2s' }} />
-        <div className="absolute bottom-1/3 right-1/4 w-60 h-60 bg-indigo-500 rounded-full mix-blend-multiply filter blur-xl opacity-15 animate-pulse" style={{ animationDelay: '3s' }} />
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-[#F19A3E] rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse float" />
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-[#7FC29B] rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse float-delayed" />
+        <div className="absolute top-1/3 left-1/4 w-60 h-60 bg-[#B5EF8A] rounded-full mix-blend-multiply filter blur-xl opacity-15 animate-pulse" style={{ animationDelay: '2s' }} />
+        <div className="absolute bottom-1/3 right-1/4 w-60 h-60 bg-[#D7F171] rounded-full mix-blend-multiply filter blur-xl opacity-15 animate-pulse" style={{ animationDelay: '3s' }} />
         
         {/* Grid overlay */}
-        <div className="absolute inset-0 bg-gradient-to-br from-transparent via-purple-900/5 to-transparent" 
+        <div className="absolute inset-0 bg-gradient-to-br from-transparent via-[#F19A3E]/5 to-transparent" 
              style={{ 
-               backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(255,255,255,0.05) 1px, transparent 0)',
+               backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(241,154,62,0.1) 1px, transparent 0)',
                backgroundSize: '50px 50px'
              }} />
         
@@ -94,22 +94,22 @@ const Store = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Premium Header */}
           <div className="text-center mb-16 animate-fade-in">
-            <div className="inline-flex items-center space-x-2 bg-white/10 backdrop-blur-md rounded-full px-6 py-2 mb-6 border border-white/20">
-              <ShoppingCart className="h-5 w-5 text-purple-400" />
-              <span className="text-purple-200 font-medium">Premium Art Store</span>
+            <div className="inline-flex items-center space-x-2 bg-white/10 backdrop-blur-md rounded-full px-6 py-2 mb-6 border border-[#F19A3E]/20">
+              <ShoppingCart className="h-5 w-5 text-[#F19A3E]" />
+              <span className="text-white font-medium">Premium Art Store</span>
             </div>
             
             <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold mb-6">
-              <span className="bg-gradient-to-r from-white via-purple-200 to-pink-200 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-white via-[#D7F171] to-[#B5EF8A] bg-clip-text text-transparent">
                 Elite Art
               </span>
               <br />
-              <span className="bg-gradient-to-r from-purple-400 via-pink-400 to-orange-400 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-[#F19A3E] via-[#D7F171] to-[#7FC29B] bg-clip-text text-transparent">
                 Supplies
               </span>
             </h1>
             
-            <p className="text-xl text-purple-200/80 max-w-3xl mx-auto leading-relaxed">
+            <p className="text-xl text-white/90 max-w-3xl mx-auto leading-relaxed font-medium">
               Discover premium art supplies and materials curated for creative excellence
             </p>
           </div>
@@ -120,7 +120,7 @@ const Store = () => {
               {products.map((product, index) => (
                 <Card 
                   key={product.id} 
-                  className={`card-premium group hover:scale-[1.02] transition-all duration-500 animate-slide-in-bottom overflow-hidden ${!product.in_stock ? 'opacity-75' : ''}`}
+                  className={`bg-white/20 backdrop-blur-md border border-[#F19A3E]/30 hover:bg-white/25 group hover:scale-[1.02] transition-all duration-500 animate-slide-in-bottom overflow-hidden shadow-xl hover:shadow-2xl ${!product.in_stock ? 'opacity-75' : ''}`}
                   style={{ animationDelay: `${index * 100}ms` }}
                 >
                   <div className="relative">
@@ -132,13 +132,13 @@ const Store = () => {
                     {!product.in_stock && (
                       <Badge 
                         variant="destructive" 
-                        className="absolute top-3 left-3 text-xs"
+                        className="absolute top-3 left-3 text-xs bg-red-500/80 text-white"
                       >
                         Out of Stock
                       </Badge>
                     )}
                     <Badge 
-                      className="absolute top-3 right-3 bg-white/10 backdrop-blur-md text-white border-white/20 text-xs flex items-center space-x-1"
+                      className="absolute top-3 right-3 bg-[#F19A3E]/80 backdrop-blur-md text-white border-[#F19A3E]/40 text-xs flex items-center space-x-1"
                     >
                       {product.icon}
                       <span className="hidden sm:inline">{product.category}</span>
@@ -146,11 +146,11 @@ const Store = () => {
                   </div>
                   
                   <CardHeader className="pb-3">
-                    <CardTitle className="text-lg text-white group-hover:text-purple-300 transition-colors duration-300 line-clamp-2">
+                    <CardTitle className="text-lg text-white font-bold group-hover:text-[#D7F171] transition-colors duration-300 line-clamp-2">
                       {product.title}
                     </CardTitle>
                     {product.description && (
-                      <p className="text-sm text-purple-200/80 line-clamp-2">
+                      <p className="text-sm text-white/90 line-clamp-2 font-medium">
                         {product.description}
                       </p>
                     )}
@@ -158,10 +158,10 @@ const Store = () => {
 
                   <CardContent className="pt-0">
                     <div className="flex items-center space-x-2 mb-4">
-                      <span className="text-xl font-bold text-green-400">
+                      <span className="text-xl font-bold text-[#B5EF8A]">
                         ₹{product.price}
                       </span>
-                      <span className="text-sm text-purple-300 line-through">
+                      <span className="text-sm text-white/70 line-through">
                         ₹{product.original_price}
                       </span>
                     </div>
@@ -169,7 +169,7 @@ const Store = () => {
 
                   <CardFooter className="pt-0">
                     <Button 
-                      className="w-full btn-premium" 
+                      className="w-full bg-gradient-to-r from-[#F19A3E] to-[#D7F171] hover:from-[#e8893a] hover:to-[#c9e961] text-white font-medium" 
                       disabled={!product.in_stock}
                       variant={product.in_stock ? "default" : "secondary"}
                     >
@@ -181,28 +181,28 @@ const Store = () => {
               ))}
             </div>
           ) : (
-            <Card className="card-premium text-center py-20 animate-fade-in">
+            <Card className="bg-white/20 backdrop-blur-md border border-[#F19A3E]/30 text-center py-20 animate-fade-in shadow-xl">
               <CardContent>
                 <div className="flex flex-col items-center space-y-6">
-                  <div className="w-24 h-24 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center animate-pulse">
+                  <div className="w-24 h-24 bg-gradient-to-r from-[#F19A3E] to-[#D7F171] rounded-full flex items-center justify-center animate-pulse">
                     <Palette className="h-12 w-12 text-white" />
                   </div>
                   <div className="space-y-4">
                     <h2 className="text-3xl font-bold text-white">
                       Elite Art Store Opening Soon!
                     </h2>
-                    <p className="text-lg text-purple-200/80 max-w-md mx-auto">
+                    <p className="text-lg text-white/90 max-w-md mx-auto font-medium">
                       We're curating the finest art supplies and materials for our creative elite. 
                       Stay tuned for the grand opening!
                     </p>
                   </div>
-                  <div className="flex items-center space-x-2 text-purple-300">
+                  <div className="flex items-center space-x-2 text-[#D7F171]">
                     <Sparkles className="h-5 w-5" />
-                    <span>Premium quality guaranteed</span>
+                    <span className="font-medium">Premium quality guaranteed</span>
                     <Star className="h-5 w-5" />
                   </div>
                   <div className="flex flex-col sm:flex-row gap-4 pt-4">
-                    <Button className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300">
+                    <Button className="bg-gradient-to-r from-[#F19A3E] to-[#D7F171] hover:from-[#e8893a] hover:to-[#c9e961] text-white font-semibold px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300">
                       <Sparkles className="h-4 w-4 mr-2" />
                       Notify Me When Available
                     </Button>
@@ -219,7 +219,7 @@ const Store = () => {
           {/* Categories Information */}
           {products.length > 0 && (
             <div className="mt-16 text-center animate-slide-in-bottom">
-              <p className="text-lg text-purple-200/80">
+              <p className="text-lg text-white/90 font-medium">
                 More premium art supplies arriving soon! Follow us for updates on new collections.
               </p>
             </div>
