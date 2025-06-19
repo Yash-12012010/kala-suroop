@@ -45,7 +45,7 @@ const Timetable = () => {
       setLoading(true);
       const data = await api.getTimetable();
 
-      const scheduleStructure: Record<string, Record<string, TimetableEntry>> = {};
+      const scheduleStructure: any = {};
       
       // Initialize all days
       days.forEach(day => {
