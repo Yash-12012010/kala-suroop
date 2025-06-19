@@ -551,7 +551,7 @@
 
   /* Animation Classes */
   .animate-slide-in-bottom {
-    animation: slide-in-bottom 0.6s ease-out;
+    animation: slide-in-bottom 0.4s ease-out;
   }
 
   .animate-slide-in-left {
