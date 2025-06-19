@@ -108,18 +108,18 @@ const Store = () => {
 
           {/* Products Grid or Coming Soon */}
           {products.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 lg:gap-8">
               {products.map((product, index) => (
                 <Card 
                   key={product.id} 
-                  className={`bg-white/20 backdrop-blur-md border border-[#F19A3E]/30 hover:bg-white/25 group hover:scale-[1.02] transition-all duration-500 animate-slide-in-bottom overflow-hidden shadow-xl hover:shadow-2xl ${!product.inStock ? 'opacity-75' : ''}`}
+                  className={`bg-white/20 backdrop-blur-md border-2 border-[#F19A3E]/30 hover:bg-white/25 group hover:scale-[1.02] transition-all duration-500 animate-slide-in-bottom overflow-hidden shadow-xl hover:shadow-2xl rounded-2xl ${!product.inStock ? 'opacity-75' : ''}`}
                   style={{ animationDelay: `${index * 100}ms` }}
                 >
                   <div className="relative">
                     <img 
                       src={product.image} 
                       alt={product.title}
-                      className={`w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300 ${!product.inStock ? 'filter grayscale' : ''}`}
+                      className={`w-full h-48 sm:h-52 object-cover group-hover:scale-105 transition-transform duration-300 ${!product.inStock ? 'filter grayscale' : ''}`}
                     />
                     {!product.inStock && (
                       <Badge 
@@ -137,20 +137,20 @@ const Store = () => {
                     </Badge>
                   </div>
                   
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-lg text-white font-bold group-hover:text-[#D7F171] transition-colors duration-300 line-clamp-2">
+                  <CardHeader className="pb-3 px-4 pt-4">
+                    <CardTitle className="text-lg lg:text-xl text-white font-bold group-hover:text-[#D7F171] transition-colors duration-300 line-clamp-2 leading-tight">
                       {product.title}
                     </CardTitle>
                     {product.description && (
-                      <p className="text-sm text-white/90 line-clamp-2 font-medium">
+                      <p className="text-sm text-white/90 line-clamp-2 font-medium mt-2">
                         {product.description}
                       </p>
                     )}
                   </CardHeader>
 
-                  <CardContent className="pt-0">
+                  <CardContent className="pt-0 px-4">
                     <div className="flex items-center space-x-2 mb-4">
-                      <span className="text-xl font-bold text-[#B5EF8A]">
+                      <span className="text-xl lg:text-2xl font-bold text-[#B5EF8A]">
                         ₹{product.price}
                       </span>
                       <span className="text-sm text-white/70 line-through">
@@ -159,9 +159,9 @@ const Store = () => {
                     </div>
                   </CardContent>
 
-                  <CardFooter className="pt-0">
+                  <CardFooter className="pt-0 px-4 pb-4">
                     <Button 
-                      className="w-full bg-gradient-to-r from-[#F19A3E] to-[#D7F171] hover:from-[#e8893a] hover:to-[#c9e961] text-white font-medium" 
+                      className="w-full bg-gradient-to-r from-[#F19A3E] to-[#D7F171] hover:from-[#e8893a] hover:to-[#c9e961] text-white font-bold py-3 rounded-xl transform hover:scale-105 transition-all duration-300 shadow-lg" 
                       disabled={!product.inStock}
                       variant={product.inStock ? "default" : "secondary"}
                     >

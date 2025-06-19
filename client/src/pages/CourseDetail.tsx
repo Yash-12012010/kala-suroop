@@ -54,7 +54,7 @@ const CourseDetail = () => {
       try {
         const data = await api.getCourse(courseId);
         console.log('Course data fetched:', data);
-        return data as Course | null;
+        return data;
       } catch (error) {
         console.error('Error fetching course:', error);
         throw error;

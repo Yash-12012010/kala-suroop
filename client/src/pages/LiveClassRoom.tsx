@@ -88,12 +88,12 @@ const LiveClassRoom = () => {
 
       console.log('Session data loaded:', data);
       if (data && data.agoraChannel) {
-        console.log('Setting up live class with channel:', data.agora_channel);
+        console.log('Setting up live class with channel:', data.agoraChannel);
         const role = isAdmin ? 'teacher' : 'student';
         const userIdPart = user?.id?.split('-')[0] || Math.random().toString(36).slice(2, 8);
         const customUid = `${role}-${userIdPart}`;
         setUid(customUid);
-        setChannelName(data.agora_channel);
+        setChannelName(data.agoraChannel);
         setIsTeacher(role === 'teacher');
         setShowLiveClass(true);
         addTestResult('Session by ID loading working');
@@ -113,12 +113,13 @@ const LiveClassRoom = () => {
       
       await checkAndEndExpiredClasses();
       
-      const { data, error } = await supabase
-        .from('live_sessions')
-        .select('*')
-        .not('agora_channel', 'is', null)
-        .gte('scheduled_end', new Date().toISOString())
-        .order('scheduled_start', { ascending: true });
+      // Use API instead of direct supabase call
+      const sessions = await api.getLiveSessions();
+      const now = new Date();
+      const data = sessions.filter(session => 
+        session.agoraChannel && 
+        new Date(session.scheduledEnd) >= now
+      ).sort((a, b) => new Date(a.scheduledStart).getTime() - new Date(b.scheduledStart).getTime());
 
       if (error) {
         console.error('Error fetching live sessions:', error);

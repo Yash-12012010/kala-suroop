@@ -100,11 +100,11 @@
 
   /* Premium scrollbar with orange theme */
   ::-webkit-scrollbar {
-    width: 8px;
+    width: 12px;
   }
 
   ::-webkit-scrollbar-track {
-    background: rgba(114, 110, 117, 0.1); /* #726E75 */
+    background: rgba(114, 110, 117, 0.1);
     border-radius: 10px;
   }
 
@@ -118,6 +118,29 @@
   ::-webkit-scrollbar-thumb:hover {
     background: linear-gradient(45deg, #e8893a, #c9e961);
     background-clip: content-box;
+  }
+
+  /* Enhanced focus states for accessibility */
+  *:focus {
+    outline: 2px solid #F19A3E;
+    outline-offset: 2px;
+  }
+
+  /* Skip to content link for accessibility */
+  .skip-link {
+    position: absolute;
+    top: -40px;
+    left: 6px;
+    background: #F19A3E;
+    color: white;
+    padding: 8px;
+    text-decoration: none;
+    z-index: 999;
+    border-radius: 4px;
+  }
+
+  .skip-link:focus {
+    top: 6px;
   }
 }
 

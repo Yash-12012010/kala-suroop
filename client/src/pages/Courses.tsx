@@ -221,15 +221,15 @@ const Courses = () => {
           </div>
 
           {/* Premium Courses Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
             {filteredCourses.map((course, index) => (
               <Card 
                 key={course.id} 
-                className="bg-white/95 backdrop-blur-md border border-white/40 shadow-2xl group hover:scale-[1.02] hover:shadow-3xl transition-all duration-500 animate-slide-in-bottom overflow-hidden"
+                className="bg-white/95 backdrop-blur-md border-2 border-white/40 shadow-2xl group hover:scale-[1.02] hover:shadow-3xl transition-all duration-500 animate-slide-in-bottom overflow-hidden rounded-2xl"
                 style={{ animationDelay: `${index * 100}ms` }}
               >
                 {/* Course Image */}
-                <div className="relative h-48 overflow-hidden">
+                <div className="relative h-48 sm:h-52 overflow-hidden">
                   <div className="w-full h-full bg-gradient-to-br from-[#7FC29B] via-[#B5EF8A] to-[#D7F171] flex items-center justify-center group-hover:scale-110 transition-transform duration-500">
                     <BookOpen className="h-16 w-16 text-white opacity-80 drop-shadow-lg" />
                   </div>
