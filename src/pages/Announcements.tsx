@@ -1,106 +1,63 @@
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Calendar, User, Video, Pin, ArrowRight, Clock, Star, Bell } from 'lucide-react';
+import { Bell, Calendar, Clock, Users, Star, Sparkles, Megaphone, ArrowRight, BookOpen, Video } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { useNavigate } from 'react-router-dom';
-
-interface Announcement {
-  id: string;
-  title: string;
-  content: string;
-  type: string;
-  target_audience: string;
-  is_active: boolean;
-  is_pinned: boolean;
-  expires_at: string | null;
-  created_at: string;
-}
+import { format } from 'date-fns';
 
 const Announcements = () => {
-  const [announcements, setAnnouncements] = useState<Announcement[]>([]);
-  const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
-
-  const fetchAnnouncements = async () => {
-    try {
+  const { data: announcements = [], isLoading } = useQuery({
+    queryKey: ['announcements'],
+    queryFn: async () => {
       const { data, error } = await supabase
         .from('announcements')
         .select('*')
-        .eq('is_active', true)
-        .or('expires_at.is.null,expires_at.gte.' + new Date().toISOString())
-        .order('is_pinned', { ascending: false })
         .order('created_at', { ascending: false });
+      
+      if (error) {
+        console.error('Error fetching announcements:', error);
+        throw error;
+      }
+      
+      return data || [];
+    }
+  });
 
-      if (error) throw error;
-      setAnnouncements(data || []);
-    } catch (error) {
-      console.error('Error fetching announcements:', error);
-    } finally {
-      setLoading(false);
+  const getPriorityColor = (priority: string) => {
+    switch (priority) {
+      case 'high': return 'bg-gradient-to-r from-red-500 to-red-600 border-red-400';
+      case 'medium': return 'bg-gradient-to-r from-[#F19A3E] to-[#D7F171] border-[#F19A3E]';
+      case 'low': return 'bg-gradient-to-r from-[#7FC29B] to-[#B5EF8A] border-[#7FC29B]';
+      default: return 'bg-gradient-to-r from-[#F19A3E] to-[#D7F171] border-[#F19A3E]';
     }
   };
 
-  useEffect(() => {
-    fetchAnnouncements();
-  }, []);
-
-  const getPriorityColor = (type: string) => {
-    switch (type) {
-      case 'success': return 'bg-gradient-to-r from-emerald-500 to-green-500';
-      case 'error': return 'bg-gradient-to-r from-red-500 to-rose-500';
-      case 'warning': return 'bg-gradient-to-r from-amber-500 to-orange-500';
-      case 'info': return 'bg-gradient-to-r from-blue-500 to-cyan-500';
-      default: return 'bg-gradient-to-r from-purple-500 to-pink-500';
+  const getPriorityIcon = (priority: string) => {
+    switch (priority) {
+      case 'high': return <Star className="h-4 w-4" />;
+      case 'medium': return <Bell className="h-4 w-4" />;
+      case 'low': return <Clock className="h-4 w-4" />;
+      default: return <Bell className="h-4 w-4" />;
     }
   };
 
-  const getTypeIcon = (type: string) => {
-    switch (type) {
-      case 'success': return <Star className="h-4 w-4" />;
-      case 'error': return <Clock className="h-4 w-4" />;
-      case 'warning': return <Clock className="h-4 w-4" />;
-      case 'info': return <ArrowRight className="h-4 w-4" />;
-      default: return <ArrowRight className="h-4 w-4" />;
-    }
-  };
-
-  const isLiveClassAnnouncement = (announcement: Announcement) => {
-    return announcement.title.includes('🔴 LIVE NOW') || announcement.title.includes('LIVE:');
-  };
-
-  const extractChannelFromContent = (content: string) => {
-    const channelMatch = content.match(/Channel:\s*([^\s]+)/);
-    return channelMatch ? channelMatch[1] : null;
-  };
-
-  const joinLiveClass = (announcement: Announcement) => {
-    const channel = extractChannelFromContent(announcement.content);
-    if (channel) {
-      navigate(`/live-classroom?channel=${channel}&teacher=false`);
-    } else {
-      navigate('/live-classroom');
-    }
-  };
-
-  if (loading) {
+  if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 relative overflow-hidden">
-        {/* Premium Background Effects */}
+      <div className="min-h-screen bg-gradient-to-br from-[#726E75] via-[#F19A3E] to-[#7FC29B] relative overflow-hidden">
         <div className="fixed inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse" />
-          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-pink-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse" />
-          <div className="absolute top-1/3 left-1/4 w-60 h-60 bg-blue-500 rounded-full mix-blend-multiply filter blur-xl opacity-15 animate-pulse" />
+          <div className="absolute -top-40 -right-40 w-80 h-80 bg-[#F19A3E] rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse" />
+          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-[#7FC29B] rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse" />
         </div>
         
         <div className="relative z-10 pt-32 pb-16">
-          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex items-center justify-center min-h-[400px]">
               <div className="text-center">
                 <div className="loading-spinner mx-auto mb-4" />
-                <p className="text-white/80 text-lg">Loading announcements...</p>
+                <p className="text-white/90 text-lg font-bold drop-shadow-lg">Loading announcements...</p>
               </div>
             </div>
           </div>
@@ -110,149 +67,137 @@ const Announcements = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-[#726E75] via-[#F19A3E] to-[#7FC29B] relative overflow-hidden">
       {/* Premium Background Effects */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse float" />
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-pink-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse float-delayed" />
-        <div className="absolute top-1/3 left-1/4 w-60 h-60 bg-blue-500 rounded-full mix-blend-multiply filter blur-xl opacity-15 animate-pulse" style={{ animationDelay: '2s' }} />
-        <div className="absolute bottom-1/3 right-1/4 w-60 h-60 bg-indigo-500 rounded-full mix-blend-multiply filter blur-xl opacity-15 animate-pulse" style={{ animationDelay: '3s' }} />
+        <div className="absolute -top-40 -right-40 w-96 h-96 bg-[#F19A3E] rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-pulse" />
+        <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-[#7FC29B] rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-pulse" />
+        <div className="absolute top-1/4 left-1/3 w-72 h-72 bg-[#B5EF8A] rounded-full mix-blend-multiply filter blur-xl opacity-25 animate-pulse" style={{ animationDelay: '1s' }} />
+        <div className="absolute bottom-1/4 right-1/3 w-72 h-72 bg-[#D7F171] rounded-full mix-blend-multiply filter blur-xl opacity-25 animate-pulse" style={{ animationDelay: '2s' }} />
         
-        {/* Grid overlay */}
-        <div className="absolute inset-0 bg-gradient-to-br from-transparent via-purple-900/5 to-transparent" 
+        <div className="absolute inset-0 opacity-10" 
              style={{ 
-               backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(255,255,255,0.05) 1px, transparent 0)',
-               backgroundSize: '50px 50px'
+               backgroundImage: `
+                 radial-gradient(circle at 25% 25%, #F19A3E 2px, transparent 2px),
+                 radial-gradient(circle at 75% 75%, #7FC29B 1px, transparent 1px)
+               `,
+               backgroundSize: '60px 60px, 40px 40px'
              }} />
-        
-        {/* Shimmer effect */}
-        <div className="absolute inset-0 shimmer opacity-30" />
       </div>
-      
+
       <div className="relative z-10 pt-32 pb-16">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Premium Header */}
-          <div className="text-center mb-12 animate-fade-in">
-            <div className="inline-flex items-center space-x-2 bg-white/10 backdrop-blur-md rounded-full px-6 py-2 mb-6 border border-white/20">
-              <Bell className="h-5 w-5 text-purple-400" />
-              <span className="text-purple-200 font-medium">Latest Updates</span>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Header */}
+          <div className="text-center mb-16 animate-fade-in">
+            <div className="inline-flex items-center space-x-3 bg-gradient-to-r from-[#F19A3E]/30 to-[#D7F171]/30 backdrop-blur-xl rounded-full px-8 py-4 mb-8 border-3 border-white/40 shadow-2xl">
+              <Megaphone className="h-6 w-6 text-[#D7F171] animate-pulse" />
+              <span className="text-white font-black text-xl drop-shadow-lg">ACADEMY UPDATES</span>
+              <Sparkles className="h-6 w-6 text-[#F19A3E] animate-pulse" />
             </div>
             
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-6">
-              <span className="bg-gradient-to-r from-white via-purple-200 to-pink-200 bg-clip-text text-transparent">
-                Academy
+            <h1 className="text-5xl sm:text-6xl lg:text-7xl font-black mb-6">
+              <span className="bg-gradient-to-r from-white via-[#D7F171] to-[#B5EF8A] bg-clip-text text-transparent drop-shadow-2xl">
+                Latest
               </span>
               <br />
-              <span className="bg-gradient-to-r from-purple-400 via-pink-400 to-orange-400 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-[#F19A3E] via-[#D7F171] to-[#7FC29B] bg-clip-text text-transparent drop-shadow-2xl">
                 Announcements
               </span>
             </h1>
             
-            <p className="text-xl text-purple-200/80 max-w-2xl mx-auto leading-relaxed">
-              Stay connected with the latest news, updates, and live sessions from our premium art community
+            <p className="text-xl text-white/90 max-w-3xl mx-auto leading-relaxed font-bold drop-shadow-lg">
+              Stay updated with the latest news, events, and important information from Kala Suroop Academy
             </p>
           </div>
 
-          {/* Premium Announcements Grid */}
-          <div className="space-y-6">
-            {announcements.map((announcement, index) => {
-              const isLiveClass = isLiveClassAnnouncement(announcement);
-              return (
+          {/* Announcements Grid or Empty State */}
+          {announcements.length > 0 ? (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              {announcements.map((announcement, index) => (
                 <Card 
                   key={announcement.id} 
-                  className={`card-premium hover:scale-[1.02] transition-all duration-500 animate-slide-in-bottom ${
-                    isLiveClass ? 'ring-2 ring-red-500/50 shadow-red-500/20 shadow-2xl' : ''
-                  } ${announcement.is_pinned ? 'ring-2 ring-orange-500/50 shadow-orange-500/20' : ''}`}
+                  className="bg-gradient-to-br from-white/30 to-white/10 backdrop-blur-2xl border-4 border-[#F19A3E]/40 hover:border-[#F19A3E] shadow-2xl hover:shadow-3xl hover:scale-[1.02] transition-all duration-500 rounded-3xl overflow-hidden animate-slide-in-bottom"
                   style={{ animationDelay: `${index * 100}ms` }}
                 >
                   <CardHeader className="pb-4">
-                    <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between space-y-3 sm:space-y-0">
-                      <CardTitle className="text-xl sm:text-2xl text-white sm:pr-4 flex items-center group">
-                        {announcement.is_pinned && (
-                          <div className="mr-3 p-1.5 bg-orange-500/20 rounded-lg">
-                            <Pin className="h-4 w-4 text-orange-400" />
-                          </div>
-                        )}
-                        {isLiveClass && (
-                          <div className="mr-3 p-1.5 bg-red-500/20 rounded-lg animate-pulse">
-                            <Video className="h-4 w-4 text-red-400" />
-                          </div>
-                        )}
-                        <span className="group-hover:text-purple-300 transition-colors duration-300">
-                          {announcement.title}
-                        </span>
-                      </CardTitle>
-                      
-                      <div className="flex items-center space-x-2">
-                        <Badge className={`${getPriorityColor(announcement.type)} text-white border-0 px-3 py-1 rounded-full font-medium flex items-center space-x-1 shadow-lg`}>
-                          {getTypeIcon(announcement.type)}
-                          <span>{announcement.type.toUpperCase()}</span>
-                        </Badge>
-                        {isLiveClass && (
-                          <Badge className="bg-red-500 text-white animate-pulse px-3 py-1 rounded-full font-bold shadow-lg">
-                            🔴 LIVE
-                          </Badge>
-                        )}
+                    <div className="flex items-start justify-between mb-4">
+                      <Badge className={`${getPriorityColor(announcement.priority)} text-white font-black px-4 py-2 text-sm border-2 shadow-lg flex items-center space-x-2`}>
+                        {getPriorityIcon(announcement.priority)}
+                        <span>{announcement.priority?.toUpperCase() || 'NORMAL'}</span>
+                      </Badge>
+                      <div className="text-right">
+                        <div className="flex items-center text-white/80 text-sm font-bold mb-1">
+                          <Calendar className="h-4 w-4 mr-2 text-[#D7F171]" />
+                          {format(new Date(announcement.created_at), 'MMM dd, yyyy')}
+                        </div>
+                        <div className="flex items-center text-white/70 text-xs font-medium">
+                          <Clock className="h-3 w-3 mr-1 text-[#B5EF8A]" />
+                          {format(new Date(announcement.created_at), 'h:mm a')}
+                        </div>
                       </div>
                     </div>
-                    
-                    <div className="flex flex-wrap items-center gap-4 text-sm text-purple-300/80 mt-3">
-                      <div className="flex items-center space-x-2 bg-white/5 rounded-lg px-3 py-1">
-                        <Calendar className="h-4 w-4 text-purple-400" />
-                        <span>
-                          {new Date(announcement.created_at).toLocaleDateString('en-IN', {
-                            year: 'numeric',
-                            month: 'long',
-                            day: 'numeric'
-                          })}
-                        </span>
-                      </div>
-                      
-                      <div className="flex items-center space-x-2 bg-white/5 rounded-lg px-3 py-1">
-                        <User className="h-4 w-4 text-purple-400" />
-                        <span>Kala Suroop Team</span>
-                      </div>
-                    </div>
+                    <CardTitle className="text-2xl font-black text-white mb-4 drop-shadow-lg leading-tight">
+                      {announcement.title}
+                    </CardTitle>
                   </CardHeader>
-                  
+
                   <CardContent className="pt-0">
-                    <div className="bg-white/5 rounded-2xl p-6 backdrop-blur-sm border border-white/10 mb-6">
-                      <p className="text-base lg:text-lg text-purple-100 leading-relaxed">
-                        {announcement.content}
-                      </p>
-                    </div>
+                    <p className="text-white/90 leading-relaxed mb-6 font-bold text-lg drop-shadow-sm">
+                      {announcement.content}
+                    </p>
                     
-                    {isLiveClass && (
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center text-[#B5EF8A] text-sm font-bold">
+                        <Users className="h-4 w-4 mr-2" />
+                        Academy Wide
+                      </div>
                       <Button 
-                        onClick={() => joinLiveClass(announcement)}
-                        className="btn-premium bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 text-white font-semibold px-6 py-3 rounded-xl shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300 flex items-center space-x-2"
+                        variant="ghost" 
+                        size="sm" 
+                        className="text-[#D7F171] hover:text-white hover:bg-[#F19A3E]/30 font-bold transition-all duration-300 border-2 border-transparent hover:border-[#F19A3E]/60 rounded-xl"
                       >
-                        <Video className="h-5 w-5" />
-                        <span>Join Live Class Now</span>
+                        Read More
                         <ArrowRight className="h-4 w-4 ml-2" />
                       </Button>
-                    )}
+                    </div>
                   </CardContent>
                 </Card>
-              );
-            })}
-
-            {announcements.length === 0 && (
-              <Card className="card-premium text-center py-16">
-                <CardContent>
-                  <div className="flex flex-col items-center space-y-4">
-                    <div className="w-16 h-16 bg-purple-500/20 rounded-full flex items-center justify-center">
-                      <Bell className="h-8 w-8 text-purple-400" />
-                    </div>
-                    <h3 className="text-xl font-semibold text-white">No Announcements</h3>
-                    <p className="text-purple-300 max-w-md">
-                      No announcements at the moment. Check back later for the latest updates from our academy.
+              ))}
+            </div>
+          ) : (
+            <Card className="bg-gradient-to-br from-white/25 to-white/10 backdrop-blur-2xl border-4 border-[#F19A3E]/40 text-center py-20 animate-fade-in shadow-2xl rounded-3xl">
+              <CardContent>
+                <div className="flex flex-col items-center space-y-8">
+                  <div className="w-24 h-24 bg-gradient-to-r from-[#F19A3E] to-[#D7F171] rounded-full flex items-center justify-center animate-pulse shadow-2xl border-4 border-white/50">
+                    <Bell className="h-12 w-12 text-white drop-shadow-lg" />
+                  </div>
+                  <div className="space-y-4">
+                    <h2 className="text-4xl font-black text-white drop-shadow-lg">
+                      No Announcements Yet
+                    </h2>
+                    <p className="text-xl text-white/90 max-w-md mx-auto font-bold drop-shadow-sm leading-relaxed">
+                      Stay tuned! Important updates and exciting news from the academy will appear here.
                     </p>
                   </div>
-                </CardContent>
-              </Card>
-            )}
-          </div>
+                  <div className="flex items-center space-x-2 text-[#D7F171] font-bold text-lg">
+                    <Sparkles className="h-5 w-5" />
+                    <span>Check back soon for updates</span>
+                    <Star className="h-5 w-5" />
+                  </div>
+                  <div className="flex flex-col sm:flex-row gap-4 pt-4">
+                    <Button className="bg-gradient-to-r from-[#F19A3E] to-[#D7F171] hover:from-[#e8893a] hover:to-[#c9e961] text-white font-black px-8 py-4 rounded-2xl shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300 border-3 border-white/40">
+                      <BookOpen className="h-5 w-5 mr-3" />
+                      Explore Courses
+                    </Button>
+                    <Button variant="outline" className="bg-white/10 backdrop-blur-md border-3 border-white/40 text-white hover:bg-white/20 px-8 py-4 rounded-2xl transition-all duration-300 font-black">
+                      <Video className="h-5 w-5 mr-3" />
+                      Join Live Classes
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
         </div>
       </div>
     </div>
