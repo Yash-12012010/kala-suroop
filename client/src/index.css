@@ -142,6 +142,103 @@
   .skip-link:focus {
     top: 6px;
   }
+
+  /* Mobile-first responsive improvements */
+  @media (max-width: 375px) {
+    .responsive-text-xs {
+      font-size: 0.75rem;
+    }
+    
+    .responsive-spacing-xs {
+      padding: 0.5rem;
+    }
+    
+    .responsive-grid-1-xs {
+      grid-template-columns: 1fr;
+      gap: 0.75rem;
+    }
+  }
+
+  @media (min-width: 376px) and (max-width: 640px) {
+    .responsive-text-sm {
+      font-size: 0.875rem;
+    }
+    
+    .responsive-spacing-sm {
+      padding: 0.75rem;
+    }
+  }
+
+  @media (min-width: 641px) and (max-width: 768px) {
+    .responsive-text-md {
+      font-size: 1rem;
+    }
+    
+    .responsive-spacing-md {
+      padding: 1rem;
+    }
+  }
+
+  /* Enhanced card hover effects */
+  .card-enhanced {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transform-origin: center;
+  }
+
+  .card-enhanced:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 25px 50px -12px rgba(241, 154, 62, 0.25);
+  }
+
+  /* Button animations */
+  .btn-enhanced {
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+  }
+
+  .btn-enhanced:before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s;
+  }
+
+  .btn-enhanced:hover:before {
+    left: 100%;
+  }
+
+  /* Touch-friendly mobile interactions */
+  @media (hover: none) and (pointer: coarse) {
+    .card-enhanced:active {
+      transform: scale(0.98);
+    }
+    
+    .btn-enhanced:active {
+      transform: scale(0.95);
+    }
+  }
+
+  /* Improved mobile scrolling */
+  html {
+    -webkit-text-size-adjust: 100%;
+    touch-action: manipulation;
+  }
+
+  /* Better mobile form styling */
+  input, textarea, select {
+    font-size: 16px; /* Prevents zoom on iOS */
+  }
+
+  @media (max-width: 640px) {
+    input, textarea, select {
+      font-size: 14px;
+    }
+  }
 }
 
 @layer components {
