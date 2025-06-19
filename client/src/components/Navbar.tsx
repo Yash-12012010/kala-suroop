@@ -366,21 +366,3 @@ const Navbar = () => {
 };
 
 export default Navbar;
-                      to="/signup"
-                      className="block px-6 py-4 text-lg font-black bg-gradient-to-r from-[#F19A3E] to-[#D7F171] hover:from-[#e8893a] hover:to-[#c9e961] text-white rounded-2xl transition-all duration-300 shadow-2xl text-center border-3 border-white/40"
-                      onClick={() => setIsMenuOpen(false)}
-                    >
-                      Join the Elite Community
-                    </Link>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-        </div>
-      </nav>
-    </>
-  );
-};
-
-export default Navbar;
