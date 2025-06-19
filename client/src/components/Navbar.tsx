@@ -82,13 +82,15 @@ const Navbar = () => {
 
   return (
     <>
-      <nav className={`fixed w-full top-0 left-0 z-50 transition-all duration-500 ease-out ${
+      <nav className={`fixed w-full top-0 left-0 z-50 transition-all duration-700 ease-out ${
         scrolled 
-          ? 'bg-gradient-to-r from-[#726E75]/95 via-[#F19A3E]/95 to-[#7FC29B]/95 backdrop-blur-2xl shadow-2xl border-b-4 border-[#F19A3E]' 
-          : 'bg-gradient-to-r from-[#726E75]/90 via-[#F19A3E]/90 to-[#7FC29B]/90 backdrop-blur-xl border-b-2 border-[#F19A3E]/60'
+          ? 'bg-gradient-to-r from-slate-900/98 via-purple-900/98 to-slate-900/98 backdrop-blur-3xl shadow-2xl border-b-2 border-[#F19A3E]/60' 
+          : 'bg-gradient-to-r from-slate-900/95 via-purple-900/95 to-slate-900/95 backdrop-blur-2xl border-b border-white/20'
       }`}>
-        {/* Enhanced gradient border */}
-        <div className="absolute inset-x-0 bottom-0 h-2 bg-gradient-to-r from-[#7FC29B] via-[#F19A3E] to-[#D7F171] opacity-90" />
+        {/* Premium gradient border */}
+        <div className={`absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-[#7FC29B] via-[#F19A3E] to-[#D7F171] transition-all duration-700 ${
+          scrolled ? 'opacity-100' : 'opacity-60'
+        }`} />
         
         <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12">
           <div className="flex justify-between items-center h-20 lg:h-24">
@@ -115,24 +117,25 @@ const Navbar = () => {
               </Link>
             </div>
 
-            {/* Enhanced Desktop Navigation - Reduced size */}
-            <div className="hidden lg:flex items-center space-x-1">
+            {/* World-Class Desktop Navigation */}
+            <div className="hidden lg:flex items-center space-x-2">
               {navItems.map((item, index) => (
                 <Link
                   key={item.id}
                   to={item.path}
-                  className={`relative px-4 py-2 text-sm font-semibold transition-all duration-300 rounded-lg group transform hover:scale-105 border-2 ${
+                  className={`relative px-5 py-2.5 text-sm font-medium transition-all duration-500 rounded-xl group transform hover:scale-102 border ${
                     activeItem === item.name
-                      ? 'text-white bg-gradient-to-r from-[#F19A3E] to-[#D7F171] shadow-lg border-white/40 scale-105'
-                      : 'text-white hover:text-[#D7F171] hover:bg-white/15 border-transparent hover:border-[#F19A3E]/40 hover:shadow-md'
+                      ? 'text-white bg-gradient-to-r from-[#F19A3E] to-[#D7F171] shadow-lg border-white/30 scale-102 shadow-[#F19A3E]/20'
+                      : 'text-white/90 hover:text-white hover:bg-white/8 border-transparent hover:border-white/20 hover:shadow-sm backdrop-blur-sm'
                   }`}
                   style={{ animationDelay: `${index * 100}ms` }}
                   {...(item.is_external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
                 >
-                  <span className="relative z-10 drop-shadow-sm tracking-normal">{item.name}</span>
+                  <span className="relative z-10 drop-shadow-sm tracking-wide">{item.name}</span>
                   {activeItem !== item.name && (
-                    <div className="absolute inset-0 bg-gradient-to-r from-[#F19A3E]/20 to-[#D7F171]/20 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                    <div className="absolute inset-0 bg-gradient-to-r from-[#F19A3E]/10 to-[#D7F171]/10 rounded-xl opacity-0 group-hover:opacity-100 transition-all duration-500 backdrop-blur-sm" />
                   )}
+                  <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-transparent via-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                 </Link>
               ))}
             </div>
@@ -196,35 +199,37 @@ const Navbar = () => {
                         <span className="hidden lg:inline max-w-20 xl:max-w-28 truncate text-white font-semibold">{displayName}</span>
                       </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-64 bg-gradient-to-br from-[#726E75]/98 to-[#F19A3E]/98 backdrop-blur-2xl border-3 border-[#F19A3E]/60 shadow-2xl rounded-2xl">
-                      <div className="p-4 border-b-2 border-[#F19A3E]/40 bg-gradient-to-r from-[#F19A3E]/30 to-[#D7F171]/30 rounded-t-xl">
-                        <p className="text-lg font-black text-white drop-shadow-lg">{profile?.full_name || displayName}</p>
-                        <p className="text-sm text-[#B5EF8A] drop-shadow-sm font-bold">{user?.email}</p>
+                    <DropdownMenuContent align="end" className="w-72 bg-gradient-to-br from-white/95 to-gray-50/95 backdrop-blur-3xl border-2 border-[#F19A3E]/30 shadow-2xl rounded-2xl overflow-hidden">
+                      <div className="p-6 border-b border-gray-200/50 bg-gradient-to-r from-[#F19A3E]/10 to-[#D7F171]/10">
+                        <p className="text-lg font-bold text-gray-900">{profile?.full_name || displayName}</p>
+                        <p className="text-sm text-gray-600 font-medium">{user?.email}</p>
                       </div>
-                      <DropdownMenuItem onClick={() => navigate('/dashboard')} className="hover:bg-[#F19A3E]/30 text-white rounded-xl m-2 font-black text-lg py-3">
-                        <User className="mr-3 h-5 w-5 text-[#B5EF8A]" />
-                        Artist Profile
-                      </DropdownMenuItem>
-                      {isAdmin && (
-                        <DropdownMenuItem onClick={() => navigate('/admin')} className="hover:bg-[#F19A3E]/30 text-white rounded-xl m-2 font-black text-lg py-3">
-                          <Settings className="mr-3 h-5 w-5 text-[#B5EF8A]" />
-                          Admin Panel
+                      <div className="p-2">
+                        <DropdownMenuItem onClick={() => navigate('/dashboard')} className="hover:bg-[#F19A3E]/10 text-gray-800 rounded-xl font-semibold text-base py-3 px-4 transition-all duration-200">
+                          <User className="mr-3 h-5 w-5 text-[#F19A3E]" />
+                          Artist Profile
                         </DropdownMenuItem>
-                      )}
-                      <DropdownMenuSeparator className="bg-[#F19A3E]/40 my-2" />
-                      <DropdownMenuItem onClick={handleLogout} className="hover:bg-red-600/30 text-red-300 rounded-xl m-2 font-black text-lg py-3">
-                        <LogOut className="mr-3 h-5 w-5" />
-                        Logout
-                      </DropdownMenuItem>
+                        {isAdmin && (
+                          <DropdownMenuItem onClick={() => navigate('/admin')} className="hover:bg-[#F19A3E]/10 text-gray-800 rounded-xl font-semibold text-base py-3 px-4 transition-all duration-200">
+                            <Settings className="mr-3 h-5 w-5 text-[#F19A3E]" />
+                            Admin Panel
+                          </DropdownMenuItem>
+                        )}
+                        <DropdownMenuSeparator className="bg-gray-200/50 my-2" />
+                        <DropdownMenuItem onClick={handleLogout} className="hover:bg-red-50 text-red-600 rounded-xl font-semibold text-base py-3 px-4 transition-all duration-200">
+                          <LogOut className="mr-3 h-5 w-5" />
+                          Logout
+                        </DropdownMenuItem>
+                      </div>
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </div>
               ) : (
-                <div className="flex items-center space-x-3">
-                  <Button variant="ghost" size="sm" asChild className="hover:bg-white/15 text-white hover:text-[#D7F171] rounded-lg transition-all duration-300 border border-transparent hover:border-[#F19A3E]/40 font-semibold text-sm px-4 py-2">
+                <div className="flex items-center space-x-4">
+                  <Button variant="ghost" size="sm" asChild className="hover:bg-white/15 text-white/90 hover:text-white rounded-xl transition-all duration-500 border border-transparent hover:border-white/30 font-medium text-sm px-5 py-2.5 backdrop-blur-sm">
                     <Link to="/login">Login</Link>
                   </Button>
-                  <Button size="sm" asChild className="bg-gradient-to-r from-[#F19A3E] to-[#D7F171] hover:from-[#e8893a] hover:to-[#c9e961] text-white border-0 rounded-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 font-semibold px-6 py-2 text-sm border border-white/40">
+                  <Button size="sm" asChild className="bg-gradient-to-r from-[#F19A3E] to-[#D7F171] hover:from-[#e8893a] hover:to-[#c9e961] text-white border-0 rounded-xl shadow-lg hover:shadow-2xl transform hover:scale-105 transition-all duration-500 font-semibold px-7 py-2.5 text-sm border border-white/40 btn-enhanced">
                     <Link to="/signup">Join the Elite</Link>
                   </Button>
                 </div>
@@ -258,22 +263,24 @@ const Navbar = () => {
                         </div>
                       </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-48 bg-gradient-to-br from-[#726E75]/98 to-[#F19A3E]/98 backdrop-blur-2xl border-2 border-[#F19A3E]/60 shadow-2xl rounded-xl">
-                      <DropdownMenuItem onClick={() => navigate('/dashboard')} className="hover:bg-[#F19A3E]/30 text-white rounded-lg m-2 font-bold text-sm py-2">
-                        <User className="mr-2 h-4 w-4 text-[#B5EF8A]" />
-                        Profile
-                      </DropdownMenuItem>
-                      {isAdmin && (
-                        <DropdownMenuItem onClick={() => navigate('/admin')} className="hover:bg-[#F19A3E]/30 text-white rounded-lg m-2 font-bold text-sm py-2">
-                          <Settings className="mr-2 h-4 w-4 text-[#B5EF8A]" />
-                          Admin
+                    <DropdownMenuContent align="end" className="w-56 bg-gradient-to-br from-white/95 to-gray-50/95 backdrop-blur-3xl border-2 border-[#F19A3E]/30 shadow-2xl rounded-xl overflow-hidden">
+                      <div className="p-2">
+                        <DropdownMenuItem onClick={() => navigate('/dashboard')} className="hover:bg-[#F19A3E]/10 text-gray-800 rounded-lg font-semibold text-sm py-2.5 px-3 transition-all duration-200">
+                          <User className="mr-2 h-4 w-4 text-[#F19A3E]" />
+                          Profile
                         </DropdownMenuItem>
-                      )}
-                      <DropdownMenuSeparator className="bg-[#F19A3E]/40 my-1" />
-                      <DropdownMenuItem onClick={handleLogout} className="hover:bg-red-600/30 text-red-300 rounded-lg m-2 font-bold text-sm py-2">
-                        <LogOut className="mr-2 h-4 w-4" />
-                        Logout
-                      </DropdownMenuItem>
+                        {isAdmin && (
+                          <DropdownMenuItem onClick={() => navigate('/admin')} className="hover:bg-[#F19A3E]/10 text-gray-800 rounded-lg font-semibold text-sm py-2.5 px-3 transition-all duration-200">
+                            <Settings className="mr-2 h-4 w-4 text-[#F19A3E]" />
+                            Admin Panel
+                          </DropdownMenuItem>
+                        )}
+                        <DropdownMenuSeparator className="bg-gray-200/50 my-1" />
+                        <DropdownMenuItem onClick={handleLogout} className="hover:bg-red-50 text-red-600 rounded-lg font-semibold text-sm py-2.5 px-3 transition-all duration-200">
+                          <LogOut className="mr-2 h-4 w-4" />
+                          Logout
+                        </DropdownMenuItem>
+                      </div>
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </>
