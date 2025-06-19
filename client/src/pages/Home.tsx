@@ -104,13 +104,13 @@ const Home = () => {
                   border: "border-[#D7F171]"
                 }
               ].map((stat, index) => (
-                <Card key={index} className={`bg-gradient-to-br from-white/25 to-white/10 backdrop-blur-2xl border-4 ${stat.border} shadow-2xl hover:shadow-3xl hover:scale-110 transition-all duration-500 group rounded-3xl`}>
+                <Card key={index} className={`bg-white/95 backdrop-blur-xl border-4 ${stat.border} shadow-2xl hover:shadow-3xl hover:scale-110 transition-all duration-500 group rounded-3xl`}>
                   <CardContent className="p-8 text-center">
                     <div className={`w-20 h-20 mx-auto mb-6 rounded-3xl bg-gradient-to-br ${stat.gradient} flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-xl border-3 border-white/50`}>
                       <stat.icon className="h-10 w-10 text-white drop-shadow-lg" />
                     </div>
-                    <div className="text-5xl font-black text-white mb-3 drop-shadow-2xl">{stat.number}</div>
-                    <div className="text-white font-black text-lg drop-shadow-lg tracking-wider">{stat.label}</div>
+                    <div className="text-5xl font-black text-gray-900 mb-3 drop-shadow-sm">{stat.number}</div>
+                    <div className="text-gray-800 font-bold text-lg tracking-wider">{stat.label}</div>
                   </CardContent>
                 </Card>
               ))}
@@ -187,14 +187,14 @@ const Home = () => {
                 bgAccent: "bg-[#F19A3E]/20"
               }
             ].map((feature, index) => (
-              <Card key={index} className={`group bg-gradient-to-br from-white/30 to-white/10 backdrop-blur-2xl border-4 ${feature.borderColor} hover:border-white shadow-2xl hover:shadow-3xl hover:scale-105 transition-all duration-500 cursor-pointer rounded-3xl overflow-hidden`}>
-                <div className={`absolute inset-0 ${feature.bgAccent} opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
+              <Card key={index} className={`group bg-white/95 backdrop-blur-xl border-4 ${feature.borderColor} hover:border-[#F19A3E] shadow-2xl hover:shadow-3xl hover:scale-105 transition-all duration-500 cursor-pointer rounded-3xl overflow-hidden`}>
+                <div className={`absolute inset-0 ${feature.bgAccent} opacity-0 group-hover:opacity-20 transition-opacity duration-500`} />
                 <CardContent className="relative p-10 text-center">
                   <div className={`w-24 h-24 mx-auto mb-8 rounded-3xl bg-gradient-to-br ${feature.gradient} border-4 border-white/50 flex items-center justify-center group-hover:scale-110 group-hover:rotate-6 transition-all duration-500 shadow-2xl`}>
                     <feature.icon className="h-12 w-12 text-white drop-shadow-lg" />
                   </div>
-                  <h3 className="text-2xl font-black text-white mb-6 drop-shadow-lg tracking-wider">{feature.title}</h3>
-                  <p className="text-white leading-relaxed font-bold drop-shadow-sm text-lg">{feature.description}</p>
+                  <h3 className="text-2xl font-black text-gray-900 mb-6 tracking-wider">{feature.title}</h3>
+                  <p className="text-gray-800 leading-relaxed font-semibold text-lg">{feature.description}</p>
                 </CardContent>
               </Card>
             ))}
@@ -205,8 +205,8 @@ const Home = () => {
       {/* Call to Action Section - Mobile Optimized */}
       <div className="relative z-10 py-12 sm:py-16 lg:py-24">
         <div className="max-w-6xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
-          <Card className="bg-gradient-to-br from-white/40 to-white/20 backdrop-blur-2xl border-2 sm:border-3 lg:border-4 border-[#F19A3E] shadow-2xl hover:shadow-3xl hover:scale-[1.02] transition-all duration-500 rounded-2xl lg:rounded-3xl overflow-hidden card-enhanced">
-            <div className="absolute inset-0 bg-gradient-to-r from-[#F19A3E]/30 via-[#D7F171]/20 to-[#7FC29B]/30" />
+          <Card className="bg-white/95 backdrop-blur-xl border-2 sm:border-3 lg:border-4 border-[#F19A3E] shadow-2xl hover:shadow-3xl hover:scale-[1.02] transition-all duration-500 rounded-2xl lg:rounded-3xl overflow-hidden card-enhanced">
+            <div className="absolute inset-0 bg-gradient-to-r from-[#F19A3E]/10 via-[#D7F171]/10 to-[#7FC29B]/10" />
             <CardContent className="relative p-6 sm:p-10 lg:p-16 text-center">
               <div className="flex justify-center mb-6 sm:mb-8">
                 <div className="flex space-x-2 sm:space-x-4">
@@ -222,10 +222,10 @@ const Home = () => {
                 </div>
               </div>
               
-              <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-black text-white mb-4 sm:mb-6 lg:mb-8 drop-shadow-2xl">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-black text-gray-900 mb-4 sm:mb-6 lg:mb-8">
                 READY TO JOIN THE ELITE?
               </h2>
-              <p className="text-base sm:text-lg lg:text-xl xl:text-2xl text-white mb-8 sm:mb-10 lg:mb-12 max-w-xs sm:max-w-2xl lg:max-w-4xl mx-auto font-medium sm:font-bold drop-shadow-lg leading-relaxed px-2 sm:px-0">
+              <p className="text-base sm:text-lg lg:text-xl xl:text-2xl text-gray-800 mb-8 sm:mb-10 lg:mb-12 max-w-xs sm:max-w-2xl lg:max-w-4xl mx-auto font-semibold leading-relaxed px-2 sm:px-0">
                 Transform your artistic journey with world-class education and mentorship. 
                 Your creative breakthrough starts here.
               </p>

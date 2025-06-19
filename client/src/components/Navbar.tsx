@@ -100,32 +100,32 @@ const Navbar = () => {
               </Link>
             </div>
 
-            {/* Enhanced Desktop Navigation */}
-            <div className="hidden lg:flex items-center space-x-2">
+            {/* Enhanced Desktop Navigation - Reduced size */}
+            <div className="hidden lg:flex items-center space-x-1">
               {navItems.map((item, index) => (
                 <Link
                   key={item.id}
                   to={item.path}
-                  className={`relative px-6 py-4 text-lg font-black transition-all duration-300 rounded-2xl group transform hover:scale-110 border-3 ${
+                  className={`relative px-4 py-2 text-sm font-semibold transition-all duration-300 rounded-lg group transform hover:scale-105 border-2 ${
                     activeItem === item.name
-                      ? 'text-white bg-gradient-to-r from-[#F19A3E] to-[#D7F171] shadow-2xl border-white/60 scale-110'
-                      : 'text-white hover:text-[#D7F171] hover:bg-white/20 border-transparent hover:border-[#F19A3E]/60 hover:shadow-xl'
+                      ? 'text-white bg-gradient-to-r from-[#F19A3E] to-[#D7F171] shadow-lg border-white/40 scale-105'
+                      : 'text-white hover:text-[#D7F171] hover:bg-white/15 border-transparent hover:border-[#F19A3E]/40 hover:shadow-md'
                   }`}
                   style={{ animationDelay: `${index * 100}ms` }}
                   {...(item.is_external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
                 >
-                  <span className="relative z-10 drop-shadow-lg tracking-wide">{item.name}</span>
+                  <span className="relative z-10 drop-shadow-sm tracking-normal">{item.name}</span>
                   {activeItem !== item.name && (
-                    <div className="absolute inset-0 bg-gradient-to-r from-[#F19A3E]/30 to-[#D7F171]/30 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                    <div className="absolute inset-0 bg-gradient-to-r from-[#F19A3E]/20 to-[#D7F171]/20 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                   )}
                 </Link>
               ))}
             </div>
 
             {/* Enhanced Desktop Auth */}
-            <div className="hidden md:flex items-center space-x-4">
+            <div className="hidden md:flex items-center space-x-3">
               {user ? (
-                <div className="flex items-center space-x-4">
+                <div className="flex items-center space-x-3">
                   {/* Enhanced Search */}
                   <div className="relative">
                     {isSearchOpen ? (
@@ -135,27 +135,27 @@ const Navbar = () => {
                           placeholder="Search courses..."
                           value={searchQuery}
                           onChange={(e) => setSearchQuery(e.target.value)}
-                          className="w-56 bg-white/20 border-3 border-[#F19A3E]/60 text-white placeholder-[#B5EF8A] focus:bg-white/30 focus:border-[#F19A3E] transition-all duration-300 backdrop-blur-xl rounded-xl text-lg font-bold"
+                          className="w-48 bg-white/20 border-2 border-[#F19A3E]/60 text-white placeholder-[#B5EF8A] focus:bg-white/30 focus:border-[#F19A3E] transition-all duration-300 backdrop-blur-xl rounded-lg text-sm font-medium"
                           autoFocus
                         />
                         <Button 
                           type="button"
                           variant="ghost" 
                           size="sm" 
-                          className="ml-2 p-3 text-[#B5EF8A] hover:text-white hover:bg-[#F19A3E]/30 rounded-xl border-2 border-transparent hover:border-[#F19A3E]/60"
+                          className="ml-2 p-2 text-[#B5EF8A] hover:text-white hover:bg-[#F19A3E]/30 rounded-lg border border-transparent hover:border-[#F19A3E]/60"
                           onClick={() => setIsSearchOpen(false)}
                         >
-                          <X className="h-5 w-5" />
+                          <X className="h-4 w-4" />
                         </Button>
                       </form>
                     ) : (
                       <Button 
                         variant="ghost" 
                         size="sm" 
-                        className="p-3 text-white hover:text-[#D7F171] hover:bg-white/20 rounded-xl transition-all duration-300 border-3 border-transparent hover:border-[#F19A3E]/60 hover:shadow-xl"
+                        className="p-2 text-white hover:text-[#D7F171] hover:bg-white/15 rounded-lg transition-all duration-300 border border-transparent hover:border-[#F19A3E]/40"
                         onClick={() => setIsSearchOpen(true)}
                       >
-                        <Search className="h-5 w-5" />
+                        <Search className="h-4 w-4" />
                       </Button>
                     )}
                   </div>
@@ -164,21 +164,21 @@ const Navbar = () => {
                   <Button 
                     variant="ghost" 
                     size="sm" 
-                    className="relative p-3 text-white hover:text-[#D7F171] hover:bg-white/20 rounded-xl transition-all duration-300 border-3 border-transparent hover:border-[#F19A3E]/60 hover:shadow-xl"
+                    className="relative p-2 text-white hover:text-[#D7F171] hover:bg-white/15 rounded-lg transition-all duration-300 border border-transparent hover:border-[#F19A3E]/40"
                     onClick={() => navigate('/announcements')}
                   >
-                    <Bell className="h-5 w-5" />
-                    <div className="absolute -top-1 -right-1 w-4 h-4 bg-gradient-to-r from-[#F19A3E] to-[#D7F171] rounded-full animate-pulse shadow-xl border-2 border-white" />
+                    <Bell className="h-4 w-4" />
+                    <div className="absolute -top-1 -right-1 w-3 h-3 bg-gradient-to-r from-[#F19A3E] to-[#D7F171] rounded-full animate-pulse shadow-lg border border-white" />
                   </Button>
 
                   {/* Enhanced User Dropdown */}
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" className="flex items-center space-x-3 hover:bg-white/20 text-lg rounded-xl px-4 py-3 transition-all duration-300 group border-3 border-transparent hover:border-[#F19A3E]/60 hover:shadow-xl">
-                        <div className="w-10 h-10 rounded-full bg-gradient-to-r from-[#F19A3E] to-[#D7F171] flex items-center justify-center text-white font-black text-sm group-hover:scale-110 transition-transform duration-300 shadow-xl border-3 border-white/40">
+                      <Button variant="ghost" className="flex items-center space-x-2 hover:bg-white/15 text-sm rounded-lg px-3 py-2 transition-all duration-300 group border border-transparent hover:border-[#F19A3E]/40">
+                        <div className="w-8 h-8 rounded-full bg-gradient-to-r from-[#F19A3E] to-[#D7F171] flex items-center justify-center text-white font-bold text-xs group-hover:scale-105 transition-transform duration-300 shadow-lg border border-white/40">
                           {displayName.charAt(0).toUpperCase()}
                         </div>
-                        <span className="hidden lg:inline max-w-24 xl:max-w-32 truncate text-white font-black">{displayName}</span>
+                        <span className="hidden lg:inline max-w-20 xl:max-w-28 truncate text-white font-semibold">{displayName}</span>
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="w-64 bg-gradient-to-br from-[#726E75]/98 to-[#F19A3E]/98 backdrop-blur-2xl border-3 border-[#F19A3E]/60 shadow-2xl rounded-2xl">
@@ -205,11 +205,11 @@ const Navbar = () => {
                   </DropdownMenu>
                 </div>
               ) : (
-                <div className="flex items-center space-x-4">
-                  <Button variant="ghost" size="sm" asChild className="hover:bg-white/20 text-white hover:text-[#D7F171] rounded-xl transition-all duration-300 border-3 border-transparent hover:border-[#F19A3E]/60 font-black text-lg px-6 py-3">
+                <div className="flex items-center space-x-3">
+                  <Button variant="ghost" size="sm" asChild className="hover:bg-white/15 text-white hover:text-[#D7F171] rounded-lg transition-all duration-300 border border-transparent hover:border-[#F19A3E]/40 font-semibold text-sm px-4 py-2">
                     <Link to="/login">Login</Link>
                   </Button>
-                  <Button size="sm" asChild className="bg-gradient-to-r from-[#F19A3E] to-[#D7F171] hover:from-[#e8893a] hover:to-[#c9e961] text-white border-0 rounded-xl shadow-2xl hover:shadow-3xl transform hover:scale-110 transition-all duration-300 font-black px-8 py-3 text-lg border-3 border-white/40">
+                  <Button size="sm" asChild className="bg-gradient-to-r from-[#F19A3E] to-[#D7F171] hover:from-[#e8893a] hover:to-[#c9e961] text-white border-0 rounded-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 font-semibold px-6 py-2 text-sm border border-white/40">
                     <Link to="/signup">Join the Elite</Link>
                   </Button>
                 </div>
@@ -217,17 +217,17 @@ const Navbar = () => {
             </div>
 
             {/* Enhanced Mobile menu button with improved responsiveness */}
-            <div className="flex items-center md:hidden space-x-2">
+            <div className="flex items-center lg:hidden space-x-2">
               {user && (
                 <>
                   <Button 
                     variant="ghost" 
                     size="sm" 
-                    className="p-2 sm:p-3 text-white hover:text-[#D7F171] hover:bg-white/20 rounded-xl border-2 border-transparent hover:border-[#F19A3E]/60 transition-all duration-300"
+                    className="relative p-2 text-white hover:text-[#D7F171] hover:bg-white/15 rounded-lg border border-transparent hover:border-[#F19A3E]/40 transition-all duration-300"
                     onClick={() => navigate('/announcements')}
                     aria-label="View announcements"
                   >
-                    <Bell className="h-4 w-4 sm:h-5 sm:w-5" />
+                    <Bell className="h-4 w-4" />
                     <div className="absolute -top-1 -right-1 w-3 h-3 bg-gradient-to-r from-[#F19A3E] to-[#D7F171] rounded-full animate-pulse shadow-lg border border-white" />
                   </Button>
                   <DropdownMenu>
@@ -235,28 +235,28 @@ const Navbar = () => {
                       <Button 
                         variant="ghost" 
                         size="sm" 
-                        className="p-1 sm:p-2 hover:bg-white/20 rounded-xl border-2 border-transparent hover:border-[#F19A3E]/60 transition-all duration-300"
+                        className="p-1 hover:bg-white/15 rounded-lg border border-transparent hover:border-[#F19A3E]/40 transition-all duration-300"
                         aria-label="User menu"
                       >
-                        <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-gradient-to-r from-[#F19A3E] to-[#D7F171] flex items-center justify-center text-white font-black text-xs sm:text-sm shadow-lg border-2 border-white/40">
+                        <div className="w-7 h-7 rounded-full bg-gradient-to-r from-[#F19A3E] to-[#D7F171] flex items-center justify-center text-white font-bold text-xs shadow-lg border border-white/40">
                           {displayName.charAt(0).toUpperCase()}
                         </div>
                       </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-48 sm:w-56 bg-gradient-to-br from-[#726E75]/98 to-[#F19A3E]/98 backdrop-blur-2xl border-2 border-[#F19A3E]/60 shadow-2xl rounded-xl">
-                      <DropdownMenuItem onClick={() => navigate('/dashboard')} className="hover:bg-[#F19A3E]/30 text-white rounded-lg m-2 font-bold text-sm sm:text-base py-2 sm:py-3">
-                        <User className="mr-2 sm:mr-3 h-4 w-4 sm:h-5 sm:w-5 text-[#B5EF8A]" />
+                    <DropdownMenuContent align="end" className="w-48 bg-gradient-to-br from-[#726E75]/98 to-[#F19A3E]/98 backdrop-blur-2xl border-2 border-[#F19A3E]/60 shadow-2xl rounded-xl">
+                      <DropdownMenuItem onClick={() => navigate('/dashboard')} className="hover:bg-[#F19A3E]/30 text-white rounded-lg m-2 font-bold text-sm py-2">
+                        <User className="mr-2 h-4 w-4 text-[#B5EF8A]" />
                         Profile
                       </DropdownMenuItem>
                       {isAdmin && (
-                        <DropdownMenuItem onClick={() => navigate('/admin')} className="hover:bg-[#F19A3E]/30 text-white rounded-lg m-2 font-bold text-sm sm:text-base py-2 sm:py-3">
-                          <Settings className="mr-2 sm:mr-3 h-4 w-4 sm:h-5 sm:w-5 text-[#B5EF8A]" />
+                        <DropdownMenuItem onClick={() => navigate('/admin')} className="hover:bg-[#F19A3E]/30 text-white rounded-lg m-2 font-bold text-sm py-2">
+                          <Settings className="mr-2 h-4 w-4 text-[#B5EF8A]" />
                           Admin
                         </DropdownMenuItem>
                       )}
                       <DropdownMenuSeparator className="bg-[#F19A3E]/40 my-1" />
-                      <DropdownMenuItem onClick={handleLogout} className="hover:bg-red-600/30 text-red-300 rounded-lg m-2 font-bold text-sm sm:text-base py-2 sm:py-3">
-                        <LogOut className="mr-2 sm:mr-3 h-4 w-4 sm:h-5 sm:w-5" />
+                      <DropdownMenuItem onClick={handleLogout} className="hover:bg-red-600/30 text-red-300 rounded-lg m-2 font-bold text-sm py-2">
+                        <LogOut className="mr-2 h-4 w-4" />
                         Logout
                       </DropdownMenuItem>
                     </DropdownMenuContent>
@@ -265,28 +265,25 @@ const Navbar = () => {
               )}
               <button
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
-                className="p-2 sm:p-3 text-white hover:text-[#D7F171] hover:bg-white/20 rounded-xl transition-all duration-300 transform hover:scale-110 border-2 border-transparent hover:border-[#F19A3E]/60 focus:outline-none focus:ring-2 focus:ring-[#F19A3E] focus:ring-offset-2 focus:ring-offset-transparent"
+                className="p-2 text-white hover:text-[#D7F171] hover:bg-white/15 rounded-lg transition-all duration-300 transform hover:scale-105 border border-transparent hover:border-[#F19A3E]/40 focus:outline-none focus:ring-2 focus:ring-[#F19A3E] focus:ring-offset-2 focus:ring-offset-transparent"
                 aria-label={isMenuOpen ? "Close menu" : "Open menu"}
                 aria-expanded={isMenuOpen}
               >
                 {isMenuOpen ? 
-                  <X className="h-5 w-5 sm:h-6 sm:w-6 transition-transform duration-300" /> : 
-                  <Menu className="h-5 w-5 sm:h-6 sm:w-6 transition-transform duration-300" />
+                  <X className="h-5 w-5 transition-transform duration-300" /> : 
+                  <Menu className="h-5 w-5 transition-transform duration-300" />
                 }
               </button>
             </div>
           </div>
 
           {/* Enhanced Mobile Navigation with smooth animations */}
-          <div className={`md:hidden transition-all duration-300 ease-out ${
-            isMenuOpen 
-              ? 'max-h-screen opacity-100 border-t-2 border-[#F19A3E]/40' 
-              : 'max-h-0 opacity-0 overflow-hidden'
-          }`}>
-            <div className="px-4 sm:px-6 pt-4 sm:pt-6 pb-6 sm:pb-8 space-y-3 bg-gradient-to-b from-[#726E75]/98 to-[#F19A3E]/98 backdrop-blur-2xl rounded-b-2xl shadow-2xl">
-              {/* Mobile Search */}
-              <div className="mb-4 sm:mb-6">
-                <form onSubmit={handleSearch} className="flex space-x-2">
+          {isMenuOpen && (
+            <div className="md:hidden lg:hidden animate-slide-in-bottom border-t-2 border-[#F19A3E]/40">
+              <div className="px-4 sm:px-6 pt-4 sm:pt-6 pb-6 sm:pb-8 space-y-3 bg-gradient-to-b from-[#726E75]/98 to-[#F19A3E]/98 backdrop-blur-2xl rounded-b-2xl shadow-2xl">
+                {/* Mobile Search */}
+                <div className="mb-4 sm:mb-6">
+                  <form onSubmit={handleSearch} className="flex space-x-2">
                   <Input
                     type="text"
                     placeholder="Search courses..."
@@ -357,8 +354,9 @@ const Navbar = () => {
                   </Link>
                 </div>
               )}
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </nav>
     </>
