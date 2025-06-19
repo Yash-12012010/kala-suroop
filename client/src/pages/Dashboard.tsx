@@ -29,23 +29,27 @@ const Dashboard = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#726E75] via-[#F19A3E] to-[#7FC29B] relative overflow-hidden">
-      {/* Premium Background Effects */}
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 relative overflow-hidden">
+      {/* Revolutionary Background Effects */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-[#F19A3E] rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse float" />
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-[#7FC29B] rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse float-delayed" />
-        <div className="absolute top-1/3 left-1/4 w-60 h-60 bg-[#B5EF8A] rounded-full mix-blend-multiply filter blur-xl opacity-15 animate-pulse" style={{ animationDelay: '2s' }} />
-        <div className="absolute bottom-1/3 right-1/4 w-60 h-60 bg-[#D7F171] rounded-full mix-blend-multiply filter blur-xl opacity-15 animate-pulse" style={{ animationDelay: '3s' }} />
+        <div className="absolute -top-40 -right-40 w-96 h-96 bg-gradient-to-br from-[#F19A3E] to-[#D7F171] rounded-full mix-blend-screen filter blur-3xl opacity-20 animate-pulse float" />
+        <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-gradient-to-br from-[#7FC29B] to-[#B5EF8A] rounded-full mix-blend-screen filter blur-3xl opacity-20 animate-pulse float-delayed" />
+        <div className="absolute top-1/4 left-1/3 w-72 h-72 bg-gradient-to-br from-[#B5EF8A] to-[#F19A3E] rounded-full mix-blend-screen filter blur-2xl opacity-15 animate-pulse" style={{ animationDelay: '2s' }} />
+        <div className="absolute bottom-1/4 right-1/3 w-72 h-72 bg-gradient-to-br from-[#D7F171] to-[#7FC29B] rounded-full mix-blend-screen filter blur-2xl opacity-15 animate-pulse" style={{ animationDelay: '3s' }} />
         
-        {/* Grid overlay */}
-        <div className="absolute inset-0 bg-gradient-to-br from-transparent via-[#F19A3E]/5 to-transparent" 
+        <div className="absolute inset-0 bg-gradient-to-br from-[#F19A3E]/5 via-transparent to-[#7FC29B]/5" />
+        
+        <div className="absolute inset-0 opacity-5" 
              style={{ 
-               backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(241,154,62,0.1) 1px, transparent 0)',
-               backgroundSize: '50px 50px'
+               backgroundImage: `
+                 radial-gradient(circle at 20% 20%, #F19A3E 1px, transparent 1px),
+                 radial-gradient(circle at 80% 80%, #7FC29B 0.5px, transparent 0.5px),
+                 linear-gradient(0deg, transparent 24%, rgba(241, 154, 62, 0.05) 25%, rgba(241, 154, 62, 0.05) 26%, transparent 27%)
+               `,
+               backgroundSize: '100px 100px, 60px 60px, 50px 50px'
              }} />
         
-        {/* Shimmer effect */}
-        <div className="absolute inset-0 shimmer opacity-30" />
+        <div className="absolute inset-0 shimmer opacity-20" />
       </div>
 
       <div className="relative z-10 pt-32 pb-16">
