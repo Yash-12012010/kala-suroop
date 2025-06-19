@@ -3,7 +3,7 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Bell, Calendar, Clock, Users, Star, Sparkles, Megaphone, ArrowRight, BookOpen, Video } from 'lucide-react';
+import { Bell, Calendar, Clock, Users, Star, Sparkles, Megaphone, ArrowRight, BookOpen, Video, AlertTriangle, Info } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { format } from 'date-fns';
@@ -26,20 +26,20 @@ const Announcements = () => {
     }
   });
 
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case 'high': return 'bg-gradient-to-r from-red-500 to-red-600 border-red-400';
-      case 'medium': return 'bg-gradient-to-r from-[#F19A3E] to-[#D7F171] border-[#F19A3E]';
-      case 'low': return 'bg-gradient-to-r from-[#7FC29B] to-[#B5EF8A] border-[#7FC29B]';
+  const getTypeColor = (type: string) => {
+    switch (type) {
+      case 'urgent': return 'bg-gradient-to-r from-red-500 to-red-600 border-red-400';
+      case 'important': return 'bg-gradient-to-r from-[#F19A3E] to-[#D7F171] border-[#F19A3E]';
+      case 'info': return 'bg-gradient-to-r from-[#7FC29B] to-[#B5EF8A] border-[#7FC29B]';
       default: return 'bg-gradient-to-r from-[#F19A3E] to-[#D7F171] border-[#F19A3E]';
     }
   };
 
-  const getPriorityIcon = (priority: string) => {
-    switch (priority) {
-      case 'high': return <Star className="h-4 w-4" />;
-      case 'medium': return <Bell className="h-4 w-4" />;
-      case 'low': return <Clock className="h-4 w-4" />;
+  const getTypeIcon = (type: string) => {
+    switch (type) {
+      case 'urgent': return <AlertTriangle className="h-4 w-4" />;
+      case 'important': return <Star className="h-4 w-4" />;
+      case 'info': return <Info className="h-4 w-4" />;
       default: return <Bell className="h-4 w-4" />;
     }
   };
@@ -121,9 +121,9 @@ const Announcements = () => {
                 >
                   <CardHeader className="pb-4">
                     <div className="flex items-start justify-between mb-4">
-                      <Badge className={`${getPriorityColor(announcement.priority)} text-white font-black px-4 py-2 text-sm border-2 shadow-lg flex items-center space-x-2`}>
-                        {getPriorityIcon(announcement.priority)}
-                        <span>{announcement.priority?.toUpperCase() || 'NORMAL'}</span>
+                      <Badge className={`${getTypeColor(announcement.type)} text-white font-black px-4 py-2 text-sm border-2 shadow-lg flex items-center space-x-2`}>
+                        {getTypeIcon(announcement.type)}
+                        <span>{announcement.type?.toUpperCase() || 'INFO'}</span>
                       </Badge>
                       <div className="text-right">
                         <div className="flex items-center text-white/80 text-sm font-bold mb-1">
