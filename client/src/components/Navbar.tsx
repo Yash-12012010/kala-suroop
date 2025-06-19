@@ -20,6 +20,21 @@ const Navbar = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  
+  // Close menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Element;
+      if (isMenuOpen && !target.closest('nav') && !target.closest('button[aria-label*="menu"]')) {
+        setIsMenuOpen(false);
+      }
+    };
+    
+    if (isMenuOpen) {
+      document.addEventListener('click', handleClickOutside);
+      return () => document.removeEventListener('click', handleClickOutside);
+    }
+  }, [isMenuOpen]);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [scrolled, setScrolled] = useState(false);
@@ -264,10 +279,14 @@ const Navbar = () => {
                 </>
               )}
               <button
-                onClick={() => setIsMenuOpen(!isMenuOpen)}
-                className="p-2 text-white hover:text-[#D7F171] hover:bg-white/15 rounded-lg transition-all duration-300 transform hover:scale-105 border border-transparent hover:border-[#F19A3E]/40 focus:outline-none focus:ring-2 focus:ring-[#F19A3E] focus:ring-offset-2 focus:ring-offset-transparent"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsMenuOpen(!isMenuOpen);
+                }}
+                className="p-2 text-white hover:text-[#D7F171] hover:bg-white/15 rounded-lg transition-all duration-300 transform hover:scale-105 border border-transparent hover:border-[#F19A3E]/40 focus:outline-none focus:ring-2 focus:ring-[#F19A3E] focus:ring-offset-2 focus:ring-offset-transparent z-50 relative"
                 aria-label={isMenuOpen ? "Close menu" : "Open menu"}
                 aria-expanded={isMenuOpen}
+                type="button"
               >
                 {isMenuOpen ? 
                   <X className="h-5 w-5 transition-transform duration-300" /> : 
