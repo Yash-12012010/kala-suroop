@@ -9,7 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, Video, Users, Clock, AlertCircle, CheckCircle } from 'lucide-react';
 import LiveClass from '@/components/LiveClass';
 import { useAuth } from '@/contexts/AuthContext';
-import { supabase } from '@/integrations/supabase/client';
+import { api } from '@/lib/api';
 import { useToast } from '@/hooks/use-toast';
 import { checkAndEndExpiredClasses } from '@/utils/classAutoEnd';
 
@@ -84,20 +84,10 @@ const LiveClassRoom = () => {
   const loadSessionById = async (id: string) => {
     try {
       console.log('Fetching session with ID:', id);
-      const { data, error } = await supabase
-        .from('live_sessions')
-        .select('*')
-        .eq('id', id)
-        .single();
-
-      if (error) {
-        console.error('Error loading session:', error);
-        addTestResult('Session loading failed - check database');
-        return;
-      }
+      const data = await api.getLiveSession(id);
 
       console.log('Session data loaded:', data);
-      if (data && data.agora_channel) {
+      if (data && data.agoraChannel) {
         console.log('Setting up live class with channel:', data.agora_channel);
         const role = isAdmin ? 'teacher' : 'student';
         const userIdPart = user?.id?.split('-')[0] || Math.random().toString(36).slice(2, 8);

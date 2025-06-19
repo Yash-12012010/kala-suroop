@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Clock, Users, Star, BookOpen, Search, Filter, ArrowRight, Play, Award, Sparkles } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
+import { api, type Course as APICourse } from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
@@ -17,10 +17,10 @@ interface Course {
   duration: string;
   level: string;
   instructor: string;
-  created_at: string;
-  updated_at: string;
+  createdAt: string;
+  updatedAt: string;
   status: string;
-  enrolled_students: number;
+  enrolledStudents: number;
   featured: boolean;
 }
 
@@ -51,14 +51,13 @@ const Courses = () => {
 
   const fetchCourses = async () => {
     try {
-      const { data, error } = await supabase
-        .from('courses')
-        .select('id, title, description, price, duration, level, instructor, created_at, updated_at, status, enrolled_students, featured')
-        .eq('status', 'active')
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      setCourses(data || []);
+      const data = await api.getCourses();
+      setCourses(data.map(course => ({
+        ...course,
+        description: course.description || '',
+        duration: course.duration || '',
+        enrolledStudents: course.enrolledStudents || 0
+      })));
     } catch (error) {
       console.error('Error fetching courses:', error);
     } finally {
@@ -279,7 +278,7 @@ const Courses = () => {
                     </div>
                     <div className="flex items-center space-x-1">
                       <Users className="h-4 w-4" />
-                      <span>{course.enrolled_students} students</span>
+                      <span>{course.enrolledStudents} students</span>
                     </div>
                     <div className="flex items-center space-x-1">
                       <Award className="h-4 w-4" />

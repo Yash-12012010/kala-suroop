@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, Play, Download, Calendar, Users, Clock, Video } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
-import { supabase } from '@/integrations/supabase/client';
+import { api } from '@/lib/api';
 import { useQuery } from '@tanstack/react-query';
 import CourseFiles from '@/components/CourseFiles';
 import CourseRecordings from '@/components/CourseRecordings';
@@ -51,19 +51,14 @@ const CourseDetail = () => {
       
       console.log('Fetching course with ID:', courseId);
       
-      const { data, error } = await supabase
-        .from('courses')
-        .select('*')
-        .eq('id', courseId)
-        .maybeSingle();
-      
-      if (error) {
+      try {
+        const data = await api.getCourse(courseId);
+        console.log('Course data fetched:', data);
+        return data as Course | null;
+      } catch (error) {
         console.error('Error fetching course:', error);
         throw error;
       }
-      
-      console.log('Course data fetched:', data);
-      return data as Course | null;
     },
     enabled: !!courseId
   });

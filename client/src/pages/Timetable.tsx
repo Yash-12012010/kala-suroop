@@ -5,15 +5,15 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Calendar, Clock, Video, Users, BookOpen, Sparkles } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
-import { supabase } from '@/integrations/supabase/client';
+import { api, type TimetableEntry as APITimetableEntry } from '@/lib/api';
 import TimetableEditor from '@/components/TimetableEditor';
 
 interface TimetableEntry {
   id: string;
-  day_of_week: string;
-  time_slot: string;
+  dayOfWeek: string;
+  timeSlot: string;
   subject: string;
-  class_name: string;
+  className: string;
   teacher: string;
 }
 
@@ -43,16 +43,7 @@ const Timetable = () => {
   const fetchTimetable = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
-        .from('timetable')
-        .select('*')
-        .order('day_of_week')
-        .order('time_slot');
-
-      if (error) {
-        console.error('Error fetching timetable:', error);
-        return;
-      }
+      const data = await api.getTimetable();
 
       const scheduleStructure: Record<string, Record<string, TimetableEntry>> = {};
       
@@ -62,10 +53,19 @@ const Timetable = () => {
       });
 
       data?.forEach((entry) => {
-        if (!scheduleStructure[entry.day_of_week]) {
-          scheduleStructure[entry.day_of_week] = {};
+        const mappedEntry: TimetableEntry = {
+          id: entry.id,
+          dayOfWeek: entry.dayOfWeek,
+          timeSlot: entry.timeSlot,
+          subject: entry.subject,
+          className: entry.className,
+          teacher: entry.teacher,
+        };
+        
+        if (!scheduleStructure[entry.dayOfWeek]) {
+          scheduleStructure[entry.dayOfWeek] = {};
         }
-        scheduleStructure[entry.day_of_week][entry.time_slot] = entry;
+        scheduleStructure[entry.dayOfWeek][entry.timeSlot] = mappedEntry;
       });
 
       setScheduleData(scheduleStructure);
@@ -228,7 +228,7 @@ const Timetable = () => {
                                   <Badge className={`${subjectColors[classInfo.subject as keyof typeof subjectColors] || 'bg-gray-500/30 text-white border-gray-500/40'} text-xs mb-2 w-full justify-center font-medium`}>
                                     {classInfo.subject}
                                   </Badge>
-                                  <p className="text-xs text-white font-medium mb-1">{classInfo.class_name}</p>
+                                  <p className="text-xs text-white font-medium mb-1">{classInfo.className}</p>
                                   <p className="text-xs text-white/80">{classInfo.teacher}</p>
                                 </div>
                                 <Button size="sm" className="w-full text-xs bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white mt-2 font-medium">

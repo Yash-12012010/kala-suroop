@@ -5,23 +5,14 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Bell, Calendar, Clock, Users, Star, Sparkles, Megaphone, ArrowRight, BookOpen, Video, AlertTriangle, Info } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
+import { api } from '@/lib/api';
 import { format } from 'date-fns';
 
 const Announcements = () => {
   const { data: announcements = [], isLoading } = useQuery({
     queryKey: ['announcements'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('announcements')
-        .select('*')
-        .order('created_at', { ascending: false });
-      
-      if (error) {
-        console.error('Error fetching announcements:', error);
-        throw error;
-      }
-      
+      const data = await api.getAnnouncements();
       return data || [];
     }
   });
@@ -128,11 +119,11 @@ const Announcements = () => {
                       <div className="text-right">
                         <div className="flex items-center text-white/80 text-sm font-bold mb-1">
                           <Calendar className="h-4 w-4 mr-2 text-[#D7F171]" />
-                          {format(new Date(announcement.created_at), 'MMM dd, yyyy')}
+                          {format(new Date(announcement.createdAt), 'MMM dd, yyyy')}
                         </div>
                         <div className="flex items-center text-white/70 text-xs font-medium">
                           <Clock className="h-3 w-3 mr-1 text-[#B5EF8A]" />
-                          {format(new Date(announcement.created_at), 'h:mm a')}
+                          {format(new Date(announcement.createdAt), 'h:mm a')}
                         </div>
                       </div>
                     </div>

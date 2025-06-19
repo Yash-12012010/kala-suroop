@@ -5,15 +5,15 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ShoppingCart, Palette, Brush, Scissors, PaintBucket, Sparkles, Star, ArrowRight } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
+import { api, type Product as APIProduct } from '@/lib/api';
 
 interface Product {
   id: string;
   title: string;
   image: string;
   price: number;
-  original_price: number;
-  in_stock: boolean;
+  originalPrice: number;
+  inStock: boolean;
   category: string;
   description?: string;
   icon: React.ReactNode;
@@ -30,15 +30,7 @@ const Store = () => {
   const { data: products = [], isLoading } = useQuery({
     queryKey: ['products'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('products')
-        .select('*')
-        .order('created_at', { ascending: false });
-      
-      if (error) {
-        console.error('Error fetching products:', error);
-        throw error;
-      }
+      const data = await api.getProducts();
       
       return data?.map(product => ({
         ...product,
@@ -120,16 +112,16 @@ const Store = () => {
               {products.map((product, index) => (
                 <Card 
                   key={product.id} 
-                  className={`bg-white/20 backdrop-blur-md border border-[#F19A3E]/30 hover:bg-white/25 group hover:scale-[1.02] transition-all duration-500 animate-slide-in-bottom overflow-hidden shadow-xl hover:shadow-2xl ${!product.in_stock ? 'opacity-75' : ''}`}
+                  className={`bg-white/20 backdrop-blur-md border border-[#F19A3E]/30 hover:bg-white/25 group hover:scale-[1.02] transition-all duration-500 animate-slide-in-bottom overflow-hidden shadow-xl hover:shadow-2xl ${!product.inStock ? 'opacity-75' : ''}`}
                   style={{ animationDelay: `${index * 100}ms` }}
                 >
                   <div className="relative">
                     <img 
                       src={product.image} 
                       alt={product.title}
-                      className={`w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300 ${!product.in_stock ? 'filter grayscale' : ''}`}
+                      className={`w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300 ${!product.inStock ? 'filter grayscale' : ''}`}
                     />
-                    {!product.in_stock && (
+                    {!product.inStock && (
                       <Badge 
                         variant="destructive" 
                         className="absolute top-3 left-3 text-xs bg-red-500/80 text-white"
@@ -162,7 +154,7 @@ const Store = () => {
                         ₹{product.price}
                       </span>
                       <span className="text-sm text-white/70 line-through">
-                        ₹{product.original_price}
+                        ₹{product.originalPrice}
                       </span>
                     </div>
                   </CardContent>
@@ -170,11 +162,11 @@ const Store = () => {
                   <CardFooter className="pt-0">
                     <Button 
                       className="w-full bg-gradient-to-r from-[#F19A3E] to-[#D7F171] hover:from-[#e8893a] hover:to-[#c9e961] text-white font-medium" 
-                      disabled={!product.in_stock}
-                      variant={product.in_stock ? "default" : "secondary"}
+                      disabled={!product.inStock}
+                      variant={product.inStock ? "default" : "secondary"}
                     >
                       <ShoppingCart className="h-4 w-4 mr-2" />
-                      {product.in_stock ? 'Add to Cart' : 'Out of Stock'}
+                      {product.inStock ? 'Add to Cart' : 'Out of Stock'}
                     </Button>
                   </CardFooter>
                 </Card>
