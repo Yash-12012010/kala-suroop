@@ -216,40 +216,47 @@ const Navbar = () => {
               )}
             </div>
 
-            {/* Enhanced Mobile menu button */}
-            <div className="flex items-center md:hidden space-x-3">
+            {/* Enhanced Mobile menu button with improved responsiveness */}
+            <div className="flex items-center md:hidden space-x-2">
               {user && (
                 <>
                   <Button 
                     variant="ghost" 
                     size="sm" 
-                    className="p-3 text-white hover:text-[#D7F171] hover:bg-white/20 rounded-xl border-3 border-transparent hover:border-[#F19A3E]/60"
+                    className="p-2 sm:p-3 text-white hover:text-[#D7F171] hover:bg-white/20 rounded-xl border-2 border-transparent hover:border-[#F19A3E]/60 transition-all duration-300"
                     onClick={() => navigate('/announcements')}
+                    aria-label="View announcements"
                   >
-                    <Bell className="h-5 w-5" />
+                    <Bell className="h-4 w-4 sm:h-5 sm:w-5" />
+                    <div className="absolute -top-1 -right-1 w-3 h-3 bg-gradient-to-r from-[#F19A3E] to-[#D7F171] rounded-full animate-pulse shadow-lg border border-white" />
                   </Button>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="sm" className="p-2 hover:bg-white/20 rounded-xl border-3 border-transparent hover:border-[#F19A3E]/60">
-                        <div className="w-8 h-8 rounded-full bg-gradient-to-r from-[#F19A3E] to-[#D7F171] flex items-center justify-center text-white font-black text-sm shadow-xl border-2 border-white/40">
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className="p-1 sm:p-2 hover:bg-white/20 rounded-xl border-2 border-transparent hover:border-[#F19A3E]/60 transition-all duration-300"
+                        aria-label="User menu"
+                      >
+                        <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-gradient-to-r from-[#F19A3E] to-[#D7F171] flex items-center justify-center text-white font-black text-xs sm:text-sm shadow-lg border-2 border-white/40">
                           {displayName.charAt(0).toUpperCase()}
                         </div>
                       </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-56 bg-gradient-to-br from-[#726E75]/98 to-[#F19A3E]/98 backdrop-blur-2xl border-3 border-[#F19A3E]/60 shadow-2xl rounded-2xl">
-                      <DropdownMenuItem onClick={() => navigate('/dashboard')} className="hover:bg-[#F19A3E]/30 text-white rounded-xl m-2 font-black">
-                        <User className="mr-3 h-5 w-5 text-[#B5EF8A]" />
+                    <DropdownMenuContent align="end" className="w-48 sm:w-56 bg-gradient-to-br from-[#726E75]/98 to-[#F19A3E]/98 backdrop-blur-2xl border-2 border-[#F19A3E]/60 shadow-2xl rounded-xl">
+                      <DropdownMenuItem onClick={() => navigate('/dashboard')} className="hover:bg-[#F19A3E]/30 text-white rounded-lg m-2 font-bold text-sm sm:text-base py-2 sm:py-3">
+                        <User className="mr-2 sm:mr-3 h-4 w-4 sm:h-5 sm:w-5 text-[#B5EF8A]" />
                         Profile
                       </DropdownMenuItem>
                       {isAdmin && (
-                        <DropdownMenuItem onClick={() => navigate('/admin')} className="hover:bg-[#F19A3E]/30 text-white rounded-xl m-2 font-black">
-                          <Settings className="mr-3 h-5 w-5 text-[#B5EF8A]" />
+                        <DropdownMenuItem onClick={() => navigate('/admin')} className="hover:bg-[#F19A3E]/30 text-white rounded-lg m-2 font-bold text-sm sm:text-base py-2 sm:py-3">
+                          <Settings className="mr-2 sm:mr-3 h-4 w-4 sm:h-5 sm:w-5 text-[#B5EF8A]" />
                           Admin
                         </DropdownMenuItem>
                       )}
-                      <DropdownMenuSeparator className="bg-[#F19A3E]/40" />
-                      <DropdownMenuItem onClick={handleLogout} className="hover:bg-red-600/30 text-red-300 rounded-xl m-2 font-black">
-                        <LogOut className="mr-3 h-5 w-5" />
+                      <DropdownMenuSeparator className="bg-[#F19A3E]/40 my-1" />
+                      <DropdownMenuItem onClick={handleLogout} className="hover:bg-red-600/30 text-red-300 rounded-lg m-2 font-bold text-sm sm:text-base py-2 sm:py-3">
+                        <LogOut className="mr-2 sm:mr-3 h-4 w-4 sm:h-5 sm:w-5" />
                         Logout
                       </DropdownMenuItem>
                     </DropdownMenuContent>
@@ -258,66 +265,107 @@ const Navbar = () => {
               )}
               <button
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
-                className="p-3 text-white hover:text-[#D7F171] hover:bg-white/20 rounded-xl transition-all duration-300 transform hover:scale-110 border-3 border-transparent hover:border-[#F19A3E]/60"
+                className="p-2 sm:p-3 text-white hover:text-[#D7F171] hover:bg-white/20 rounded-xl transition-all duration-300 transform hover:scale-110 border-2 border-transparent hover:border-[#F19A3E]/60 focus:outline-none focus:ring-2 focus:ring-[#F19A3E] focus:ring-offset-2 focus:ring-offset-transparent"
+                aria-label={isMenuOpen ? "Close menu" : "Open menu"}
+                aria-expanded={isMenuOpen}
               >
                 {isMenuOpen ? 
-                  <X className="h-6 w-6 animate-spin" /> : 
-                  <Menu className="h-6 w-6" />
+                  <X className="h-5 w-5 sm:h-6 sm:w-6 transition-transform duration-300" /> : 
+                  <Menu className="h-5 w-5 sm:h-6 sm:w-6 transition-transform duration-300" />
                 }
               </button>
             </div>
           </div>
 
-          {/* Enhanced Mobile Navigation */}
-          {isMenuOpen && (
-            <div className="md:hidden border-t-3 border-[#F19A3E]/40 backdrop-blur-2xl">
-              <div className="px-6 pt-6 pb-8 space-y-3 bg-gradient-to-b from-[#726E75]/95 to-[#F19A3E]/95 rounded-b-3xl shadow-2xl">
-                {/* Mobile Search */}
-                <div className="mb-6">
-                  <form onSubmit={handleSearch} className="flex">
-                    <Input
-                      type="text"
-                      placeholder="Search courses..."
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      className="flex-1 bg-white/20 border-3 border-[#F19A3E]/60 text-white placeholder-[#B5EF8A] backdrop-blur-xl rounded-xl font-bold"
-                    />
-                    <Button type="submit" variant="ghost" size="sm" className="ml-3 text-white hover:text-[#D7F171] hover:bg-white/20 border-3 border-transparent hover:border-[#F19A3E]/60 rounded-xl">
-                      <Search className="h-5 w-5" />
-                    </Button>
-                  </form>
-                </div>
+          {/* Enhanced Mobile Navigation with smooth animations */}
+          <div className={`md:hidden transition-all duration-300 ease-out ${
+            isMenuOpen 
+              ? 'max-h-screen opacity-100 border-t-2 border-[#F19A3E]/40' 
+              : 'max-h-0 opacity-0 overflow-hidden'
+          }`}>
+            <div className="px-4 sm:px-6 pt-4 sm:pt-6 pb-6 sm:pb-8 space-y-3 bg-gradient-to-b from-[#726E75]/98 to-[#F19A3E]/98 backdrop-blur-2xl rounded-b-2xl shadow-2xl">
+              {/* Mobile Search */}
+              <div className="mb-4 sm:mb-6">
+                <form onSubmit={handleSearch} className="flex space-x-2">
+                  <Input
+                    type="text"
+                    placeholder="Search courses..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="flex-1 bg-white/20 border-2 border-[#F19A3E]/60 text-white placeholder-[#B5EF8A]/80 backdrop-blur-xl rounded-lg font-medium text-sm sm:text-base py-2 sm:py-3 focus:border-[#F19A3E] focus:ring-2 focus:ring-[#F19A3E]/20"
+                  />
+                  <Button 
+                    type="submit" 
+                    variant="ghost" 
+                    size="sm" 
+                    className="px-3 sm:px-4 text-white hover:text-[#D7F171] hover:bg-white/20 border-2 border-transparent hover:border-[#F19A3E]/60 rounded-lg transition-all duration-300"
+                    aria-label="Search"
+                  >
+                    <Search className="h-4 w-4 sm:h-5 sm:w-5" />
+                  </Button>
+                </form>
+              </div>
 
+              {/* Navigation Items */}
+              <nav className="space-y-2" role="navigation" aria-label="Mobile navigation">
                 {navItems.map((item, index) => (
                   <Link
                     key={item.id}
                     to={item.path}
-                    className={`block px-6 py-4 text-lg font-black rounded-2xl transition-all duration-300 transform hover:scale-105 border-3 ${
+                    className={`block px-4 sm:px-6 py-3 sm:py-4 text-base sm:text-lg font-bold rounded-xl transition-all duration-300 transform hover:scale-[1.02] border-2 ${
                       activeItem === item.name
-                        ? 'text-white bg-gradient-to-r from-[#F19A3E] to-[#D7F171] shadow-xl border-white/60'
+                        ? 'text-white bg-gradient-to-r from-[#F19A3E] to-[#D7F171] shadow-lg border-white/60'
                         : 'text-white hover:text-[#D7F171] hover:bg-white/20 border-transparent hover:border-[#F19A3E]/60'
                     }`}
-                    style={{ animationDelay: `${index * 50}ms` }}
+                    style={{ 
+                      animationDelay: `${index * 50}ms`,
+                      transform: isMenuOpen ? 'translateY(0)' : 'translateY(-10px)'
+                    }}
                     onClick={() => setIsMenuOpen(false)}
                     {...(item.is_external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
                   >
-                    <div className="flex items-center space-x-4">
-                      <Globe className="h-5 w-5" />
-                      <span>{item.name}</span>
+                    <div className="flex items-center space-x-3">
+                      <Globe className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" />
+                      <span className="truncate">{item.name}</span>
                     </div>
                   </Link>
                 ))}
-                
-                {!user && (
-                  <div className="border-t-3 border-[#F19A3E]/40 pt-6 space-y-3">
-                    <Link
-                      to="/login"
-                      className="block px-6 py-4 text-lg font-black text-white hover:text-[#D7F171] hover:bg-white/20 rounded-2xl transition-all duration-300 border-3 border-transparent hover:border-[#F19A3E]/60"
-                      onClick={() => setIsMenuOpen(false)}
-                    >
-                      Login
-                    </Link>
-                    <Link
+              </nav>
+              
+              {/* Auth Actions for Non-Logged Users */}
+              {!user && (
+                <div className="border-t-2 border-[#F19A3E]/40 pt-4 sm:pt-6 space-y-2 sm:space-y-3">
+                  <Link
+                    to="/login"
+                    className="block px-4 sm:px-6 py-3 sm:py-4 text-base sm:text-lg font-bold text-white hover:text-[#D7F171] hover:bg-white/20 rounded-xl transition-all duration-300 border-2 border-transparent hover:border-[#F19A3E]/60"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    <div className="flex items-center space-x-3">
+                      <User className="h-4 w-4 sm:h-5 sm:w-5" />
+                      <span>Login</span>
+                    </div>
+                  </Link>
+                  <Link
+                    to="/signup"
+                    className="block px-4 sm:px-6 py-3 sm:py-4 text-base sm:text-lg font-bold text-white bg-gradient-to-r from-[#F19A3E] to-[#D7F171] hover:from-[#e8893a] hover:to-[#c9e961] rounded-xl transition-all duration-300 border-2 border-white/40 shadow-lg"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    <div className="flex items-center justify-center space-x-3">
+                      <Sparkles className="h-4 w-4 sm:h-5 sm:w-5" />
+                      <span>Join Elite</span>
+                    </div>
+                  </Link>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </nav>
+    </>
+  );
+};
+
+export default Navbar;
                       to="/signup"
                       className="block px-6 py-4 text-lg font-black bg-gradient-to-r from-[#F19A3E] to-[#D7F171] hover:from-[#e8893a] hover:to-[#c9e961] text-white rounded-2xl transition-all duration-300 shadow-2xl text-center border-3 border-white/40"
                       onClick={() => setIsMenuOpen(false)}

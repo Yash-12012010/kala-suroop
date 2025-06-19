@@ -152,60 +152,60 @@ const Courses = () => {
               <span className="text-[#726E75] font-medium">Premium Learning</span>
             </div>
             
-            <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold mb-6">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold mb-4 sm:mb-6">
               <span className="text-white drop-shadow-lg">
                 Master
               </span>
               <br />
-              <span className="text-[#726E75] drop-shadow-lg">
+              <span className="bg-gradient-to-r from-[#F19A3E] to-[#D7F171] bg-clip-text text-transparent drop-shadow-lg">
                 Art Courses
               </span>
             </h1>
             
-            <p className="text-xl text-white/90 max-w-3xl mx-auto leading-relaxed mb-8 drop-shadow-md">
+            <p className="text-base sm:text-lg lg:text-xl text-white/90 max-w-xs sm:max-w-2xl lg:max-w-3xl mx-auto leading-relaxed mb-6 sm:mb-8 drop-shadow-md px-2 sm:px-0">
               Unlock your artistic potential with our world-class courses designed by industry experts
             </p>
           </div>
 
-          {/* Premium Search and Filters */}
-          <div className="mb-12 animate-slide-in-bottom">
-            <Card className="bg-white/20 backdrop-blur-xl border border-white/30 shadow-2xl">
-              <CardContent className="p-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {/* Premium Search and Filters - Mobile First */}
+          <div className="mb-8 sm:mb-10 lg:mb-12 animate-slide-in-bottom px-2 sm:px-0">
+            <Card className="bg-white/20 backdrop-blur-xl border border-white/30 shadow-2xl rounded-xl lg:rounded-2xl">
+              <CardContent className="p-4 sm:p-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
                   {/* Search */}
-                  <div className="relative">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-[#726E75]" />
+                  <div className="relative md:col-span-2 lg:col-span-1">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-white/70" />
                     <Input
                       type="text"
                       placeholder="Search courses..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className="pl-10 bg-white/80 border-[#7FC29B]/50 text-[#726E75] placeholder-[#726E75]/70 focus:bg-white focus:border-[#7FC29B] transition-all duration-300"
+                      className="pl-10 bg-white/80 border-2 border-[#F19A3E]/50 text-[#726E75] placeholder-[#726E75]/70 focus:bg-white focus:border-[#F19A3E] transition-all duration-300 rounded-lg font-medium"
                     />
                   </div>
 
                   {/* Level Filter */}
                   <Select value={levelFilter} onValueChange={setLevelFilter}>
-                    <SelectTrigger className="bg-white/80 border-[#7FC29B]/50 text-[#726E75] focus:border-[#7FC29B]">
+                    <SelectTrigger className="bg-white/80 border-2 border-[#F19A3E]/50 text-[#726E75] focus:border-[#F19A3E] rounded-lg font-medium">
                       <SelectValue placeholder="All Levels" />
                     </SelectTrigger>
-                    <SelectContent className="bg-white border-[#7FC29B]/50">
-                      <SelectItem value="all" className="text-[#726E75]">All Levels</SelectItem>
-                      <SelectItem value="beginner" className="text-[#726E75]">Beginner</SelectItem>
-                      <SelectItem value="intermediate" className="text-[#726E75]">Intermediate</SelectItem>
-                      <SelectItem value="advanced" className="text-[#726E75]">Advanced</SelectItem>
+                    <SelectContent className="bg-white border-2 border-[#F19A3E]/50 rounded-lg">
+                      <SelectItem value="all" className="text-[#726E75] font-medium">All Levels</SelectItem>
+                      <SelectItem value="beginner" className="text-[#726E75] font-medium">Beginner</SelectItem>
+                      <SelectItem value="intermediate" className="text-[#726E75] font-medium">Intermediate</SelectItem>
+                      <SelectItem value="advanced" className="text-[#726E75] font-medium">Advanced</SelectItem>
                     </SelectContent>
                   </Select>
 
                   {/* Price Filter */}
                   <Select value={priceFilter} onValueChange={setPriceFilter}>
-                    <SelectTrigger className="bg-white/80 border-[#7FC29B]/50 text-[#726E75] focus:border-[#7FC29B]">
+                    <SelectTrigger className="bg-white/80 border-2 border-[#F19A3E]/50 text-[#726E75] focus:border-[#F19A3E] rounded-lg font-medium">
                       <SelectValue placeholder="All Prices" />
                     </SelectTrigger>
-                    <SelectContent className="bg-white border-[#7FC29B]/50">
-                      <SelectItem value="all" className="text-[#726E75]">All Prices</SelectItem>
-                      <SelectItem value="free" className="text-[#726E75]">Free</SelectItem>
-                      <SelectItem value="paid" className="text-[#726E75]">Paid</SelectItem>
+                    <SelectContent className="bg-white border-2 border-[#F19A3E]/50 rounded-lg">
+                      <SelectItem value="all" className="text-[#726E75] font-medium">All Prices</SelectItem>
+                      <SelectItem value="free" className="text-[#726E75] font-medium">Free</SelectItem>
+                      <SelectItem value="paid" className="text-[#726E75] font-medium">Paid</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -214,37 +214,37 @@ const Courses = () => {
           </div>
 
           {/* Results Count */}
-          <div className="mb-8 animate-slide-in-left">
-            <p className="text-white/90 text-lg drop-shadow-md">
+          <div className="mb-6 sm:mb-8 animate-slide-in-left px-2 sm:px-0">
+            <p className="text-white/90 text-base sm:text-lg drop-shadow-md font-medium">
               Found <span className="text-white font-bold">{filteredCourses.length}</span> premium courses
             </p>
           </div>
 
-          {/* Premium Courses Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+          {/* Premium Courses Grid - Fully Responsive */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 px-2 sm:px-0">
             {filteredCourses.map((course, index) => (
               <Card 
                 key={course.id} 
-                className="bg-white/95 backdrop-blur-md border-2 border-white/40 shadow-2xl group hover:scale-[1.02] hover:shadow-3xl transition-all duration-500 animate-slide-in-bottom overflow-hidden rounded-2xl"
+                className="bg-white/95 backdrop-blur-md border-2 border-white/40 shadow-2xl group hover:scale-[1.02] hover:shadow-3xl transition-all duration-500 animate-slide-in-bottom overflow-hidden rounded-xl lg:rounded-2xl card-enhanced"
                 style={{ animationDelay: `${index * 100}ms` }}
               >
-                {/* Course Image */}
-                <div className="relative h-48 sm:h-52 overflow-hidden">
+                {/* Course Image - Mobile Optimized */}
+                <div className="relative h-40 sm:h-48 lg:h-52 overflow-hidden">
                   <div className="w-full h-full bg-gradient-to-br from-[#7FC29B] via-[#B5EF8A] to-[#D7F171] flex items-center justify-center group-hover:scale-110 transition-transform duration-500">
-                    <BookOpen className="h-16 w-16 text-white opacity-80 drop-shadow-lg" />
+                    <BookOpen className="h-10 w-10 sm:h-12 sm:w-12 lg:h-16 lg:w-16 text-white opacity-80 drop-shadow-lg" />
                   </div>
                   
                   {/* Price Badge */}
-                  <div className="absolute top-4 right-4">
-                    <Badge className={`${course.price === 0 ? 'bg-[#7FC29B]' : 'bg-[#F19A3E]'} text-white font-semibold px-3 py-1 rounded-full shadow-lg`}>
+                  <div className="absolute top-2 sm:top-3 lg:top-4 right-2 sm:right-3 lg:right-4">
+                    <Badge className={`${course.price === 0 ? 'bg-[#7FC29B]' : 'bg-[#F19A3E]'} text-white font-semibold px-2 sm:px-3 py-1 rounded-full shadow-lg text-xs sm:text-sm`}>
                       {getPriceDisplay(course.price)}
                     </Badge>
                   </div>
                   
                   {/* Play Button Overlay */}
                   <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    <div className="w-16 h-16 bg-white/30 backdrop-blur-md rounded-full flex items-center justify-center border border-white/50">
-                      <Play className="h-8 w-8 text-white ml-1" />
+                    <div className="w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16 bg-white/30 backdrop-blur-md rounded-full flex items-center justify-center border border-white/50">
+                      <Play className="h-6 w-6 sm:h-7 sm:w-7 lg:h-8 lg:w-8 text-white ml-1" />
                     </div>
                   </div>
                 </div>
