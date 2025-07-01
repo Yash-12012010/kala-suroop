@@ -8,7 +8,7 @@ import { useToast } from '@/hooks/use-toast';
 interface LiveClassProps {
   channelName: string;
   appId: string;
-  token?: string;
+  token?: string | null;
   isTeacher?: boolean;
   uid: string | null;
 }
@@ -93,7 +93,7 @@ const LiveClass: React.FC<LiveClassProps> = ({
     <AgoraVideoCall
       appId={appId}
       channelName={channelName}
-      token={token}
+      token={token || undefined}
       isTeacher={isTeacher}
       onLeave={handleLeave}
       uid={uid}

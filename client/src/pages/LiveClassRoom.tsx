@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate, useSearchParams, useParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -121,23 +120,17 @@ const LiveClassRoom = () => {
         new Date(session.scheduledEnd) >= now
       ).sort((a, b) => new Date(a.scheduledStart).getTime() - new Date(b.scheduledStart).getTime());
 
-      if (error) {
-        console.error('Error fetching live sessions:', error);
-        addTestResult('Live sessions fetch failed');
-        toast({
-          title: "Database Error",
-          description: "Failed to fetch live sessions",
-          variant: "destructive"
-        });
-        throw error;
-      }
-      
       console.log('Fetched sessions:', data);
       setLiveSessions(data || []);
       addTestResult(`Found ${data?.length || 0} live sessions`);
     } catch (error) {
       console.error('Error fetching live sessions:', error);
       addTestResult('Live sessions fetch error');
+      toast({
+        title: "Database Error",
+        description: "Failed to fetch live sessions",
+        variant: "destructive"
+      });
     } finally {
       setLoading(false);
     }

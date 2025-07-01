@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -94,7 +95,7 @@ const SystemTestPanel = () => {
     }
 
     // Test media permissions (basic check)
-    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+    if (navigator.mediaDevices && typeof navigator.mediaDevices.getUserMedia === 'function') {
       addTestResult('Video System', 'Media API', 'pass', 'Media devices API available');
     } else {
       addTestResult('Video System', 'Media API', 'fail', 'Media devices API not available');

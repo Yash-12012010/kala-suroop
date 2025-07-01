@@ -18,8 +18,10 @@ interface CourseEnrollment {
   course_id: string;
   payment_status: string;
   access_granted: boolean;
-  enrolled_at: string;
+  enrolled_at: string | null;
   expires_at: string | null;
+  created_at: string | null;
+  updated_at: string | null;
   user_email?: string;
   course_title?: string;
 }

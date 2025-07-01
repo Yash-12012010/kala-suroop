@@ -9,8 +9,12 @@ interface NavigationItem {
   path: string;
   icon: string | null;
   order_index: number;
-  required_role: string;
+  required_role: string | null;
   is_external: boolean;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+  parent_id: string | null;
 }
 
 export const useNavigationItems = () => {

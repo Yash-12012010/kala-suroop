@@ -14,7 +14,8 @@ interface Class {
   id: string;
   name: string;
   description: string | null;
-  created_at: string;
+  created_at: string | null;
+  updated_at: string | null;
 }
 
 const ClassManager = () => {
@@ -194,7 +195,7 @@ const ClassManager = () => {
                 <TableRow key={classItem.id}>
                   <TableCell className="font-medium">{classItem.name}</TableCell>
                   <TableCell>{classItem.description || '-'}</TableCell>
-                  <TableCell>{new Date(classItem.created_at).toLocaleDateString()}</TableCell>
+                  <TableCell>{classItem.created_at ? new Date(classItem.created_at).toLocaleDateString() : '-'}</TableCell>
                   <TableCell className="text-right">
                     <div className="space-x-2">
                       <Button
