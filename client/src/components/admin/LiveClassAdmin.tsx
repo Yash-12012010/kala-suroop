@@ -19,7 +19,7 @@ interface LiveClass {
   agora_channel: string | null;
   scheduled_start: string;
   scheduled_end: string;
-  created_at: string;
+  created_at: string | null;
 }
 
 interface Course {
@@ -31,7 +31,7 @@ interface Course {
 interface ClassData {
   id: string;
   name: string;
-  description: string;
+  description: string | null;
 }
 
 interface Teacher {
@@ -103,8 +103,16 @@ const LiveClassAdmin = () => {
         .order('name');
 
       if (error) throw error;
-      setClassData(data || []);
-      addStatusCheck(`✅ Found ${data?.length || 0} class categories`);
+      
+      // Map the data to match our interface
+      const mappedData: ClassData[] = (data || []).map(item => ({
+        id: item.id,
+        name: item.name,
+        description: item.description || null
+      }));
+      
+      setClassData(mappedData);
+      addStatusCheck(`✅ Found ${mappedData.length} class categories`);
     } catch (error) {
       console.error('Error fetching classes:', error);
       addStatusCheck('❌ Classes fetch failed');
@@ -144,8 +152,19 @@ const LiveClassAdmin = () => {
         throw error;
       }
       
-      setClasses(data || []);
-      addStatusCheck(`✅ Found ${data?.length || 0} live sessions`);
+      // Map the data to match our interface
+      const mappedData: LiveClass[] = (data || []).map(item => ({
+        id: item.id,
+        title: item.title,
+        course_id: item.course_id,
+        agora_channel: item.agora_channel,
+        scheduled_start: item.scheduled_start,
+        scheduled_end: item.scheduled_end,
+        created_at: item.created_at || null
+      }));
+      
+      setClasses(mappedData);
+      addStatusCheck(`✅ Found ${mappedData.length} live sessions`);
     } catch (error) {
       console.error('Error fetching live classes:', error);
       addStatusCheck('❌ Live classes fetch failed');

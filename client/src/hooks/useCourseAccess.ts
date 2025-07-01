@@ -9,7 +9,7 @@ interface CourseEnrollment {
   course_id: string;
   payment_status: string;
   access_granted: boolean;
-  enrolled_at: string;
+  enrolled_at: string | null;
   expires_at: string | null;
 }
 
@@ -49,13 +49,24 @@ export const useCourseAccess = (courseId: string) => {
           return;
         }
 
-        setEnrollment(data);
+        // Map the data to match our interface if it exists
+        const mappedEnrollment: CourseEnrollment | null = data ? {
+          id: data.id,
+          user_id: data.user_id,
+          course_id: data.course_id,
+          payment_status: data.payment_status,
+          access_granted: data.access_granted,
+          enrolled_at: data.enrolled_at,
+          expires_at: data.expires_at
+        } : null;
+
+        setEnrollment(mappedEnrollment);
 
         // Check if user has valid access
-        const hasValidAccess = data && 
-          data.payment_status === 'paid' && 
-          data.access_granted && 
-          (!data.expires_at || new Date(data.expires_at) > new Date());
+        const hasValidAccess = mappedEnrollment && 
+          mappedEnrollment.payment_status === 'paid' && 
+          mappedEnrollment.access_granted && 
+          (!mappedEnrollment.expires_at || new Date(mappedEnrollment.expires_at) > new Date());
 
         setHasAccess(!!hasValidAccess);
       } catch (error) {

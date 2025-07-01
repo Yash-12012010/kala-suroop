@@ -19,7 +19,7 @@ interface NavigationItem {
   parent_id: string | null;
   order_index: number;
   is_active: boolean;
-  required_role: string;
+  required_role: string | null;
   is_external: boolean;
 }
 
@@ -53,7 +53,21 @@ const NavigationManager = () => {
         .order('order_index');
 
       if (error) throw error;
-      setNavItems(data || []);
+      
+      // Map the data to match our interface
+      const mappedData: NavigationItem[] = (data || []).map(item => ({
+        id: item.id,
+        name: item.name,
+        path: item.path,
+        icon: item.icon,
+        parent_id: item.parent_id,
+        order_index: item.order_index,
+        is_active: item.is_active,
+        required_role: item.required_role,
+        is_external: item.is_external
+      }));
+      
+      setNavItems(mappedData);
     } catch (error) {
       console.error('Error fetching navigation items:', error);
       toast({

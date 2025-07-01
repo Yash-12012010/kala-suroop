@@ -50,7 +50,19 @@ export const useNavigationItems = () => {
           return false;
         }
         return true;
-      });
+      }).map(item => ({
+        id: item.id,
+        name: item.name,
+        path: item.path,
+        icon: item.icon,
+        order_index: item.order_index,
+        required_role: item.required_role || 'user',
+        is_external: item.is_external,
+        is_active: item.is_active,
+        created_at: item.created_at,
+        updated_at: item.updated_at,
+        parent_id: item.parent_id
+      }));
 
       setNavItems(filteredItems);
     } catch (error) {

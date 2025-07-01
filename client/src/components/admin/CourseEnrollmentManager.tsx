@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -359,7 +358,7 @@ const CourseEnrollmentManager = () => {
                 <div className="grid grid-cols-2 gap-4 text-sm">
                   <div className="flex items-center">
                     <Calendar className="h-4 w-4 mr-2" />
-                    Enrolled: {new Date(enrollment.enrolled_at).toLocaleDateString()}
+                    Enrolled: {enrollment.enrolled_at ? new Date(enrollment.enrolled_at).toLocaleDateString() : 'N/A'}
                   </div>
                   {enrollment.expires_at && (
                     <div className="flex items-center">

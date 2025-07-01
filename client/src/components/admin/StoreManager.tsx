@@ -22,7 +22,7 @@ interface Product {
   original_price: number;
   in_stock: boolean;
   category: string;
-  description?: string;
+  description?: string | null;
 }
 
 const StoreManager = () => {
