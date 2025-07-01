@@ -57,16 +57,16 @@ const Dashboard = () => {
           {/* Header */}
           <div className="text-center mb-16 animate-fade-in">
             <h1 className="text-5xl sm:text-6xl lg:text-7xl font-black mb-6">
-              <span className="bg-gradient-to-r from-white via-[#D7F171] to-[#B5EF8A] bg-clip-text text-transparent drop-shadow-2xl">
+              <span className="bg-gradient-to-r from-white via-[#D7F171] to-[#B5EF8A] bg-clip-text text-transparent drop-shadow-2xl text-shadow-lg">
                 {greeting},
               </span>
               <br />
-              <span className="bg-gradient-to-r from-[#F19A3E] via-[#D7F171] to-[#7FC29B] bg-clip-text text-transparent drop-shadow-2xl">
+              <span className="bg-gradient-to-r from-[#F19A3E] via-[#D7F171] to-[#7FC29B] bg-clip-text text-transparent drop-shadow-2xl text-shadow-lg">
                 {profile?.full_name || user?.email || 'User'}!
               </span>
             </h1>
             
-            <p className="text-xl text-white max-w-3xl mx-auto leading-relaxed font-bold drop-shadow-lg">
+            <p className="text-xl text-white max-w-3xl mx-auto leading-relaxed font-bold drop-shadow-xl text-shadow-lg">
               Welcome to your personalized dashboard. Explore courses, track progress, and connect with fellow artists.
             </p>
           </div>
@@ -78,14 +78,14 @@ const Dashboard = () => {
               { icon: Clock, title: 'Hours Learned', value: '24', bgGradient: 'from-[#7FC29B] to-[#B5EF8A]', borderColor: 'border-[#7FC29B]' },
               { icon: TrendingUp, title: 'Avg Progress', value: '78%', bgGradient: 'from-[#B5EF8A] to-[#D7F171]', borderColor: 'border-[#B5EF8A]' }
             ].map((stat, index) => (
-              <Card key={index} className={`bg-white/30 backdrop-blur-md hover:bg-white/40 transition-all duration-300 shadow-2xl hover:shadow-3xl border-3 ${stat.borderColor} hover:scale-105 transform`}>
-                <CardContent className="p-6">
+              <Card key={index} className={`bg-white/98 backdrop-blur-2xl hover:bg-white transition-all duration-300 shadow-2xl hover:shadow-3xl border-3 ${stat.borderColor} hover:scale-105 transform rounded-2xl`}>
+                <CardContent className="p-8">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-white font-black text-sm mb-2 drop-shadow-lg">{stat.title}</p>
-                      <p className="text-4xl font-black text-white drop-shadow-xl">{stat.value}</p>
+                      <p className="text-gray-800 font-black text-sm mb-2 drop-shadow-sm">{stat.title}</p>
+                      <p className="text-4xl font-black text-gray-900 drop-shadow-sm">{stat.value}</p>
                     </div>
-                    <div className={`p-4 rounded-2xl bg-gradient-to-br ${stat.bgGradient} shadow-xl border-2 border-white/30`}>
+                    <div className={`p-4 rounded-2xl bg-gradient-to-br ${stat.bgGradient} shadow-xl border-2 border-white/50`}>
                       <stat.icon className="h-7 w-7 text-white drop-shadow-lg" />
                     </div>
                   </div>
@@ -140,27 +140,27 @@ const Dashboard = () => {
                 borderColor: 'border-[#F19A3E]'
               }
             ].map((feature, index) => (
-              <Card key={index} className={`bg-white/30 backdrop-blur-md hover:bg-white/40 transition-all duration-300 shadow-2xl group hover:shadow-3xl border-3 ${feature.borderColor} hover:scale-105 transform cursor-pointer`}>
+              <Card key={index} className={`bg-white/98 backdrop-blur-2xl hover:bg-white transition-all duration-300 shadow-2xl group hover:shadow-3xl border-3 ${feature.borderColor} hover:scale-105 transform cursor-pointer rounded-2xl`}>
                 <CardContent className="p-8 text-center">
-                  <div className={`w-20 h-20 mx-auto mb-6 rounded-3xl bg-gradient-to-br ${feature.bgGradient} border-3 border-white/40 flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-xl`}>
+                  <div className={`w-20 h-20 mx-auto mb-6 rounded-3xl bg-gradient-to-br ${feature.bgGradient} border-3 border-white/50 flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-xl`}>
                     <feature.icon className="h-10 w-10 text-white drop-shadow-lg" />
                   </div>
-                  <h3 className="text-2xl font-black text-white mb-4 drop-shadow-lg">{feature.title}</h3>
-                  <p className="text-white leading-relaxed font-bold drop-shadow-sm text-lg">{feature.description}</p>
+                  <h3 className="text-2xl font-black text-gray-900 mb-4 drop-shadow-sm">{feature.title}</h3>
+                  <p className="text-gray-700 leading-relaxed font-bold drop-shadow-sm text-lg">{feature.description}</p>
                 </CardContent>
               </Card>
             ))}
           </div>
 
           {/* Enhanced CTA Section */}
-          <Card className="bg-white/35 backdrop-blur-md border-4 border-[#F19A3E] shadow-2xl hover:shadow-3xl transition-all duration-300 hover:scale-[1.02] transform">
+          <Card className="bg-white/98 backdrop-blur-2xl border-4 border-[#F19A3E] shadow-2xl hover:shadow-3xl transition-all duration-300 hover:scale-[1.02] transform rounded-2xl hover:bg-white">
             <CardContent className="p-16 text-center relative overflow-hidden">
               {/* Background gradient overlay */}
-              <div className="absolute inset-0 bg-gradient-to-r from-[#F19A3E]/30 via-[#D7F171]/20 to-[#7FC29B]/30 rounded-lg" />
+              <div className="absolute inset-0 bg-gradient-to-r from-[#F19A3E]/10 via-[#D7F171]/10 to-[#7FC29B]/10 rounded-lg" />
               
               <div className="relative z-10">
-                <h2 className="text-5xl font-black text-white mb-6 drop-shadow-xl">Ready to Join the Elite?</h2>
-                <p className="text-white text-2xl mb-10 max-w-3xl mx-auto font-bold drop-shadow-lg leading-relaxed">
+                <h2 className="text-5xl font-black text-gray-900 mb-6 drop-shadow-sm">Ready to Join the Elite?</h2>
+                <p className="text-gray-700 text-2xl mb-10 max-w-3xl mx-auto font-bold drop-shadow-sm leading-relaxed">
                   Transform your passion into mastery with our world-class art education
                 </p>
                 <div className="flex flex-col sm:flex-row gap-6 justify-center">
@@ -175,7 +175,7 @@ const Dashboard = () => {
                   <Button 
                     variant="outline" 
                     size="lg" 
-                    className="border-4 border-[#7FC29B] text-white hover:bg-[#7FC29B]/30 px-12 py-6 text-xl font-black backdrop-blur-md bg-[#7FC29B]/20 shadow-2xl transform hover:scale-110 transition-all duration-300"
+                    className="border-4 border-[#7FC29B] text-gray-900 hover:bg-[#7FC29B]/30 px-12 py-6 text-xl font-black backdrop-blur-md bg-white/90 shadow-2xl transform hover:scale-110 transition-all duration-300"
                     onClick={() => navigate('/courses')}
                   >
                     Explore Courses
